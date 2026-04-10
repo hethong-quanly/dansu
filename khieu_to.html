@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý Giải quyết Khiếu nại, Tố cáo</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f5f7fa; }
+        header { background: #0408c5; color: #f8f536; text-align: center; padding: 15px; position: relative; }
+        .btn-back { position: absolute; left: 20px; top: 20px; color: white; text-decoration: none; font-weight: bold; background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 6px; }
+        
+        .container { display: flex; padding: 20px; gap: 25px; }
+        .sidebar { flex: 1.1; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .main-panel { flex: 2; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); overflow-y: auto; }
+        
+        .form-group { margin-bottom: 16px; }
+        label { display: block; font-weight: bold; margin-bottom: 6px; color: #333; }
+        input, select, textarea { 
+            width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; 
+        }
+        .section { background: #f0f4ff; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 8px; }
+        th, td { border: 1px solid #ddd; padding: 6px; text-align: left; vertical-align: top; }
+        th { background: #e0f2f1; color: #0408c5; }
+        
+        .btn-save { background: #5670e6; color: white; padding: 14px; border: none; border-radius: 8px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 15px; }
+        .btn-pdf { background: #4caf50; color: white; padding: 5px 10px; border-radius: 5px; font-size: 12px; }
+        .btn-edit, .btn-delete { padding: 4px 10px; border-radius: 5px; font-size: 12px; margin-right: 5px; }
+        .btn-edit { background: #ff9800; color: white; }
+        .btn-delete { background: #d32f2f; color: white; }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="index.html" class="btn-back">← Menu chính</a>
+        <h2>QUẢN LÝ GIẢI QUYẾT KHIẾU NẠI, TỐ CÁO</h2>
+    </header>
+
+    <div class="container">
+        <div class="sidebar">
+            <h3>Nhập đơn Khiếu tố mới</h3>
+            
+            <div class="form-group">
+                <label>Ngày nhận đơn:</label>
+                <input type="date" id="ngay_nhan">
+            </div>
+            <div class="form-group">
+                <label>Ngày thụ lý:</label>
+                <input type="date" id="ngay_thu_ly">
+            </div>
+            <div class="form-group">
+                <label>Nguồn đơn:</label>
+                <select id="nguon_don">
+                    <option value="Bưu điện">Bưu điện</option>
+                    <option value="Tiếp công dân">Tiếp công dân</option>
+                    <option value="Cơ quan Đảng, Nhà nước">Cơ quan Đảng, Nhà nước</option>
+                    <option value="Báo chí">Báo chí</option>
+                    <option value="Khác">Khác</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Họ tên / Cơ quan / Tổ chức:</label>
+                <input type="text" id="ho_ten">
+            </div>
+            <div class="form-group">
+                <label>Địa chỉ:</label>
+                <input type="text" id="dia_chi">
+            </div>
+            <div class="form-group">
+                <label>Phân loại:</label>
+                <select id="phan_loai">
+                    <option value="Khiếu nại">Khiếu nại</option>
+                    <option value="Tố cáo">Tố cáo</option>
+                    <option value="Kiến nghị/Phản ánh">Kiến nghị/Phản ánh</option>
+                    <option value="Tin báo tội phạm">Tin báo tội phạm (TGTP)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Thẩm quyền:</label>
+                <select id="tham_quyen">
+                    <option value="Thuộc thẩm quyền giải quyết">Thuộc thẩm quyền giải quyết</option>
+                    <option value="Thuộc thẩm quyền kiểm sát">Thuộc thẩm quyền kiểm sát</option>
+                    <option value="Không thuộc thẩm quyền giải quyết">Không thuộc thẩm quyền giải quyết</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Nội dung đơn:</label>
+                <textarea id="noi_dung" rows="4"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Cán bộ xử lý:</label>
+                <input type="text" id="can_bo">
+            </div>
+
+            <!-- Phần Đề xuất -->
+            <div class="section">
+                <label><strong>Đề xuất xử lý:</strong></label>
+                <select id="de_xuat" onchange="toggleDeXuatFields()">
+                    <option value="">-- Chọn đề xuất --</option>
+                    <option value="chuyen_don">Chuyển đơn</option>
+                    <option value="chuyen_phong">Chuyển phòng nghiệp vụ</option>
+                    <option value="thong_bao">Thông báo chỉ dẫn</option>
+                    <option value="tra_don">Trả đơn</option>
+                    <option value="luu_don">Lưu đơn</option>
+                </select>
+
+                <!-- Chuyển đơn -->
+                <div id="chuyen_don_fields" class="form-group" style="display:none;">
+                    <label>Phân loại chuyển đơn:</label>
+                    <select id="phan_loai_chuyen">
+                        <option value="CQCSĐT">CQCSĐT</option>
+                        <option value="TAND TP.CT">TAND TP.CT</option>
+                        <option value="THADS TP.CT">THADS TP.CT</option>
+                        <option value="Cơ quan khác">Cơ quan khác</option>
+                    </select>
+                    <input type="text" id="phieu_chuyen_so" placeholder="Phiếu chuyển đơn số">
+                    <input type="date" id="ngay_chuyen">
+                    <input type="text" id="chuyen_den" placeholder="Chuyển đến...">
+                </div>
+
+                <!-- Chuyển phòng nghiệp vụ -->
+                <div id="chuyen_phong_fields" class="form-group" style="display:none;">
+                    <label>Chuyển đến phòng:</label>
+                    <select id="phong_chuyen">
+                        <option value="Phòng 1">Phòng 1</option>
+                        <option value="Phòng 2">Phòng 2</option>
+                        <option value="Phòng 7">Phòng 7</option>
+                        <option value="Phòng 8">Phòng 8</option>
+                        <option value="Phòng 9">Phòng 9</option>
+                        <option value="Phòng 10">Phòng 10</option>
+                        <option value="Phòng 11">Phòng 11</option>
+                        <option value="TCCB">TCCB</option>
+                    </select>
+                    <input type="date" id="ngay_chuyen_phong">
+                </div>
+
+                <!-- Thông báo / Trả đơn -->
+                <div id="thong_bao_fields" class="form-group" style="display:none;">
+                    <input type="text" id="so_thong_bao" placeholder="Số thông báo / trả đơn">
+                    <input type="date" id="ngay_ban_hanh">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Đính kèm File PDF:</label>
+                <input type="file" id="pdf_file" accept=".pdf">
+            </div>
+
+            <button class="btn-save" onclick="saveData()" id="btn-save">LƯU HỒ SƠ</button>
+        </div>
+
+        <div class="main-panel">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+                <h3>DANH SÁCH ĐƠN KHIẾU NẠI, TỐ CÁO</h3>
+                <button onclick="exportToExcel()" style="padding:8px 16px; background:#5670e6; color:white; border:none; border-radius:6px; cursor:pointer;">📊 Xuất Excel</button>
+            </div>
+            <table id="data-table">
+                <thead>
+                    <tr>
+                        <th>STT</th>
+                        <th>Ngày nhận</th>
+                        <th>Ngày thụ lý</th>
+                        <th>Nguồn đơn</th>
+                        <th>Người nộp đơn</th>
+                        <th>Phân loại</th>
+                        <th>Thẩm quyền</th>
+                        <th>Đề xuất</th>
+                        <th>Nội dung tóm tắt</th>
+                        <th>Cán bộ</th>
+                        <th>File PDF</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        var firebaseConfig = {
+            apiKey: "AIzaSyDunRDIeyBTVXTODoO22ywk1Q35cCx2sV8",
+            authDomain: "dansu-vksndtpct.firebaseapp.com",
+            databaseURL: "https://dansu-vksndtpct-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "dansu-vksndtpct",
+            storageBucket: "dansu-vksndtpct.firebasestorage.app",
+            appId: "1:843158256686:web:eb128d64c8b9bfd7aef3bf"
+        };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        var db = firebase.database();
+        var storage = firebase.storage();
+
+        let editingKey = null;
+
+        function toggleDeXuatFields() {
+            const deXuat = document.getElementById('de_xuat').value;
+            document.getElementById('chuyen_don_fields').style.display = (deXuat === 'chuyen_don') ? 'block' : 'none';
+            document.getElementById('chuyen_phong_fields').style.display = (deXuat === 'chuyen_phong') ? 'block' : 'none';
+            document.getElementById('thong_bao_fields').style.display = (deXuat === 'thong_bao' || deXuat === 'tra_don') ? 'block' : 'none';
+        }
+
+        function saveData() {
+            const file = document.getElementById('pdf_file').files[0];
+
+            const data = {
+                ngay_nhan: document.getElementById('ngay_nhan').value,
+                ngay_thu_ly: document.getElementById('ngay_thu_ly').value,
+                nguon_don: document.getElementById('nguon_don').value,
+                ho_ten: document.getElementById('ho_ten').value,
+                dia_chi: document.getElementById('dia_chi').value,
+                phan_loai: document.getElementById('phan_loai').value,
+                tham_quyen: document.getElementById('tham_quyen').value,
+                noi_dung: document.getElementById('noi_dung').value,
+                can_bo: document.getElementById('can_bo').value,
+                de_xuat: document.getElementById('de_xuat').value,
+                timestamp: Date.now()
+            };
+
+            // Thêm dữ liệu theo đề xuất
+            if (data.de_xuat === 'chuyen_don') {
+                data.phan_loai_chuyen = document.getElementById('phan_loai_chuyen').value;
+                data.phieu_chuyen_so = document.getElementById('phieu_chuyen_so').value;
+                data.ngay_chuyen = document.getElementById('ngay_chuyen').value;
+                data.chuyen_den = document.getElementById('chuyen_den').value;
+            } else if (data.de_xuat === 'chuyen_phong') {
+                data.phong_chuyen = document.getElementById('phong_chuyen').value;
+                data.ngay_chuyen_phong = document.getElementById('ngay_chuyen_phong').value;
+            } else if (data.de_xuat === 'thong_bao' || data.de_xuat === 'tra_don') {
+                data.so_thong_bao = document.getElementById('so_thong_bao').value;
+                data.ngay_ban_hanh = document.getElementById('ngay_ban_hanh').value;
+            }
+
+            if (file) {
+                const storageRef = storage.ref('pdf_khieuto/' + Date.now() + '_' + file.name);
+                storageRef.put(file).then(snapshot => {
+                    snapshot.ref.getDownloadURL().then(url => {
+                        data.pdf_url = url;
+                        saveToDatabase(data);
+                    });
+                });
+            } else {
+                saveToDatabase(data);
+            }
+        }
+
+        function saveToDatabase(data) {
+            if (editingKey) {
+                db.ref('don_khieu_to/' + editingKey).update(data).then(() => {
+                    alert("Cập nhật hồ sơ thành công!");
+                    resetForm();
+                });
+            } else {
+                db.ref('don_khieu_to').push(data).then(() => {
+                    alert("Lưu đơn thành công!");
+                    resetForm();
+                });
+            }
+        }
+
+        function resetForm() {
+            document.getElementById('ngay_nhan').value = '';
+            document.getElementById('ngay_thu_ly').value = '';
+            document.getElementById('nguon_don').value = 'Bưu điện';
+            document.getElementById('ho_ten').value = '';
+            document.getElementById('dia_chi').value = '';
+            document.getElementById('phan_loai').value = 'Khiếu nại';
+            document.getElementById('tham_quyen').value = 'Thuộc thẩm quyền giải quyết';
+            document.getElementById('noi_dung').value = '';
+            document.getElementById('can_bo').value = '';
+            document.getElementById('de_xuat').value = '';
+            document.getElementById('pdf_file').value = '';
+            toggleDeXuatFields();
+            editingKey = null;
+            document.getElementById('btn-save').innerText = 'LƯU HỒ SƠ';
+        }
+
+        function loadData() {
+            db.ref('don_khieu_to').on('value', (snapshot) => {
+                const datas = snapshot.val();
+                let html = '';
+                let stt = 1;
+                if (datas) {
+                    Object.keys(datas).forEach(key => {
+                        const item = datas[key];
+                        const tomTat = item.noi_dung ? item.noi_dung.substring(0, 50) + '...' : '';
+                        const pdfLink = item.pdf_url ? `<a href="${item.pdf_url}" target="_blank" class="btn-pdf">Xem PDF</a>` : 'Không có';
+
+                        html += `<tr>
+                            <td>${stt++}</td>
+                            <td>${item.ngay_nhan || ''}</td>
+                            <td>${item.ngay_thu_ly || ''}</td>
+                            <td>${item.nguon_don || ''}</td>
+                            <td>${item.ho_ten || ''}</td>
+                            <td>${item.phan_loai || ''}</td>
+                            <td>${item.tham_quyen || ''}</td>
+                            <td>${item.de_xuat || ''}</td>
+                            <td>${tomTat}</td>
+                            <td>${item.can_bo || ''}</td>
+                            <td>${pdfLink}</td>
+                            <td>
+                                <button class="btn-edit" onclick="editRecord('${key}')">Sửa</button>
+                                <button class="btn-delete" onclick="deleteRecord('${key}')">Xóa</button>
+                            </td>
+                        </tr>`;
+                    });
+                }
+                document.getElementById('table-body').innerHTML = html || '<tr><td colspan="12" style="text-align:center;color:#999;padding:30px;">Chưa có đơn nào</td></tr>';
+            });
+        }
+
+        function editRecord(key) {
+            db.ref('don_khieu_to/' + key).once('value').then(snapshot => {
+                const item = snapshot.val();
+                // Load tất cả trường vào form (bạn có thể bổ sung đầy đủ nếu cần)
+                document.getElementById('ngay_nhan').value = item.ngay_nhan || '';
+                document.getElementById('ngay_thu_ly').value = item.ngay_thu_ly || '';
+                document.getElementById('nguon_don').value = item.nguon_don || 'Bưu điện';
+                document.getElementById('ho_ten').value = item.ho_ten || '';
+                document.getElementById('dia_chi').value = item.dia_chi || '';
+                document.getElementById('phan_loai').value = item.phan_loai || 'Khiếu nại';
+                document.getElementById('tham_quyen').value = item.tham_quyen || 'Thuộc thẩm quyền giải quyết';
+                document.getElementById('noi_dung').value = item.noi_dung || '';
+                document.getElementById('can_bo').value = item.can_bo || '';
+                document.getElementById('de_xuat').value = item.de_xuat || '';
+                toggleDeXuatFields();
+                editingKey = key;
+                document.getElementById('btn-save').innerText = 'CẬP NHẬT';
+            });
+        }
+
+        function deleteRecord(key) {
+            if (confirm("Xóa đơn này?")) {
+                db.ref('don_khieu_to/' + key).remove().then(() => alert("Đã xóa!"));
+            }
+        }
+
+        function exportToExcel() {
+            alert("Chức năng xuất Excel sẽ được bổ sung chi tiết sau.");
+        }
+
+        window.onload = () => {
+            loadData();
+            toggleDeXuatFields();
+        };
+    </script>
+</body>
+</html>

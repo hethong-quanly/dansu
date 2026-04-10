@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý Án Dân sự</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f5f7fa; }
+        header { background: #0408c5; color: #f8f536; text-align: center; padding: 10px; position: relative; }
+        .btn-back { position: absolute; left: 20px; top: 25px; color: white; text-decoration: none; font-weight: bold; background: rgba(255,255,255,0.2); padding: 5px 15px; border-radius: 5px; }
+        .container { display: flex; padding: 20px; gap: 20px; }
+        .sidebar { flex: 1.3; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); overflow-y: auto; }
+        .main-panel { flex: 3; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); overflow-y: auto; }
+        .form-group { margin-bottom: 15px; display: flex; flex-direction: column; }
+        label { font-weight: bold; margin-bottom: 5px; color: #333; }
+        input, select, textarea { padding: 8px; border: 1px solid #ccc; border-radius: 4px; width: 100%; box-sizing: border-box; }
+        
+        /* Bảng danh sách - font rất nhỏ để hiển thị đầy đủ */
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 8px; }
+        th, td { border: 1px solid #ddd; padding: 5px; text-align: left; vertical-align: top; word-break: break-all; }
+        th { background: #e0f2f1; color: #0408c5; font-weight: bold; }
+        
+        .btn-save { background: #5670e6; color: white; padding: 12px; border: none; border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 10px; }
+        .btn-edit { background: #ff9800; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px; margin-right: 4px; }
+        .btn-delete { background: #d32f2f; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px; }
+        .btn-pdf { background: #4caf50; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 11px; }
+        .section { background: #f0f4ff; padding: 12px; border-radius: 6px; margin-bottom: 15px; }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="index.html" class="btn-back">← Menu chính</a>
+        <h2>HỆ THỐNG QUẢN LÝ ÁN DÂN SỰ</h2>
+    </header>
+    
+    <div class="container">
+        <div class="sidebar">
+            <h3>Nhập thông tin</h3>
+            
+            <div class="form-group">
+                <label>Thụ lý Cấp:</label>
+                <select id="cap_xet_xu" onchange="toggleFields()">
+                    <option value="Sơ thẩm">Sơ thẩm</option>
+                    <option value="Phúc thẩm">Phúc thẩm</option>
+                    <option value="Giám đốc thẩm">Giám đốc thẩm</option>
+                    <option value="Tái thẩm">Tái thẩm</option>
+                </select>
+            </div>
+
+            <div class="section">
+                <div class="form-group">
+                    <label>Đã xét xử cấp:</label>
+                    <select id="loai_ban_an">
+                        <option value="Sơ thẩm">Sơ thẩm</option>
+                        <option value="Phúc thẩm">Phúc thẩm</option>
+                        <option value="Giám đốc thẩm">Giám đốc thẩm</option>
+                        <option value="Tái thẩm">Tái thẩm</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Số Bản án/Qyết định:</label><input type="text" id="so_ban_an" placeholder="Ví dụ: 123/2026/DS-ST"></div>
+                <div class="form-group"><label>Ngày ban hành:</label><input type="date" id="ngay_ban_hanh"></div>
+                <div class="form-group"><label>Nội dung đã tuyên:</label><textarea id="noi_dung_quyet_dinh" rows="3"></textarea></div>
+            </div>
+
+            <div class="form-group"><label>Ngày thụ lý:</label><input type="date" id="ngay_thu_ly"></div>
+            <div class="form-group"><label>Nguyên đơn & Địa chỉ:</label><textarea id="nguyen_don" rows="2"></textarea></div>
+            <div class="form-group"><label>Bị đơn & Địa chỉ:</label><textarea id="bi_don" rows="2"></textarea></div>
+            <div class="form-group"><label>Người có QL&NV liên quan:</label><textarea id="nguoi_lien_quan" rows="2"></textarea></div>
+            <div class="form-group"><label>Nội dung vụ kiện:</label><textarea id="noi_dung" rows="4"></textarea></div>
+            
+            <div class="form-group"><label>Thẩm phán:</label><input type="text" id="tham_phan"></div>
+            <div class="form-group"><label>Thư ký:</label><input type="text" id="thu_ky"></div>
+            <div class="form-group"><label>KSV thụ lý:</label><input type="text" id="ksv"></div>
+
+            <div class="section">
+                <h4>Quyết định Hoãn</h4>
+                <div class="form-group"><label>Số QĐ hoãn:</label><input type="text" id="so_qd_hoan"></div>
+                <div class="form-group"><label>Ngày hoãn:</label><input type="date" id="ngay_hoan"></div>
+                <div class="form-group"><label>Lý do hoãn:</label><textarea id="ly_do_hoan" rows="2"></textarea></div>
+            </div>
+
+            <div class="section">
+                <h4>Quyết định Đình chỉ</h4>
+                <div class="form-group"><label>Số QĐ đình chỉ:</label><input type="text" id="so_qd_dinh_chi"></div>
+                <div class="form-group"><label>Ngày đình chỉ:</label><input type="date" id="ngay_dinh_chi"></div>
+                <div class="form-group"><label>Lý do đình chỉ:</label><textarea id="ly_do_dinh_chi" rows="2"></textarea></div>
+            </div>
+
+            <div class="form-group">
+                <label>Đính kèm File PDF:</label>
+                <input type="file" id="pdf_file" accept=".pdf">
+            </div>
+
+            <button class="btn-save" onclick="saveData()" id="btn-save">LƯU HỒ SƠ</button>
+        </div>
+
+        <div class="main-panel">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <h3>DANH SÁCH ÁN DÂN SỰ</h3>
+                <div>
+                    <button onclick="exportToExcel()" style="padding: 8px 16px; margin-right: 8px; cursor: pointer; background:#5670e6; color:white; border:none; border-radius:5px;">📊 Xuất Excel</button>
+                    <button onclick="exportBaoCao()" style="padding: 8px 16px; cursor: pointer; background:#ff9800; color:white; border:none; border-radius:5px;">📋 Xuất Báo cáo</button>
+                </div>
+            </div>
+            <table id="data-table">
+                <thead>
+                    <tr>
+                        <th>STT</th>
+                        <th>Cấp xét xử</th>
+                        <th>Số Bản án/Qyết định</th>
+                        <th>Ngày thụ lý</th>
+                        <th>Nguyên đơn</th>
+                        <th>Bị đơn</th>
+                        <th>Thẩm phán</th>
+                        <th>Thư ký</th>
+                        <th>Nội dung vụ kiện</th>
+                        <th>KSV</th>
+                        <th>File PDF</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        var firebaseConfig = {
+            apiKey: "AIzaSyDunRDIeyBTVXTODoO22ywk1Q35cCx2sV8",
+            authDomain: "dansu-vksndtpct.firebaseapp.com",
+            databaseURL: "https://dansu-vksndtpct-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "dansu-vksndtpct",
+            storageBucket: "dansu-vksndtpct.firebasestorage.app",
+            appId: "1:843158256686:web:eb128d64c8b9bfd7aef3bf"
+        };
+        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+        var db = firebase.database();
+        var storage = firebase.storage();
+
+        let editingKey = null;
+
+        function saveData() {
+            const file = document.getElementById('pdf_file').files[0];
+            const data = {
+                cap_xet_xu: document.getElementById('cap_xet_xu').value,
+                loai_ban_an: document.getElementById('loai_ban_an').value,
+                so_ban_an: document.getElementById('so_ban_an').value,
+                ngay_ban_hanh: document.getElementById('ngay_ban_hanh').value,
+                noi_dung_quyet_dinh: document.getElementById('noi_dung_quyet_dinh').value,
+                ngay_thu_ly: document.getElementById('ngay_thu_ly').value,
+                nguyen_don: document.getElementById('nguyen_don').value,
+                bi_don: document.getElementById('bi_don').value,
+                nguoi_lien_quan: document.getElementById('nguoi_lien_quan').value,
+                noi_dung: document.getElementById('noi_dung').value,
+                tham_phan: document.getElementById('tham_phan').value,
+                thu_ky: document.getElementById('thu_ky').value,
+                ksv: document.getElementById('ksv').value,
+                so_qd_hoan: document.getElementById('so_qd_hoan').value,
+                ngay_hoan: document.getElementById('ngay_hoan').value,
+                ly_do_hoan: document.getElementById('ly_do_hoan').value,
+                so_qd_dinh_chi: document.getElementById('so_qd_dinh_chi').value,
+                ngay_dinh_chi: document.getElementById('ngay_dinh_chi').value,
+                ly_do_dinh_chi: document.getElementById('ly_do_dinh_chi').value,
+                timestamp: Date.now()
+            };
+
+            if (file) {
+                const storageRef = storage.ref('pdfs_an/' + Date.now() + '_' + file.name);
+                storageRef.put(file).then(snapshot => {
+                    snapshot.ref.getDownloadURL().then(url => {
+                        data.pdf_url = url;
+                        saveToDatabase(data);
+                    });
+                }).catch(() => alert("Upload PDF thất bại!"));
+            } else {
+                saveToDatabase(data);
+            }
+        }
+
+        function saveToDatabase(data) {
+            if (editingKey) {
+                db.ref('an_dan_su/' + editingKey).update(data).then(() => {
+                    alert("Cập nhật thành công!");
+                    resetForm();
+                });
+            } else {
+                db.ref('an_dan_su').push(data).then(() => {
+                    alert("Lưu hồ sơ thành công!");
+                    resetForm();
+                });
+            }
+        }
+
+        function resetForm() {
+            document.getElementById('cap_xet_xu').value = 'Sơ thẩm';
+            document.getElementById('loai_ban_an').value = 'Sơ thẩm';
+            document.getElementById('so_ban_an').value = '';
+            document.getElementById('ngay_ban_hanh').value = '';
+            document.getElementById('noi_dung_quyet_dinh').value = '';
+            document.getElementById('ngay_thu_ly').value = '';
+            document.getElementById('nguyen_don').value = '';
+            document.getElementById('bi_don').value = '';
+            document.getElementById('nguoi_lien_quan').value = '';
+            document.getElementById('noi_dung').value = '';
+            document.getElementById('tham_phan').value = '';
+            document.getElementById('thu_ky').value = '';
+            document.getElementById('ksv').value = '';
+            document.getElementById('so_qd_hoan').value = '';
+            document.getElementById('ngay_hoan').value = '';
+            document.getElementById('ly_do_hoan').value = '';
+            document.getElementById('so_qd_dinh_chi').value = '';
+            document.getElementById('ngay_dinh_chi').value = '';
+            document.getElementById('ly_do_dinh_chi').value = '';
+            document.getElementById('pdf_file').value = '';
+            editingKey = null;
+            document.getElementById('btn-save').innerText = 'LƯU HỒ SƠ';
+        }
+
+        function loadData() {
+            db.ref('an_dan_su').on('value', (snapshot) => {
+                const datas = snapshot.val();
+                let html = '';
+                let stt = 1;
+                if (datas) {
+                    Object.keys(datas).forEach(key => {
+                        const item = datas[key];
+                        const tomTat = item.noi_dung ? item.noi_dung.substring(0, 60) + '...' : '';
+                        const pdfLink = item.pdf_url ? `<a href="${item.pdf_url}" target="_blank" class="btn-pdf">Xem PDF</a>` : 'Không có';
+
+                        html += `<tr>
+                            <td>${stt++}</td>
+                            <td>${item.cap_xet_xu || ''}</td>
+                            <td>${item.so_ban_an || ''} (${item.loai_ban_an || ''})</td>
+                            <td>${item.ngay_thu_ly || ''}</td>
+                            <td>${item.nguyen_don || ''}</td>
+                            <td>${item.bi_don || ''}</td>
+                            <td>${item.tham_phan || ''}</td>
+                            <td>${item.thu_ky || ''}</td>
+                            <td>${tomTat}</td>
+                            <td>${item.ksv || ''}</td>
+                            <td>${pdfLink}</td>
+                            <td>
+                                <button class="btn-edit" onclick="editRecord('${key}')">Sửa</button>
+                                <button class="btn-delete" onclick="deleteRecord('${key}')">Xóa</button>
+                            </td>
+                        </tr>`;
+                    });
+                } else {
+                    html = `<tr><td colspan="12" style="text-align:center;color:#999;padding:20px;">Chưa có hồ sơ án nào</td></tr>`;
+                }
+                document.getElementById('table-body').innerHTML = html;
+            });
+        }
+
+        function editRecord(key) {
+            db.ref('an_dan_su/' + key).once('value').then(snapshot => {
+                const item = snapshot.val();
+                document.getElementById('cap_xet_xu').value = item.cap_xet_xu || 'Sơ thẩm';
+                document.getElementById('loai_ban_an').value = item.loai_ban_an || 'Sơ thẩm';
+                document.getElementById('so_ban_an').value = item.so_ban_an || '';
+                document.getElementById('ngay_ban_hanh').value = item.ngay_ban_hanh || '';
+                document.getElementById('noi_dung_quyet_dinh').value = item.noi_dung_quyet_dinh || '';
+                document.getElementById('ngay_thu_ly').value = item.ngay_thu_ly || '';
+                document.getElementById('nguyen_don').value = item.nguyen_don || '';
+                document.getElementById('bi_don').value = item.bi_don || '';
+                document.getElementById('nguoi_lien_quan').value = item.nguoi_lien_quan || '';
+                document.getElementById('noi_dung').value = item.noi_dung || '';
+                document.getElementById('tham_phan').value = item.tham_phan || '';
+                document.getElementById('thu_ky').value = item.thu_ky || '';
+                document.getElementById('ksv').value = item.ksv || '';
+                document.getElementById('so_qd_hoan').value = item.so_qd_hoan || '';
+                document.getElementById('ngay_hoan').value = item.ngay_hoan || '';
+                document.getElementById('ly_do_hoan').value = item.ly_do_hoan || '';
+                document.getElementById('so_qd_dinh_chi').value = item.so_qd_dinh_chi || '';
+                document.getElementById('ngay_dinh_chi').value = item.ngay_dinh_chi || '';
+                document.getElementById('ly_do_dinh_chi').value = item.ly_do_dinh_chi || '';
+
+                editingKey = key;
+                document.getElementById('btn-save').innerText = 'CẬP NHẬT HỒ SƠ';
+            });
+        }
+
+        function deleteRecord(key) {
+            if (confirm("Xóa hồ sơ này?")) {
+                db.ref('an_dan_su/' + key).remove().then(() => alert("Đã xóa thành công!"));
+            }
+        }
+
+        // ====================== XUẤT EXCEL - KHỔ A3 NẰM NGANG ======================
+        function exportToExcel() {
+            db.ref('an_dan_su').once('value').then(snapshot => {
+                const datas = snapshot.val();
+                if (!datas) return alert("Không có dữ liệu để xuất!");
+
+                let arr = [
+                    ["STT", "Cấp xét xử", "Loại Bản án", "Số Bản án/Quyết định", "Ngày thụ lý", "Nguyên đơn", 
+                     "Bị đơn", "Thẩm phán", "Thư ký", "Nội dung vụ kiện", "KSV", 
+                     "Số QĐ hoãn", "Ngày hoãn", "Lý do hoãn", 
+                     "Số QĐ đình chỉ", "Ngày đình chỉ", "Lý do đình chỉ"]
+                ];
+
+                let stt = 1;
+                Object.keys(datas).forEach(key => {
+                    const i = datas[key];
+                    arr.push([
+                        stt++, 
+                        i.cap_xet_xu || '', 
+                        i.loai_ban_an || '', 
+                        i.so_ban_an || '', 
+                        i.ngay_thu_ly || '',
+                        i.nguyen_don || '', 
+                        i.bi_don || '', 
+                        i.tham_phan || '', 
+                        i.thu_ky || '',
+                        i.noi_dung || '', 
+                        i.ksv || '',
+                        i.so_qd_hoan || '', i.ngay_hoan || '', i.ly_do_hoan || '',
+                        i.so_qd_dinh_chi || '', i.ngay_dinh_chi || '', i.ly_do_dinh_chi || ''
+                    ]);
+                });
+
+                const ws = XLSX.utils.aoa_to_sheet(arr);
+                
+                // Cấu hình khổ A3 nằm ngang
+                ws['!pageSetup'] = {
+                    orientation: 'landscape',   // Nằm ngang
+                    paperSize: 8                // 8 = A3
+                };
+
+                // Tự động điều chỉnh độ rộng cột
+                ws['!cols'] = [
+                    {wch: 5}, {wch: 12}, {wch: 12}, {wch: 18}, {wch: 12},
+                    {wch: 25}, {wch: 25}, {wch: 15}, {wch: 15}, {wch: 40},
+                    {wch: 12}, {wch: 15}, {wch: 12}, {wch: 30}, {wch: 15}, {wch: 12}, {wch: 30}
+                ];
+
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "DanhSachAn");
+                XLSX.writeFile(wb, "Danh_sach_an_dan_su_A3.xlsx");
+            });
+        }
+
+        function exportBaoCao() {
+            alert("Chức năng Xuất Báo cáo đang được chuẩn bị.\nBạn muốn báo cáo theo tiêu chí nào (theo tháng, theo cấp xét xử, thống kê số lượng án...)? Mình sẽ bổ sung sau.");
+        }
+
+        window.onload = loadData;
+    </script>
+</body>
+</html>

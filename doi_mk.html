@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Đổi mật khẩu</title>
+    <style>
+        body { font-family: sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background: #f0f2f5; }
+        .box { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 350px; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background: #16a085; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h3>Đổi mật khẩu</h3>
+        <p id="display_user" style="font-weight: bold; color: #5670e6;"></p>
+        <input type="password" id="old_p" placeholder="Mật khẩu hiện tại">
+        <input type="password" id="new_p" placeholder="Mật khẩu mới">
+        <button onclick="changePass()">XÁC NHẬN ĐỔI</button>
+        <br><br>
+        <a href="index.html" style="text-decoration: none; color: #666; font-size: 14px;">← Quay lại Menu</a>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script>
+        var firebaseConfig = {
+            apiKey: "AIzaSyDunRDIeyBTVXTODoO22ywk1Q35cCx2sV8",
+            authDomain: "dansu-vksndtpct.firebaseapp.com",
+            databaseURL: "https://dansu-vksndtpct-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "dansu-vksndtpct",
+            storageBucket: "dansu-vksndtpct.firebasestorage.app",
+            messagingSenderId: "843158256686",
+            appId: "1:843158256686:web:eb128d64c8b9bfd7aef3bf"
+        };
+        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+        var db = firebase.database();
+
+        var currentUser = localStorage.getItem('vks_username');
+        document.getElementById('display_user').innerText = currentUser ? "Tài khoản: " + currentUser : "Chưa đăng nhập";
+
+        function changePass() {
+            var oldP = document.getElementById('old_p').value;
+            var newP = document.getElementById('new_p').value;
+            if (!currentUser) return alert("Vui lòng đăng nhập trước!");
+
+            db.ref('users/' + currentUser).once('value').then((snapshot) => {
+                if (snapshot.val() && snapshot.val().password === oldP) {
+                    db.ref('users/' + currentUser + '/password').set(newP).then(() => {
+                        alert("Đổi mật khẩu thành công!");
+                        location.href = 'index.html';
+                    });
+                } else {
+                    alert("Mật khẩu cũ không đúng!");
+                }
+            });
+        }
+    </script>
+</body>
+</html>
