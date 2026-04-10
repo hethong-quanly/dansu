@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Hệ thống Quản lý Phần Dân sự - VKS Cần Thơ</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, sans-serif; 
+            background: linear-gradient(135deg, #e0eafc, #cfdef3); 
+            margin: 0; padding: 30px; 
+            min-height: 100vh; 
+        }
+        .dashboard-container { 
+            background: white; 
+            padding: 40px; 
+            border-radius: 20px; 
+            box-shadow: 0 15px 40px rgba(0,0,0,0.18); 
+            max-width: 1200px; 
+            margin: 0 auto; 
+        }
+        header { 
+            text-align: center; 
+            margin-bottom: 40px; 
+        }
+        header img { width: 95px; margin-bottom: 12px; }
+        header h1 { 
+            color: #0408c5; 
+            font-size: 24px; 
+            text-transform: uppercase; 
+            line-height: 1.5; 
+        }
+
+        .main-content {
+            display: flex;
+            gap: 40px;
+            justify-content: center;
+        }
+
+        .column {
+            flex: 1;
+            max-width: 520px;
+        }
+
+        .column h2 {
+            color: #0408c5;
+            font-size: 19px;
+            margin-bottom: 20px;
+            text-align: center;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #5670e6;
+        }
+
+        .menu-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .menu-item {
+            padding: 18px 22px;
+            background: #5670e6;
+            color: white;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 15.5px;
+            text-align: center;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(86,112,230,0.3);
+        }
+        .menu-item:hover {
+            background: #0408c5;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(4,8,197,0.4);
+        }
+
+        .report-item {
+            background: #f0f4ff;
+            border-left: 6px solid #5670e6;
+            color: #333;
+        }
+        .report-item:hover {
+            background: #e0e9ff;
+        }
+
+        .logout-btn {
+            background: #d32f2f;
+            color: white;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            width: 100%;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <header>
+            <img src="https://vienkiemsat.cantho.gov.vn/files/images/logo-vks.png" alt="Logo">
+            <h1>VIỆN KIỂM SÁT NHÂN DÂN THÀNH PHỐ CẦN THƠ<br>
+                HỆ THỐNG QUẢN LÝ PHẦN DÂN SỰ</h1>
+        </header>
+
+        <div class="main-content">
+            
+            <!-- CỘT TRÁI: CHỨC NĂNG CHÍNH -->
+            <div class="column">
+                <h2>CHỨC NĂNG CHÍNH</h2>
+                <div class="menu-grid">
+                    <a href="dan_su.html" class="menu-item">I. QUẢN LÝ ÁN DÂN SỰ, HC, KD-TM, HN-GĐ, LĐ</a>
+                    <a href="khieu_to.html" class="menu-item">II. KIỂM SÁT, GIẢI QUYẾT KHIẾU NẠI, TỐ CÁO</a>
+                    <a href="thi_hanh_an.html" class="menu-item">III. KIỂM SÁT THI HÀNH ÁN DÂN SỰ</a>
+                    <a href="quan_ly_tk.html" class="menu-item">QUẢN LÝ TÀI KHOẢN</a>
+                    <a href="doi_mk.html" class="menu-item">ĐỔI MẬT KHẨU</a>
+                </div>
+            </div>
+
+            <!-- CỘT PHẢI: BÁO CÁO THỐNG KÊ -->
+            <div class="column">
+                <h2>BÁO CÁO THỐNG KÊ</h2>
+                <div class="menu-grid">
+                    <a href="#" onclick="showReportOptions('tonghop')" class="menu-item report-item">
+                        📊 BÁO CÁO SỐ LIỆU THỐNG KÊ TỔNG HỢP
+                    </a>
+                    <a href="#" onclick="showReportOptions('an_dan_su')" class="menu-item report-item">
+                        📋 BÁO CÁO SỐ LIỆU ÁN DÂN SỰ
+                    </a>
+                    <a href="#" onclick="showReportOptions('thi_hanh_an')" class="menu-item report-item">
+                        📋 BÁO CÁO SỐ LIỆU THI HÀNH ÁN DÂN SỰ
+                    </a>
+                    <a href="#" onclick="showReportOptions('khieu_to')" class="menu-item report-item">
+                        📋 BÁO CÁO SỐ LIỆU KHIẾU NẠI, TỐ CÁO
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <button onclick="logout()" class="logout-btn">🚪 ĐĂNG XUẤT</button>
+    </div>
+
+    <script>
+        function showReportOptions(type) {
+            let title = "";
+            switch(type) {
+                case 'tonghop': title = "Báo cáo số liệu thống kê tổng hợp"; break;
+                case 'an_dan_su': title = "Báo cáo số liệu án dân sự"; break;
+                case 'thi_hanh_an': title = "Báo cáo số liệu thi hành án dân sự"; break;
+                case 'khieu_to': title = "Báo cáo số liệu khiếu nại, tố cáo"; break;
+            }
+            
+            const msg = `${title}\n\nVui lòng chọn mốc thời gian:\n\n` +
+                        `• Theo tháng (01 đến cuối tháng)\n` +
+                        `• 06 tháng đầu năm\n` +
+                        `• 09 tháng đầu năm\n` +
+                        `• Cả năm (12 tháng)\n` +
+                        `• Tùy chọn (từ ngày - đến ngày)`;
+            
+            alert(msg);
+            // Sau này bạn sẽ thay alert này bằng form chọn thời gian đẹp
+        }
+
+        function logout() {
+            if (confirm("Bạn có chắc chắn muốn đăng xuất không?")) {
+                localStorage.removeItem('vks_user');
+                sessionStorage.removeItem('vks_logged_in');
+                location.reload();
+            }
+        }
+
+        // Khởi tạo (kiểm tra đã đăng nhập chưa)
+        window.onload = function() {
+            if (!localStorage.getItem('vks_user')) {
+                alert("Vui lòng đăng nhập trước!");
+                window.location.href = "index.html"; // hoặc trang login nếu bạn tách riêng
+            }
+        };
+    </script>
+</body>
+</html>
