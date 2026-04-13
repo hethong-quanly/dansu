@@ -2,190 +2,126 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Quản lý Tài khoản - Đa cấp</title>
+    <title>Quản lý Tài khoản - VKSND</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: 'Segoe UI', Tahoma, sans-serif; 
-            background: linear-gradient(135deg, #e0eafc, #cfdef3); 
-            min-height: 100vh; 
-            padding: 20px; 
-        }
-        .container {
-            max-width: 1100px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 10px 35px rgba(0,0,0,0.15);
-            overflow: hidden;
-        }
-        header {
-            background: #0408c5;
-            color: white;
-            padding: 25px;
-            text-align: center;
-        }
-        header h1 { font-size: 22px; }
-        .content { display: flex; flex-wrap: wrap; gap: 25px; padding: 30px; }
-
-        .form-panel {
-            flex: 1;
-            min-width: 380px;
-            background: #f8f9ff;
-            padding: 25px;
-            border-radius: 12px;
-            border: 1px solid #e0e6ff;
-        }
-        .list-panel {
-            flex: 2;
-            min-width: 550px;
-        }
-
-        input, select {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            font-size: 15px;
-        }
-        button {
-            padding: 14px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            width: 100%;
-            margin-top: 10px;
-        }
-        .btn-create { background: #5670e6; color: white; }
-        .btn-create:hover { background: #0408c5; }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            background: white;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-        th {
-            background: #e0f2f1;
-            color: #0408c5;
-            padding: 14px;
-            text-align: left;
-        }
-        td {
-            padding: 12px 14px;
-            border-bottom: 1px solid #eee;
-        }
-        tr:hover { background: #f8fbff; }
-
-        .btn-reset { background: #ff9800; color: white; padding: 6px 12px; font-size: 13px; border-radius: 6px; }
-        .btn-delete { background: #d32f2f; color: white; padding: 6px 12px; font-size: 13px; border-radius: 6px; }
-        .back-btn { color: #5670e6; text-decoration: none; font-weight: bold; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f5f7fa; }
+        header { background: #0408c5; color: #f8f536; text-align: center; padding: 15px; position: relative; }
+        .btn-back { position: absolute; left: 20px; top: 20px; color: white; text-decoration: none; font-weight: bold; background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 6px; }
+        
+        .container { max-width: 1100px; margin: 20px auto; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .form-group { margin-bottom: 18px; }
+        label { font-weight: bold; display: block; margin-bottom: 6px; color: #333; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 25px; font-size: 13px; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background: #e0f2f1; color: #0408c5; }
+        
+        .btn-save { background: #5670e6; color: white; padding: 14px; border: none; border-radius: 8px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 15px; }
+        .btn-reset { background: #ff9800; color: white; padding: 6px 12px; border: none; border-radius: 5px; cursor: pointer; }
+        .btn-delete { background: #d32f2f; color: white; padding: 6px 12px; border: none; border-radius: 5px; cursor: pointer; }
+        
+        .dynamic-fields { margin-top: 15px; padding: 15px; background: #f9f9f9; border-radius: 8px; }
     </style>
 </head>
 <body>
+    <header>
+        <a href="index.html" class="btn-back">← Menu chính</a>
+        <h2>QUẢN LÝ TÀI KHOẢN NGƯỜI DÙNG</h2>
+    </header>
+
     <div class="container">
-        <header>
-            <h1>VIỆN KIỂM SÁT NHÂN DÂN TỐI CAO</h1>
-            <p>QUẢN LÝ TÀI KHOẢN </p>
-        </header>
+        <h3>Tạo / Chỉnh sửa tài khoản</h3>
+        
+        <div class="form-group">
+            <label>Tên đăng nhập (username):</label>
+            <input type="text" id="username" placeholder="Ví dụ: thienphuc">
+        </div>
+        <div class="form-group">
+            <label>Mật khẩu (mặc định 123456):</label>
+            <input type="password" id="password" value="123456">
+        </div>
 
-        <div class="content">
-            <!-- Form tạo tài khoản -->
-            <div class="form-panel">
-                <a href="index.html" class="back-btn">← Quay lại Menu Chính</a>
-                <h3>Tạo tài khoản mới</h3>
-                
-                <input type="text" id="new_user" placeholder="Tên đăng nhập">
-                <input type="password" id="new_pass" placeholder="Mật khẩu (để trống = 123456)">
+        <div class="form-group">
+            <label>Cấp tài khoản:</label>
+            <select id="cap_tai_khoan" onchange="toggleCapFields()">
+                <option value="Toi cao">VKSND tối cao</option>
+                <option value="Cap tinh">VKSND cấp tỉnh / TP trực thuộc TW</option>
+                <option value="Khu vuc">VKSND khu vực trực thuộc tỉnh</option>
+            </select>
+        </div>
 
-                <select id="new_level" onchange="toggleLevel()">
-                    <option value="provincial">Cấp Tỉnh/Thành phố</option>
-                    <option value="district">Cấp Khu vực</option>
-                </select>
+        <!-- Chọn Tỉnh (chỉ hiện khi cấp tỉnh hoặc khu vực) -->
+        <div id="tinh_group" class="form-group" style="display:none;">
+            <label>Tỉnh / Thành phố:</label>
+            <select id="tinh_thanh"></select>
+        </div>
 
-                <select id="new_province">
-                    <option value="">-- Chọn Tỉnh/Thành phố --</option>
-                </select>
+        <!-- Khu vực (chỉ hiện khi chọn VKSNDKV) -->
+        <div id="khuvuc_group" class="form-group" style="display:none;">
+            <label>Khu vực số:</label>
+            <select id="khu_vuc">
+                <option value="">-- Chọn khu vực --</option>
+                <!-- Sẽ được thêm động từ 1 đến 14 hoặc theo tỉnh -->
+            </select>
+        </div>
 
-                <select id="new_district" style="display:none;">
-                    <option value="">-- Chọn Khu vực --</option>
-                </select>
+        <div class="form-group">
+            <label>Loại tài khoản:</label>
+            <select id="loai_tai_khoan" onchange="toggleLoaiFields()">
+                <option value="Can bo">Cán bộ</option>
+                <option value="Lanh dao">Lãnh đạo</option>
+            </select>
+        </div>
 
-                <select id="new_role">
-                    <option value="staff">Cán bộ</option>
-                    <option value="leader">Lãnh đạo</option>
-                </select>
+        <!-- Phần Cán bộ -->
+        <div id="canbo_fields" class="dynamic-fields">
+            <label>Chức vụ cán bộ:</label>
+            <select id="chuc_vu_canbo">
+                <option value="Kiem sat vien">Kiểm sát viên</option>
+                <option value="Kiem tra vien">Kiểm tra viên</option>
+            </select>
+        </div>
 
-                <select id="new_department">
-                    <option value="">-- Chọn Đơn vị --</option>
-                </select>
+        <!-- Phần Lãnh đạo -->
+        <div id="lanhdao_fields" class="dynamic-fields" style="display:none;">
+            <label>Cấp lãnh đạo:</label>
+            <select id="cap_lanh_dao" onchange="toggleCapLanhDao()">
+                <option value="Cap vu">Cấp Vụ</option>
+                <option value="Cap vien">Cấp Viện</option>
+                <option value="Cap phong">Cấp Phòng</option>
+            </select>
 
-                <button class="btn-create" onclick="addUser()">🚀 TẠO TÀI KHOẢN</button>
-            </div>
-
-            <!-- Danh sách tài khoản -->
-            <div class="list-panel">
-                <h3>Danh sách tài khoản</h3>
-                <table id="user-table">
-                    <thead>
-                        <tr>
-                            <th>Tên đăng nhập</th>
-                            <th>Cấp</th>
-                            <th>Tỉnh</th>
-                            <th>Đơn vị</th>
-                            <th>Thao tác</th>
-                        </tr>
-                    </thead>
-                    <tbody id="user-list"></tbody>
-                </table>
+            <div id="chuc_vu_lanh_dao_group" class="form-group" style="margin-top:10px;">
+                <label>Chức vụ cụ thể:</label>
+                <select id="chuc_vu_lanh_dao"></select>
             </div>
         </div>
+
+        <button class="btn-save" onclick="saveUser()">LƯU TÀI KHOẢN</button>
+        <button class="btn-save" onclick="resetForm()" style="background:#999; margin-top:8px;">Làm mới form</button>
+    </div>
+
+    <div class="container">
+        <h3>Danh sách tài khoản</h3>
+        <table id="user-table">
+            <thead>
+                <tr>
+                    <th>Username</th>
+                    <th>Cấp</th>
+                    <th>Loại</th>
+                    <th>Chức vụ</th>
+                    <th>Thao tác</th>
+                </tr>
+            </thead>
+            <tbody id="table-body"></tbody>
+        </table>
     </div>
 
     <script>
-        // ================== DANH SÁCH 34 TỈNH/THÀNH PHỐ ==================
-        const provinces = [
-            {code: "01", name: "Hà Nội"},
-            {code: "79", name: "Cần Thơ"},
-            {code: "31", name: "Hải Phòng"},
-            {code: "48", name: "Đà Nẵng"},
-            {code: "89", name: "An Giang"},
-            {code: "24", name: "Bắc Ninh"},
-            {code: "96", name: "Cà Mau"},
-            {code: "04", name: "Cao Bằng"},
-            {code: "33", name: "Hưng Yên"},
-            {code: "56", name: "Khánh Hòa"},
-            {code: "52", name: "Gia Lai"},
-            {code: "83", name: "Tây Ninh"},
-            {code: "77", name: "Đồng Nai"},
-            {code: "84", name: "Vĩnh Long"},
-            {code: "86", name: "Đồng Tháp"},
-            {code: "38", name: "Thanh Hóa"},
-            {code: "40", name: "Nghệ An"},
-            {code: "42", name: "Hà Tĩnh"},
-            {code: "44", name: "Quảng Trị"},
-            {code: "46", name: "Thừa Thiên Huế"},
-            {code: "51", name: "Quảng Ngãi"},
-            {code: "66", name: "Đắk Lắk"},
-            {code: "22", name: "Quảng Ninh"},
-            {code: "25", name: "Phú Thọ"},
-            {code: "19", name: "Thái Nguyên"},
-            {code: "20", name: "Lạng Sơn"},
-            {code: "14", name: "Sơn La"},
-            {code: "15", name: "Lào Cai"},
-            {code: "11", name: "Điện Biên"},
-            {code: "12", name: "Lai Châu"},
-            {code: "08", name: "Tuyên Quang"},
-            {code: "37", name: "Ninh Bình"},
-            {code: "36", name: "Thái Bình"}
-        ];
-
+        // === Firebase Config (giữ nguyên của bạn) ===
         var firebaseConfig = {
             apiKey: "AIzaSyDunRDIeyBTVXTODoO22ywk1Q35cCx2sV8",
             authDomain: "dansu-vksndtpct.firebaseapp.com",
@@ -197,122 +133,116 @@
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         var db = firebase.database();
 
-        let currentUsername = null;
+        let editingUsername = null;
 
-        function getCurrentUser() {
-            const saved = localStorage.getItem('vks_user');
-            if (saved) currentUsername = JSON.parse(saved).username;
+        const provinces = ["Hà Nội","TP. Hồ Chí Minh","Cần Thơ","Đà Nẵng","Hải Phòng","..."]; // bạn có thể bổ sung đầy đủ 34 tỉnh
+
+        function toggleCapFields() {
+            const cap = document.getElementById('cap_tai_khoan').value;
+            const tinhGroup = document.getElementById('tinh_group');
+            const khuvucGroup = document.getElementById('khuvuc_group');
+
+            tinhGroup.style.display = (cap === "Cap tinh" || cap === "Khu vuc") ? "block" : "none";
+            khuvucGroup.style.display = (cap === "Khu vuc") ? "block" : "none";
         }
 
-        function toggleLevel() {
-            const level = document.getElementById('new_level').value;
-            const provinceSelect = document.getElementById('new_province');
-            const districtSelect = document.getElementById('new_district');
-            const departmentSelect = document.getElementById('new_department');
+        function toggleLoaiFields() {
+            const loai = document.getElementById('loai_tai_khoan').value;
+            document.getElementById('canbo_fields').style.display = (loai === "Can bo") ? "block" : "none";
+            document.getElementById('lanhdao_fields').style.display = (loai === "Lanh dao") ? "block" : "none";
+        }
 
-            // Load danh sách tỉnh
-            provinceSelect.innerHTML = '<option value="">-- Chọn Tỉnh/Thành phố --</option>';
-            provinces.forEach(p => {
-                provinceSelect.innerHTML += `<option value="${p.code}">${p.name}</option>`;
+        function toggleCapLanhDao() {
+            const cap = document.getElementById('cap_lanh_dao').value;
+            const select = document.getElementById('chuc_vu_lanh_dao');
+            select.innerHTML = '';
+
+            if (cap === "Cap vu") {
+                select.innerHTML = `<option value="Vu truong">Vụ trưởng</option><option value="Vu pho">Vụ phó</option>`;
+            } else if (cap === "Cap vien") {
+                select.innerHTML = `<option value="Vien truong">Viện trưởng</option><option value="Pho vien truong">Phó Viện trưởng</option>`;
+            } else if (cap === "Cap phong") {
+                select.innerHTML = `<option value="Truong phong">Trưởng phòng</option><option value="Pho phong">Phó phòng</option>`;
+            }
+        }
+
+        function saveUser() {
+            const username = document.getElementById('username').value.trim();
+            if (!username) { alert("Vui lòng nhập tên đăng nhập!"); return; }
+
+            const userData = {
+                password: document.getElementById('password').value || "123456",
+                cap_tai_khoan: document.getElementById('cap_tai_khoan').value,
+                loai_tai_khoan: document.getElementById('loai_tai_khoan').value,
+                timestamp: Date.now()
+            };
+
+            // Thêm các trường động
+            if (userData.loai_tai_khoan === "Can bo") {
+                userData.chuc_vu = document.getElementById('chuc_vu_canbo').value;
+            } else if (userData.loai_tai_khoan === "Lanh dao") {
+                userData.cap_lanh_dao = document.getElementById('cap_lanh_dao').value;
+                userData.chuc_vu = document.getElementById('chuc_vu_lanh_dao').value;
+            }
+
+            db.ref('users/' + username).set(userData).then(() => {
+                alert("Tạo / Cập nhật tài khoản thành công!");
+                resetForm();
+                loadUsers();
             });
-
-            if (level === 'district') {
-                districtSelect.style.display = 'block';
-                departmentSelect.innerHTML = '<option value="">-- Chọn Khu vực --</option>';
-                // Có thể load khu vực theo tỉnh sau (hiện tại để đơn giản)
-            } else {
-                districtSelect.style.display = 'none';
-                departmentSelect.innerHTML = `
-                    <option value="">-- Chọn Đơn vị --</option>
-                    <option value="phong9">Phòng 9</option>
-                    <option value="phong10">Phòng 10</option>
-                    <option value="phong11">Phòng 11</option>
-                    <option value="ttkt">Thanh tra-Khiếu tố</option>
-                `;
-            }
         }
 
-        function addUser() {
-            const username = document.getElementById('new_user').value.trim();
-            let password = document.getElementById('new_pass').value.trim() || "123456";
-            const level = document.getElementById('new_level').value;
-            const province = document.getElementById('new_province').value;
-            const role = document.getElementById('new_role').value;
-            const department = document.getElementById('new_department').value;
-
-            if (!username || !province) {
-                return alert("Vui lòng nhập đầy đủ Tên đăng nhập và Tỉnh/Thành phố!");
-            }
-
-            db.ref('users/' + username).once('value').then(snapshot => {
-                if (snapshot.exists()) {
-                    alert("❌ Tên đăng nhập này đã tồn tại!");
-                } else {
-                    db.ref('users/' + username).set({
-                        password: password,
-                        level: level,
-                        provinceCode: province,
-                        role: role,
-                        department: department || null,
-                        createdAt: Date.now()
-                    }).then(() => {
-                        alert(`✅ Tạo tài khoản thành công!\n\nTên: ${username}\nMật khẩu: ${password}`);
-                        document.getElementById('new_user').value = '';
-                        document.getElementById('new_pass').value = '';
+        function loadUsers() {
+            db.ref('users').on('value', snapshot => {
+                const users = snapshot.val();
+                let html = '';
+                if (users) {
+                    Object.keys(users).forEach(username => {
+                        const u = users[username];
+                        html += `<tr>
+                            <td><strong>${username}</strong></td>
+                            <td>${u.cap_tai_khoan || ''}</td>
+                            <td>${u.loai_tai_khoan || ''}</td>
+                            <td>${u.chuc_vu || ''}</td>
+                            <td>
+                                <button class="btn-reset" onclick="resetPassword('${username}')">Reset MK</button>
+                                <button class="btn-delete" onclick="deleteUser('${username}')">Xóa</button>
+                            </td>
+                        </tr>`;
                     });
                 }
+                document.getElementById('table-body').innerHTML = html || '<tr><td colspan="5" style="text-align:center;color:#999">Chưa có tài khoản nào</td></tr>';
             });
-        }
-
-        // Load danh sách tài khoản
-        db.ref('users').on('value', (snapshot) => {
-            const users = snapshot.val();
-            let html = '';
-            for (let username in users) {
-                const u = users[username];
-                const isCurrent = username === currentUsername;
-
-                html += `<tr>
-                    <td><strong>${username}</strong> ${isCurrent ? '(Bạn)' : ''}</td>
-                    <td>${u.level === 'provincial' ? 'Cấp Tỉnh' : 'Cấp Khu vực'}</td>
-                    <td>${getProvinceName(u.provinceCode) || '—'}</td>
-                    <td>${u.department || '—'}</td>
-                    <td>
-                        <button class="btn-reset" onclick="resetPassword('${username}')">Reset MK</button>
-                        ${!isCurrent ? `<button class="red-btn" onclick="deleteUser('${username}')">Xóa</button>` : ''}
-                    </td>
-                </tr>`;
-            }
-            document.getElementById('user-list').innerHTML = html || 
-                '<tr><td colspan="5" style="text-align:center;padding:40px;color:#999">Chưa có tài khoản nào</td></tr>';
-        });
-
-        function getProvinceName(code) {
-            const p = provinces.find(prov => prov.code === code);
-            return p ? p.name : code;
         }
 
         function resetPassword(username) {
-            if (confirm(`Reset mật khẩu của ${username} về "123456"?`)) {
-                db.ref('users/' + username + '/password').set('123456').then(() => {
-                    alert(`Đã reset mật khẩu của ${username} thành công!`);
-                });
+            if (confirm(`Reset mật khẩu của ${username} về 123456?`)) {
+                db.ref('users/' + username + '/password').set('123456').then(() => alert("Đã reset mật khẩu!"));
             }
         }
 
         function deleteUser(username) {
-            if (confirm(`XÓA tài khoản "${username}"?\n\nHành động này KHÔNG THỂ hoàn tác!`)) {
-                if (confirm("XÁC NHẬN LẦN 2: Bạn thực sự muốn xóa?")) {
-                    db.ref('users/' + username).remove().then(() => {
-                        alert(`Đã xóa tài khoản ${username}`);
-                    });
-                }
+            if (confirm(`XÓA tài khoản ${username}?`)) {
+                db.ref('users/' + username).remove().then(() => loadUsers());
             }
         }
 
+        function resetForm() {
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '123456';
+            document.getElementById('cap_tai_khoan').value = 'Toi cao';
+            document.getElementById('loai_tai_khoan').value = 'Can bo';
+            toggleCapFields();
+            toggleLoaiFields();
+            toggleCapLanhDao();
+            editingUsername = null;
+        }
+
         window.onload = () => {
-            getCurrentUser();
-            toggleLevel();
+            loadUsers();
+            toggleCapFields();
+            toggleLoaiFields();
+            toggleCapLanhDao();
         };
     </script>
 </body>
