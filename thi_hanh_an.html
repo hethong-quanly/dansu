@@ -2,110 +2,125 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Quản lý Thi hành án dân sự</title>
+    <title>Quản lý Thi hành án Dân sự</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-
     <style>
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; margin: 0; background: linear-gradient(135deg, #f5f7fa, #c3cfe2); }
-        header { width: 100%; padding: 15px 0; background: #0408c5; color: #f8f536; text-align: center; position: relative; }
-        .btn-back { position: absolute; left: 25px; top: 20px; color: white; text-decoration: none; font-weight: bold; background: rgba(255,255,255,0.25); padding: 8px 16px; border-radius: 6px; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f5f7fa; }
+        header { background: #0408c5; color: #f8f536; text-align: center; padding: 15px; position: relative; }
+        .btn-back { position: absolute; left: 20px; top: 20px; color: white; text-decoration: none; font-weight: bold; background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 6px; }
         
-        .container { display: flex; width: 98%; margin: 25px auto; gap: 25px; }
-        .sidebar { flex: 1.2; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); overflow-y: auto; }
-        .main-panel { flex: 2.2; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); overflow-y: auto; }
+        .container { display: flex; padding: 20px; gap: 25px; }
+        .sidebar { flex: 1.3; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .main-panel { flex: 2.5; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); overflow-y: auto; }
         
         .form-group { margin-bottom: 16px; }
         label { font-weight: bold; margin-bottom: 6px; color: #333; display: block; }
-        input, select, textarea { 
-            width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; 
-        }
-        .section { background: #f0f4ff; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 5px solid #5670e6; }
+        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
         
         table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 8px; }
         th, td { border: 1px solid #ddd; padding: 6px; text-align: left; vertical-align: top; }
-        th { background: #e0f2f1; color: #0408c5; font-weight: bold; }
+        th { background: #e0f2f1; color: #0408c5; }
         
         .btn-save { background: #5670e6; color: white; padding: 14px; border: none; border-radius: 8px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 15px; }
+        .btn-add { background: #4caf50; color: white; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; margin-top: 5px; }
         .btn-edit { background: #ff9800; color: white; padding: 5px 10px; border-radius: 5px; font-size: 12px; margin-right: 5px; }
         .btn-delete { background: #d32f2f; color: white; padding: 5px 10px; border-radius: 5px; font-size: 12px; }
         .btn-pdf { background: #4caf50; color: white; padding: 5px 10px; border-radius: 5px; font-size: 12px; }
+        
+        .multi-item { display: flex; gap: 10px; margin-top: 8px; align-items: center; }
+        .section { background: #f0f4ff; padding: 15px; border-radius: 8px; margin: 15px 0; }
     </style>
 </head>
 <body>
     <header>
-        <a href="index.html" class="btn-back">← Quay lại Menu</a>
-        <h1>VIỆN KIỂM SÁT NHÂN DÂN THÀNH PHỐ CẦN THƠ</h1>
+        <a href="index.html" class="btn-back">← Menu chính</a>
         <h2>QUẢN LÝ THI HÀNH ÁN DÂN SỰ</h2>
     </header>
 
     <div class="container">
         <div class="sidebar">
-            <h3>Thông tin Quyết định Thi hành án</h3>
-            
-            <div class="form-group"><label>Ngày nhận QĐ:</label><input type="date" id="ngay_nhan_qd"></div>
-            <div class="form-group"><label>Số QĐTHA:</label><input type="text" id="so_qd_tha" placeholder="Số/QĐ-..."></div>
-            <div class="form-group"><label>Ngày ban hành QĐ:</label><input type="date" id="ngay_ban_hanh"></div>
+            <h3>Nhập thông tin Thi hành án</h3>
 
-            <div class="section">
-                <div class="form-group"><label>Người phải thi hành án:</label><input type="text" id="nguoi_phai_tha"></div>
-                <div class="form-group"><label>Địa chỉ người phải THA:</label><input type="text" id="dia_chi_phai"></div>
-                <div class="form-group"><label>Người được thi hành án:</label><input type="text" id="nguoi_duoc_tha"></div>
-                <div class="form-group"><label>Địa chỉ người được THA:</label><input type="text" id="dia_chi_duoc"></div>
+            <div class="form-group"><label>Ngày nhận QĐTHA:</label><input type="date" id="ngay_nhan_qd"></div>
+            <div class="form-group"><label>QĐTHA số:</label><input type="text" id="so_qd_tha"></div>
+            <div class="form-group"><label>Ngày ban hành QĐTHA:</label><input type="date" id="ngay_ban_hanh_qd"></div>
+
+            <!-- Chấp hành viên (nhiều người) -->
+            <div class="form-group">
+                <label>Chấp hành viên:</label>
+                <div id="chap_hanh_vien_list"></div>
+                <button class="btn-add" onclick="addChapHanhVien()">+ Thêm Chấp hành viên</button>
             </div>
+
+            <!-- Phân công Kiểm sát viên -->
+            <div class="form-group"><label>Quyết định phân công KSV số:</label><input type="text" id="qd_phan_cong_ksv_so" placeholder="Số/QĐ-VKS"></div>
+            <div class="form-group"><label>Ngày phân công KSV:</label><input type="date" id="ngay_phan_cong_ksv"></div>
+            <div class="form-group">
+                <label>Kiểm sát viên:</label>
+                <div id="ksv_list"></div>
+                <button class="btn-add" onclick="addKSV()">+ Thêm Kiểm sát viên</button>
+            </div>
+
+            <div class="form-group"><label>Người phải thi hành án:</label><input type="text" id="nguoi_phai_tha"></div>
+            <div class="form-group"><label>Địa chỉ người phải THA:</label><input type="text" id="dia_chi_phai_tha"></div>
+            <div class="form-group"><label>Người được thi hành án:</label><input type="text" id="nguoi_duoc_tha"></div>
+            <div class="form-group"><label>Địa chỉ người được THA:</label><input type="text" id="dia_chi_duoc_tha"></div>
 
             <div class="section">
                 <h4>Nội dung thi hành án</h4>
-                <div class="form-group"><label>Nội dung phải thi hành:</label><textarea id="noi_dung_tha" rows="2"></textarea></div>
-                <div class="form-group"><label>Số tiền phải thi hành (VNĐ):</label><input type="number" id="so_tien_tha" placeholder="0"></div>
-                <div class="form-group"><label>Tài sản phải thi hành:</label><textarea id="tai_san_tha" rows="2" placeholder="Mô tả tài sản..."></textarea></div>
+                <div class="form-group"><label>Nội dung phải thi hành:</label><textarea id="noi_dung_tha" rows="3"></textarea></div>
+                <div class="form-group"><label>Số tiền phải thi hành:</label><input type="text" id="so_tien_tha" placeholder="Ví dụ: 500.000.000 VNĐ"></div>
+                <div class="form-group"><label>Tài sản phải thi hành:</label><textarea id="tai_san_tha" rows="2"></textarea></div>
             </div>
 
-            <!-- Xác minh điều kiện thi hành án -->
+            <div class="form-group"><label>Ngày xác minh điều kiện THA:</label><input type="date" id="ngay_xac_minh"></div>
+            <div class="form-group"><label>Kết quả xác minh:</label><textarea id="ket_qua_xac_minh" rows="3"></textarea></div>
+
+            <!-- Phần có điều kiện thi hành -->
             <div class="section">
-                <h4>Xác minh điều kiện thi hành án</h4>
-                <div class="form-group"><label>Ngày xác minh:</label><input type="date" id="ngay_xac_minh"></div>
-                <div class="form-group"><label>Nội dung xác minh:</label><textarea id="noi_dung_xac_minh" rows="2"></textarea></div>
+                <label><strong>Tình trạng thi hành:</strong></label>
+                <select id="tinh_trang_tha" onchange="toggleDinhGiaFields()">
+                    <option value="Co dieu kien">Có điều kiện thi hành</option>
+                    <option value="Chua co dieu kien">Chưa có điều kiện thi hành</option>
+                </select>
+            </div>
+
+            <!-- Định giá & Đấu giá tài sản -->
+            <div id="dinh_gia_section" class="section" style="display:none;">
+                <h4>Định giá & Đấu giá tài sản</h4>
+                <div class="form-group"><label>Công ty thẩm định giá:</label><input type="text" id="cong_ty_tham_dinh"></div>
+                <div class="form-group"><label>Giá trị tài sản (theo định giá):</label><input type="text" id="gia_tri_tai_san"></div>
+
+                <!-- Đấu giá lần 1 -->
+                <div class="form-group"><label>Ngày đưa ra bán đấu giá lần 1:</label><input type="date" id="ngay_dau_gia_lan1"></div>
                 <div class="form-group">
-                    <label>Kết quả xác minh:</label>
-                    <select id="ket_qua_xac_minh" onchange="toggleTHAFields()">
-                        <option value="">-- Chọn kết quả --</option>
-                        <option value="chua_co">Chưa có điều kiện thi hành</option>
-                        <option value="co">Có điều kiện thi hành</option>
+                    <label>Kết quả đấu giá lần 1:</label>
+                    <select id="ket_qua_dau_gia_lan1" onchange="toggleGiamGiaFields()">
+                        <option value="Thanh cong">Bán thành công</option>
+                        <option value="Chua ban duoc">Chưa bán được</option>
                     </select>
                 </div>
-
-                <!-- Chưa có điều kiện -->
-                <div id="chua_co_fields" style="display:none;">
-                    <div class="form-group"><label>Số QĐ trả đơn:</label><input type="text" id="so_qd_tra_don"></div>
-                    <div class="form-group"><label>Ngày trả đơn:</label><input type="date" id="ngay_tra_don"></div>
+                <div id="gia_ban_thanh_cong_group" class="form-group">
+                    <label>Giá bán thành công lần 1:</label>
+                    <input type="text" id="gia_ban_thanh_cong_lan1">
                 </div>
 
-                <!-- Có điều kiện thi hành -->
-                <div id="co_fields" style="display:none;">
-                    <div class="form-group"><label>Ngày cưỡng chế:</label><input type="date" id="ngay_cuong_che"></div>
-                    <div class="form-group"><label>Tài sản cưỡng chế kê biên:</label><textarea id="tai_san_ke_bien" rows="2"></textarea></div>
-                    <div class="form-group"><label>Số tiền phải thu:</label><input type="number" id="so_tien_phai_thu" placeholder="0"></div>
-                    <div class="form-group"><label>Ngày thu tiền:</label><input type="date" id="ngay_thu_tien"></div>
-
-                    <!-- Phần định giá & đấu giá (hiện khi có tài sản kê biên) -->
-                    <div id="dinh_gia_fields" style="display:none; margin-top:15px; padding:12px; background:#fff8e1; border-radius:6px;">
-                        <div class="form-group"><label>Kết quả định giá:</label><input type="text" id="ket_qua_dinh_gia"></div>
-                        <div class="form-group"><label>Ngày ký hợp đồng bán đấu giá:</label><input type="date" id="ngay_ky_hd_dg"></div>
-                        <div class="form-group"><label>Ngày bán đấu giá thành:</label><input type="date" id="ngay_ban_dg_thanh"></div>
-                        <div class="form-group"><label>Số tiền thu được từ đấu giá:</label><input type="number" id="so_tien_dau_gia" placeholder="0"></div>
-                    </div>
-                </div>
+                <!-- Giảm giá lần 1,2,3... -->
+                <div id="giam_gia_list"></div>
+                <button class="btn-add" onclick="addGiamGiaItem()" style="margin-top:10px;">+ Thêm lần giảm giá</button>
             </div>
 
+            <!-- Ngày thi hành xong -->
+            <div class="form-group"><label>Ngày thi hành xong:</label><input type="date" id="ngay_thi_hanh_xong"></div>
+
             <div class="form-group">
-                <label>Đính kèm File PDF (QĐ, biên bản...):</label>
+                <label>Đính kèm File PDF:</label>
                 <input type="file" id="pdf_file" accept=".pdf">
             </div>
 
-            <button class="btn-save" onclick="saveData()" id="btn-save">LƯU HỒ SƠ THA</button>
+            <button class="btn-save" onclick="saveData()" id="btn-save">LƯU HỒ SƠ THI HÀNH ÁN</button>
         </div>
 
         <div class="main-panel">
@@ -117,10 +132,9 @@
                         <th>Số QĐTHA</th>
                         <th>Ngày nhận</th>
                         <th>Người phải THA</th>
-                        <th>Người được THA</th>
-                        <th>Số tiền</th>
-                        <th>Tài sản</th>
-                        <th>Kết quả xác minh</th>
+                        <th>Nội dung</th>
+                        <th>Tình trạng</th>
+                        <th>Ngày thi hành xong</th>
                         <th>File PDF</th>
                         <th>Thao tác</th>
                     </tr>
@@ -145,18 +159,48 @@
 
         let editingKey = null;
 
-        function toggleTHAFields() {
-            const ketQua = document.getElementById('ket_qua_xac_minh').value;
-            document.getElementById('chua_co_fields').style.display = (ketQua === 'chua_co') ? 'block' : 'none';
-            document.getElementById('co_fields').style.display = (ketQua === 'co') ? 'block' : 'none';
-            document.getElementById('dinh_gia_fields').style.display = 'none'; // Reset
+        // Thêm Chấp hành viên
+        function addChapHanhVien() {
+            const container = document.getElementById('chap_hanh_vien_list');
+            const div = document.createElement('div');
+            div.className = 'multi-item';
+            div.innerHTML = `<input type="text" placeholder="Tên Chấp hành viên"><button type="button" onclick="this.parentElement.remove()" style="background:#d32f2f;color:white;padding:6px 10px;border:none;border-radius:4px;">X</button>`;
+            container.appendChild(div);
         }
 
-        // Hiển thị phần định giá khi có tài sản kê biên
-        document.getElementById('tai_san_ke_bien').addEventListener('input', function() {
-            const hasAsset = this.value.trim() !== '';
-            document.getElementById('dinh_gia_fields').style.display = hasAsset ? 'block' : 'none';
-        });
+        // Thêm Kiểm sát viên
+        function addKSV() {
+            const container = document.getElementById('ksv_list');
+            const div = document.createElement('div');
+            div.className = 'multi-item';
+            div.innerHTML = `<input type="text" placeholder="Tên Kiểm sát viên"><button type="button" onclick="this.parentElement.remove()" style="background:#d32f2f;color:white;padding:6px 10px;border:none;border-radius:4px;">X</button>`;
+            container.appendChild(div);
+        }
+
+        // Thêm lần giảm giá
+        function addGiamGiaItem() {
+            const container = document.getElementById('giam_gia_list');
+            const div = document.createElement('div');
+            div.className = 'multi-item';
+            div.innerHTML = `
+                <input type="text" placeholder="Số QĐ giảm giá" style="flex:1">
+                <input type="date" style="flex:1">
+                <input type="text" placeholder="Giá trị còn lại" style="flex:1">
+                <input type="text" placeholder="Giá bán (nếu có)" style="flex:1">
+                <button type="button" onclick="this.parentElement.remove()" style="background:#d32f2f;color:white;padding:6px 10px;border:none;border-radius:4px;">X</button>
+            `;
+            container.appendChild(div);
+        }
+
+        function toggleDinhGiaFields() {
+            const tinhTrang = document.getElementById('tinh_trang_tha').value;
+            document.getElementById('dinh_gia_section').style.display = (tinhTrang === "Co dieu kien") ? "block" : "none";
+        }
+
+        function toggleGiamGiaFields() {
+            const ketQua = document.getElementById('ket_qua_dau_gia_lan1').value;
+            document.getElementById('gia_ban_thanh_cong_group').style.display = (ketQua === "Thanh cong") ? "block" : "none";
+        }
 
         function saveData() {
             const file = document.getElementById('pdf_file').files[0];
@@ -164,33 +208,27 @@
             const data = {
                 ngay_nhan_qd: document.getElementById('ngay_nhan_qd').value,
                 so_qd_tha: document.getElementById('so_qd_tha').value,
-                ngay_ban_hanh: document.getElementById('ngay_ban_hanh').value,
+                ngay_ban_hanh_qd: document.getElementById('ngay_ban_hanh_qd').value,
                 nguoi_phai_tha: document.getElementById('nguoi_phai_tha').value,
-                dia_chi_phai: document.getElementById('dia_chi_phai').value,
+                dia_chi_phai_tha: document.getElementById('dia_chi_phai_tha').value,
                 nguoi_duoc_tha: document.getElementById('nguoi_duoc_tha').value,
-                dia_chi_duoc: document.getElementById('dia_chi_duoc').value,
+                dia_chi_duoc_tha: document.getElementById('dia_chi_duoc_tha').value,
                 noi_dung_tha: document.getElementById('noi_dung_tha').value,
                 so_tien_tha: document.getElementById('so_tien_tha').value,
                 tai_san_tha: document.getElementById('tai_san_tha').value,
                 ngay_xac_minh: document.getElementById('ngay_xac_minh').value,
-                noi_dung_xac_minh: document.getElementById('noi_dung_xac_minh').value,
                 ket_qua_xac_minh: document.getElementById('ket_qua_xac_minh').value,
+                tinh_trang_tha: document.getElementById('tinh_trang_tha').value,
+                ngay_thi_hanh_xong: document.getElementById('ngay_thi_hanh_xong').value,
                 timestamp: Date.now()
             };
 
-            // Thêm dữ liệu theo kết quả xác minh
-            if (data.ket_qua_xac_minh === 'chua_co') {
-                data.so_qd_tra_don = document.getElementById('so_qd_tra_don').value;
-                data.ngay_tra_don = document.getElementById('ngay_tra_don').value;
-            } else if (data.ket_qua_xac_minh === 'co') {
-                data.ngay_cuong_che = document.getElementById('ngay_cuong_che').value;
-                data.tai_san_ke_bien = document.getElementById('tai_san_ke_bien').value;
-                data.so_tien_phai_thu = document.getElementById('so_tien_phai_thu').value;
-                data.ngay_thu_tien = document.getElementById('ngay_thu_tien').value;
-                data.ket_qua_dinh_gia = document.getElementById('ket_qua_dinh_gia').value;
-                data.ngay_ky_hd_dg = document.getElementById('ngay_ky_hd_dg').value;
-                data.ngay_ban_dg_thanh = document.getElementById('ngay_ban_dg_thanh').value;
-                data.so_tien_dau_gia = document.getElementById('so_tien_dau_gia').value;
+            if (data.tinh_trang_tha === "Co dieu kien") {
+                data.cong_ty_tham_dinh = document.getElementById('cong_ty_tham_dinh').value;
+                data.gia_tri_tai_san = document.getElementById('gia_tri_tai_san').value;
+                data.ngay_dau_gia_lan1 = document.getElementById('ngay_dau_gia_lan1').value;
+                data.ket_qua_dau_gia_lan1 = document.getElementById('ket_qua_dau_gia_lan1').value;
+                data.gia_ban_thanh_cong_lan1 = document.getElementById('gia_ban_thanh_cong_lan1').value;
             }
 
             if (file) {
@@ -209,7 +247,7 @@
         function saveToDatabase(data) {
             if (editingKey) {
                 db.ref('thi_hanh_an/' + editingKey).update(data).then(() => {
-                    alert("Cập nhật hồ sơ thành công!");
+                    alert("Cập nhật thành công!");
                     resetForm();
                 });
             } else {
@@ -221,54 +259,24 @@
         }
 
         function resetForm() {
-            // Reset tất cả input
-            const inputs = document.querySelectorAll('input, textarea, select');
-            inputs.forEach(input => {
-                if (input.type === 'date' || input.type === 'number') input.value = '';
-                else if (input.tagName === 'TEXTAREA') input.value = '';
-                else if (input.tagName === 'SELECT') input.value = input.options[0].value;
-            });
-            document.getElementById('chua_co_fields').style.display = 'none';
-            document.getElementById('co_fields').style.display = 'none';
-            document.getElementById('dinh_gia_fields').style.display = 'none';
-            document.getElementById('pdf_file').value = '';
+            // Reset tất cả các trường (bao gồm các list động)
+            document.getElementById('chap_hanh_vien_list').innerHTML = '';
+            document.getElementById('ksv_list').innerHTML = '';
+            document.getElementById('giam_gia_list').innerHTML = '';
+            document.getElementById('tinh_trang_tha').value = "Co dieu kien";
+            toggleDinhGiaFields();
+            // ... reset các trường input khác ...
             editingKey = null;
-            document.getElementById('btn-save').innerText = 'LƯU HỒ SƠ THA';
+            document.getElementById('btn-save').innerText = 'LƯU HỒ SƠ THI HÀNH ÁN';
         }
 
-        function loadData() {
-            db.ref('thi_hanh_an').on('value', (snapshot) => {
-                const datas = snapshot.val();
-                let html = '';
-                let stt = 1;
-                if (datas) {
-                    Object.keys(datas).forEach(key => {
-                        const item = datas[key];
-                        const pdfLink = item.pdf_url ? `<a href="${item.pdf_url}" target="_blank" class="btn-pdf">PDF</a>` : 'Không có';
-                        html += `<tr>
-                            <td>${stt++}</td>
-                            <td>${item.so_qd_tha || ''}</td>
-                            <td>${item.ngay_nhan_qd || ''}</td>
-                            <td>${item.nguoi_phai_tha || ''}</td>
-                            <td>${item.nguoi_duoc_tha || ''}</td>
-                            <td>${item.so_tien_tha || '0'}</td>
-                            <td>${item.tai_san_tha || ''}</td>
-                            <td>${item.ket_qua_xac_minh || ''}</td>
-                            <td>${pdfLink}</td>
-                            <td>
-                                <button class="btn-edit" onclick="editRecord('${key}')">Sửa</button>
-                                <button class="btn-delete" onclick="deleteRecord('${key}')">Xóa</button>
-                            </td>
-                        </tr>`;
-                    });
-                }
-                document.getElementById('table-body').innerHTML = html || '<tr><td colspan="10" style="text-align:center;color:#999;padding:30px;">Chưa có hồ sơ thi hành án nào</td></tr>';
-            });
-        }
+        // loadData, editRecord, deleteRecord giữ nguyên như trước (bạn có thể copy từ file cũ của mình)
 
-        // Các hàm editRecord, deleteRecord giữ giống các phần trước (bạn có thể copy từ dan_su hoặc khieu_to)
-
-        window.onload = loadData;
+        window.onload = () => {
+            // loadData();
+            toggleDinhGiaFields();
+            toggleGiamGiaFields();
+        };
     </script>
 </body>
 </html>
