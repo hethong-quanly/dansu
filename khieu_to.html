@@ -14,7 +14,7 @@
         .btn-back { position: absolute; left: 20px; top: 20px; color: white; text-decoration: none; font-weight: bold; background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 6px; }
         
         .container { display: flex; padding: 20px; gap: 25px; }
-        .sidebar { flex: 1.1; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .sidebar { flex: 1.2; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
         .main-panel { flex: 2; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); overflow-y: auto; }
         
         .form-group { margin-bottom: 16px; }
@@ -50,10 +50,6 @@
                 <input type="date" id="ngay_nhan">
             </div>
             <div class="form-group">
-                <label>Ngày thụ lý:</label>
-                <input type="date" id="ngay_thu_ly">
-            </div>
-            <div class="form-group">
                 <label>Nguồn đơn:</label>
                 <select id="nguon_don">
                     <option value="Bưu điện">Bưu điện</option>
@@ -71,6 +67,13 @@
                 <label>Địa chỉ:</label>
                 <input type="text" id="dia_chi">
             </div>
+
+            <!-- Nội dung đơn được đưa lên trên -->
+            <div class="form-group">
+                <label>Nội dung đơn:</label>
+                <textarea id="noi_dung" rows="5"></textarea>
+            </div>
+
             <div class="form-group">
                 <label>Phân loại:</label>
                 <select id="phan_loai">
@@ -80,70 +83,52 @@
                     <option value="Tin báo tội phạm">Tin báo tội phạm (TGTP)</option>
                 </select>
             </div>
+
             <div class="form-group">
                 <label>Thẩm quyền:</label>
-                <select id="tham_quyen">
+                <select id="tham_quyen" onchange="toggleThamQuyen()">
                     <option value="Thuộc thẩm quyền giải quyết">Thuộc thẩm quyền giải quyết</option>
                     <option value="Thuộc thẩm quyền kiểm sát">Thuộc thẩm quyền kiểm sát</option>
                     <option value="Không thuộc thẩm quyền giải quyết">Không thuộc thẩm quyền giải quyết</option>
                 </select>
             </div>
-            <div class="form-group">
-                <label>Nội dung đơn:</label>
-                <textarea id="noi_dung" rows="4"></textarea>
-            </div>
-            <div class="form-group">
-                <label>Cán bộ xử lý:</label>
-                <input type="text" id="can_bo">
-            </div>
 
-            <!-- Phần Đề xuất -->
-            <div class="section">
-                <label><strong>Đề xuất xử lý:</strong></label>
-                <select id="de_xuat" onchange="toggleDeXuatFields()">
-                    <option value="">-- Chọn đề xuất --</option>
-                    <option value="chuyen_don">Chuyển đơn</option>
-                    <option value="chuyen_phong">Chuyển phòng nghiệp vụ</option>
-                    <option value="thong_bao">Thông báo chỉ dẫn</option>
-                    <option value="tra_don">Trả đơn</option>
-                    <option value="luu_don">Lưu đơn</option>
-                </select>
-
-                <!-- Chuyển đơn -->
-                <div id="chuyen_don_fields" class="form-group" style="display:none;">
-                    <label>Phân loại chuyển đơn:</label>
-                    <select id="phan_loai_chuyen">
-                        <option value="CQCSĐT">CQCSĐT</option>
-                        <option value="TAND TP.CT">TAND TP.CT</option>
-                        <option value="THADS TP.CT">THADS TP.CT</option>
-                        <option value="Cơ quan khác">Cơ quan khác</option>
+            <!-- Phần chỉ hiển thị khi thuộc thẩm quyền giải quyết -->
+            <div id="tham_quyen_fields" class="section" style="display:none;">
+                <div class="form-group"><label>Ngày thụ lý giải quyết:</label><input type="date" id="ngay_thu_ly_giai_quyet"></div>
+                
+                <div class="form-group">
+                    <label>Phân loại khiếu nại/tố cáo:</label>
+                    <select id="phan_loai_khieu_to">
+                        <option value="Khiếu nại">Khiếu nại</option>
+                        <option value="Tố cáo">Tố cáo</option>
                     </select>
-                    <input type="text" id="phieu_chuyen_so" placeholder="Phiếu chuyển đơn số">
-                    <input type="date" id="ngay_chuyen">
-                    <input type="text" id="chuyen_den" placeholder="Chuyển đến...">
                 </div>
 
-                <!-- Chuyển phòng nghiệp vụ -->
-                <div id="chuyen_phong_fields" class="form-group" style="display:none;">
-                    <label>Chuyển đến phòng:</label>
-                    <select id="phong_chuyen">
-                        <option value="Phòng 1">Phòng 1</option>
-                        <option value="Phòng 2">Phòng 2</option>
-                        <option value="Phòng 7">Phòng 7</option>
-                        <option value="Phòng 8">Phòng 8</option>
-                        <option value="Phòng 9">Phòng 9</option>
-                        <option value="Phòng 10">Phòng 10</option>
-                        <option value="Phòng 11">Phòng 11</option>
-                        <option value="TCCB">TCCB</option>
+                <div class="form-group"><label>Quyết định thụ lý đơn số:</label><input type="text" id="qd_thu_ly_so" placeholder="Số/QĐ-VKS"></div>
+                <div class="form-group"><label>Ngày ban hành QĐ thụ lý:</label><input type="date" id="ngay_ban_hanh_qd_thu_ly"></div>
+
+                <div class="form-group"><label>Quyết định phân công số:</label><input type="text" id="qd_phan_cong_so" placeholder="Số/QĐ-VKS"></div>
+                <div class="form-group"><label>Ngày ban hành QĐ phân công:</label><input type="date" id="ngay_ban_hanh_qd_phan_cong"></div>
+
+                <div class="form-group"><label>Cán bộ / KSV được phân công:</label><input type="text" id="can_bo_ksv"></div>
+                <div class="form-group"><label>Ngày tiến hành xác minh:</label><input type="date" id="ngay_xac_minh"></div>
+
+                <div class="form-group">
+                    <label>Đề xuất xử lý:</label>
+                    <select id="de_xuat">
+                        <option value="">-- Chọn đề xuất --</option>
+                        <option value="chuyen_don">Chuyển đơn</option>
+                        <option value="chuyen_phong">Chuyển phòng nghiệp vụ</option>
+                        <option value="thong_bao">Thông báo chỉ dẫn</option>
+                        <option value="tra_don">Trả đơn</option>
+                        <option value="luu_don">Lưu đơn</option>
                     </select>
-                    <input type="date" id="ngay_chuyen_phong">
                 </div>
 
-                <!-- Thông báo / Trả đơn -->
-                <div id="thong_bao_fields" class="form-group" style="display:none;">
-                    <input type="text" id="so_thong_bao" placeholder="Số thông báo / trả đơn">
-                    <input type="date" id="ngay_ban_hanh">
-                </div>
+                <div class="form-group"><label>Quyết định giải quyết / Kết luận tố cáo số:</label><input type="text" id="qd_giai_quyet_so"></div>
+                <div class="form-group"><label>Ngày ban hành Quyết định / Kết luận:</label><input type="date" id="ngay_ban_hanh_qd_giai_quyet"></div>
+                <div class="form-group"><label>Nội dung Quyết định / Kết luận:</label><textarea id="noi_dung_qd_giai_quyet" rows="4"></textarea></div>
             </div>
 
             <div class="form-group">
@@ -164,12 +149,10 @@
                     <tr>
                         <th>STT</th>
                         <th>Ngày nhận</th>
-                        <th>Ngày thụ lý</th>
                         <th>Nguồn đơn</th>
                         <th>Người nộp đơn</th>
                         <th>Phân loại</th>
                         <th>Thẩm quyền</th>
-                        <th>Đề xuất</th>
                         <th>Nội dung tóm tắt</th>
                         <th>Cán bộ</th>
                         <th>File PDF</th>
@@ -196,11 +179,9 @@
 
         let editingKey = null;
 
-        function toggleDeXuatFields() {
-            const deXuat = document.getElementById('de_xuat').value;
-            document.getElementById('chuyen_don_fields').style.display = (deXuat === 'chuyen_don') ? 'block' : 'none';
-            document.getElementById('chuyen_phong_fields').style.display = (deXuat === 'chuyen_phong') ? 'block' : 'none';
-            document.getElementById('thong_bao_fields').style.display = (deXuat === 'thong_bao' || deXuat === 'tra_don') ? 'block' : 'none';
+        function toggleThamQuyen() {
+            const thamQuyen = document.getElementById('tham_quyen').value;
+            document.getElementById('tham_quyen_fields').style.display = (thamQuyen === "Thuộc thẩm quyền giải quyết") ? "block" : "none";
         }
 
         function saveData() {
@@ -208,30 +189,29 @@
 
             const data = {
                 ngay_nhan: document.getElementById('ngay_nhan').value,
-                ngay_thu_ly: document.getElementById('ngay_thu_ly').value,
                 nguon_don: document.getElementById('nguon_don').value,
                 ho_ten: document.getElementById('ho_ten').value,
                 dia_chi: document.getElementById('dia_chi').value,
+                noi_dung: document.getElementById('noi_dung').value,
                 phan_loai: document.getElementById('phan_loai').value,
                 tham_quyen: document.getElementById('tham_quyen').value,
-                noi_dung: document.getElementById('noi_dung').value,
-                can_bo: document.getElementById('can_bo').value,
-                de_xuat: document.getElementById('de_xuat').value,
                 timestamp: Date.now()
             };
 
-            // Thêm dữ liệu theo đề xuất
-            if (data.de_xuat === 'chuyen_don') {
-                data.phan_loai_chuyen = document.getElementById('phan_loai_chuyen').value;
-                data.phieu_chuyen_so = document.getElementById('phieu_chuyen_so').value;
-                data.ngay_chuyen = document.getElementById('ngay_chuyen').value;
-                data.chuyen_den = document.getElementById('chuyen_den').value;
-            } else if (data.de_xuat === 'chuyen_phong') {
-                data.phong_chuyen = document.getElementById('phong_chuyen').value;
-                data.ngay_chuyen_phong = document.getElementById('ngay_chuyen_phong').value;
-            } else if (data.de_xuat === 'thong_bao' || data.de_xuat === 'tra_don') {
-                data.so_thong_bao = document.getElementById('so_thong_bao').value;
-                data.ngay_ban_hanh = document.getElementById('ngay_ban_hanh').value;
+            // Nếu thuộc thẩm quyền giải quyết thì lưu thêm các trường
+            if (data.tham_quyen === "Thuộc thẩm quyền giải quyết") {
+                data.ngay_thu_ly_giai_quyet = document.getElementById('ngay_thu_ly_giai_quyet').value;
+                data.phan_loai_khieu_to = document.getElementById('phan_loai_khieu_to').value;
+                data.qd_thu_ly_so = document.getElementById('qd_thu_ly_so').value;
+                data.ngay_ban_hanh_qd_thu_ly = document.getElementById('ngay_ban_hanh_qd_thu_ly').value;
+                data.qd_phan_cong_so = document.getElementById('qd_phan_cong_so').value;
+                data.ngay_ban_hanh_qd_phan_cong = document.getElementById('ngay_ban_hanh_qd_phan_cong').value;
+                data.can_bo_ksv = document.getElementById('can_bo_ksv').value;
+                data.ngay_xac_minh = document.getElementById('ngay_xac_minh').value;
+                data.de_xuat = document.getElementById('de_xuat').value;
+                data.qd_giai_quyet_so = document.getElementById('qd_giai_quyet_so').value;
+                data.ngay_ban_hanh_qd_giai_quyet = document.getElementById('ngay_ban_hanh_qd_giai_quyet').value;
+                data.noi_dung_qd_giai_quyet = document.getElementById('noi_dung_qd_giai_quyet').value;
             }
 
             if (file) {
@@ -263,17 +243,14 @@
 
         function resetForm() {
             document.getElementById('ngay_nhan').value = '';
-            document.getElementById('ngay_thu_ly').value = '';
             document.getElementById('nguon_don').value = 'Bưu điện';
             document.getElementById('ho_ten').value = '';
             document.getElementById('dia_chi').value = '';
+            document.getElementById('noi_dung').value = '';
             document.getElementById('phan_loai').value = 'Khiếu nại';
             document.getElementById('tham_quyen').value = 'Thuộc thẩm quyền giải quyết';
-            document.getElementById('noi_dung').value = '';
-            document.getElementById('can_bo').value = '';
-            document.getElementById('de_xuat').value = '';
+            toggleThamQuyen();
             document.getElementById('pdf_file').value = '';
-            toggleDeXuatFields();
             editingKey = null;
             document.getElementById('btn-save').innerText = 'LƯU HỒ SƠ';
         }
@@ -286,20 +263,18 @@
                 if (datas) {
                     Object.keys(datas).forEach(key => {
                         const item = datas[key];
-                        const tomTat = item.noi_dung ? item.noi_dung.substring(0, 50) + '...' : '';
-                        const pdfLink = item.pdf_url ? `<a href="${item.pdf_url}" target="_blank" class="btn-pdf">Xem PDF</a>` : 'Không có';
+                        const tomTat = item.noi_dung ? item.noi_dung.substring(0, 60) + '...' : '';
+                        const pdfLink = item.pdf_url ? `<a href="${item.pdf_url}" target="_blank" class="btn-pdf">PDF</a>` : 'Không có';
 
                         html += `<tr>
                             <td>${stt++}</td>
                             <td>${item.ngay_nhan || ''}</td>
-                            <td>${item.ngay_thu_ly || ''}</td>
                             <td>${item.nguon_don || ''}</td>
                             <td>${item.ho_ten || ''}</td>
                             <td>${item.phan_loai || ''}</td>
                             <td>${item.tham_quyen || ''}</td>
-                            <td>${item.de_xuat || ''}</td>
                             <td>${tomTat}</td>
-                            <td>${item.can_bo || ''}</td>
+                            <td>${item.can_bo_ksv || ''}</td>
                             <td>${pdfLink}</td>
                             <td>
                                 <button class="btn-edit" onclick="editRecord('${key}')">Sửa</button>
@@ -308,25 +283,21 @@
                         </tr>`;
                     });
                 }
-                document.getElementById('table-body').innerHTML = html || '<tr><td colspan="12" style="text-align:center;color:#999;padding:30px;">Chưa có đơn nào</td></tr>';
+                document.getElementById('table-body').innerHTML = html || '<tr><td colspan="10" style="text-align:center;color:#999">Chưa có đơn nào</td></tr>';
             });
         }
 
         function editRecord(key) {
             db.ref('don_khieu_to/' + key).once('value').then(snapshot => {
                 const item = snapshot.val();
-                // Load tất cả trường vào form (bạn có thể bổ sung đầy đủ nếu cần)
                 document.getElementById('ngay_nhan').value = item.ngay_nhan || '';
-                document.getElementById('ngay_thu_ly').value = item.ngay_thu_ly || '';
                 document.getElementById('nguon_don').value = item.nguon_don || 'Bưu điện';
                 document.getElementById('ho_ten').value = item.ho_ten || '';
                 document.getElementById('dia_chi').value = item.dia_chi || '';
+                document.getElementById('noi_dung').value = item.noi_dung || '';
                 document.getElementById('phan_loai').value = item.phan_loai || 'Khiếu nại';
                 document.getElementById('tham_quyen').value = item.tham_quyen || 'Thuộc thẩm quyền giải quyết';
-                document.getElementById('noi_dung').value = item.noi_dung || '';
-                document.getElementById('can_bo').value = item.can_bo || '';
-                document.getElementById('de_xuat').value = item.de_xuat || '';
-                toggleDeXuatFields();
+                toggleThamQuyen();
                 editingKey = key;
                 document.getElementById('btn-save').innerText = 'CẬP NHẬT';
             });
@@ -344,7 +315,7 @@
 
         window.onload = () => {
             loadData();
-            toggleDeXuatFields();
+            toggleThamQuyen();
         };
     </script>
 </body>
