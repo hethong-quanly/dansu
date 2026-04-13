@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Hệ thống Quản lý Phần Dân sự - VKS Cần Thơ</title>
+    <title>Hệ thống Quản lý Phần Dân sự - VKS</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
@@ -37,12 +37,10 @@
             gap: 40px;
             justify-content: center;
         }
-
         .column {
             flex: 1;
             max-width: 520px;
         }
-
         .column h2 {
             color: #0408c5;
             font-size: 19px;
@@ -51,13 +49,11 @@
             padding-bottom: 10px;
             border-bottom: 3px solid #5670e6;
         }
-
         .menu-grid {
             display: flex;
             flex-direction: column;
             gap: 14px;
         }
-
         .menu-item {
             padding: 18px 22px;
             background: #5670e6;
@@ -75,16 +71,16 @@
             transform: translateY(-4px);
             box-shadow: 0 8px 20px rgba(4,8,197,0.4);
         }
-
         .report-item {
             background: #f0f4ff;
             border-left: 6px solid #5670e6;
             color: #333;
         }
-        .report-item:hover {
-            background: #e0e9ff;
-        }
+        .report-item:hover { background: #e0e9ff; }
 
+        .login-box { text-align: center; margin: 50px 0; }
+        input { width: 100%; max-width: 350px; padding: 14px; margin: 10px auto; display: block; border: 1px solid #ccc; border-radius: 8px; }
+        .btn-login { background: #0408c5; color: white; padding: 14px; width: 100%; max-width: 350px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
         .logout-btn {
             background: #d32f2f;
             color: white;
@@ -93,7 +89,6 @@
             border-radius: 12px;
             cursor: pointer;
             font-weight: bold;
-            font-size: 16px;
             width: 100%;
             margin-top: 40px;
         }
@@ -103,81 +98,104 @@
     <div class="dashboard-container">
         <header>
             <img src="https://vienkiemsat.cantho.gov.vn/files/images/logo-vks.png" alt="Logo">
-            <h1>VIỆN KIỂM SÁT NHÂN DÂN THÀNH PHỐ CẦN THƠ<br>
-                HỆ THỐNG QUẢN LÝ PHẦN DÂN SỰ</h1>
+            <h1>VIỆN KIỂM SÁT NHÂN DÂN TỐI CAO<br>HỆ THỐNG QUẢN LÝ PHẦN DÂN SỰ</h1>
         </header>
 
-        <div class="main-content">
-            
-            <!-- CỘT TRÁI: CHỨC NĂNG CHÍNH -->
-            <div class="column">
-                <h2>CHỨC NĂNG CHÍNH</h2>
-                <div class="menu-grid">
-                    <a href="dan_su.html" class="menu-item">I. QUẢN LÝ ÁN DÂN SỰ, HC, KD-TM, HN-GĐ, LĐ</a>
-                    <a href="khieu_to.html" class="menu-item">II. KIỂM SÁT, GIẢI QUYẾT KHIẾU NẠI, TỐ CÁO</a>
-                    <a href="thi_hanh_an.html" class="menu-item">III. KIỂM SÁT THI HÀNH ÁN DÂN SỰ</a>
-                    <a href="quan_ly_tk.html" class="menu-item">QUẢN LÝ TÀI KHOẢN</a>
-                    <a href="doi_mk.html" class="menu-item">ĐỔI MẬT KHẨU</a>
-                </div>
-            </div>
-
-            <!-- CỘT PHẢI: BÁO CÁO THỐNG KÊ -->
-            <div class="column">
-                <h2>BÁO CÁO THỐNG KÊ</h2>
-                <div class="menu-grid">
-                    <a href="#" onclick="showReportOptions('tonghop')" class="menu-item report-item">
-                        📊 BÁO CÁO SỐ LIỆU THỐNG KÊ TỔNG HỢP
-                    </a>
-                    <a href="#" onclick="showReportOptions('an_dan_su')" class="menu-item report-item">
-                        📋 BÁO CÁO SỐ LIỆU ÁN DÂN SỰ
-                    </a>
-                    <a href="#" onclick="showReportOptions('thi_hanh_an')" class="menu-item report-item">
-                        📋 BÁO CÁO SỐ LIỆU THI HÀNH ÁN DÂN SỰ
-                    </a>
-                    <a href="#" onclick="showReportOptions('khieu_to')" class="menu-item report-item">
-                        📋 BÁO CÁO SỐ LIỆU KHIẾU NẠI, TỐ CÁO
-                    </a>
-                </div>
-            </div>
+        <!-- PHẦN LOGIN -->
+        <div id="login-box" class="login-box">
+            <input type="text" id="user" placeholder="Tên đăng nhập" onkeypress="if(event.key==='Enter') checkLogin()">
+            <input type="password" id="pass" placeholder="Mật khẩu" onkeypress="if(event.key==='Enter') checkLogin()">
+            <button class="btn-login" onclick="checkLogin()">ĐĂNG NHẬP</button>
         </div>
 
-        <button onclick="logout()" class="logout-btn">🚪 ĐĂNG XUẤT</button>
+        <!-- PHẦN MENU (ẩn khi chưa login) -->
+        <div id="main-menu" style="display:none;">
+            <div class="main-content">
+                <!-- CỘT TRÁI: CHỨC NĂNG CHÍNH -->
+                <div class="column">
+                    <h2>CHỨC NĂNG CHÍNH</h2>
+                    <div class="menu-grid" id="main-menu-items"></div>
+                </div>
+
+                <!-- CỘT PHẢI: BÁO CÁO -->
+                <div class="column">
+                    <h2>BÁO CÁO THỐNG KÊ</h2>
+                    <div class="menu-grid" id="report-menu-items"></div>
+                </div>
+            </div>
+            <button onclick="logout()" class="logout-btn">🚪 ĐĂNG XUẤT</button>
+        </div>
     </div>
 
     <script>
-        function showReportOptions(type) {
-            let title = "";
-            switch(type) {
-                case 'tonghop': title = "Báo cáo số liệu thống kê tổng hợp"; break;
-                case 'an_dan_su': title = "Báo cáo số liệu án dân sự"; break;
-                case 'thi_hanh_an': title = "Báo cáo số liệu thi hành án dân sự"; break;
-                case 'khieu_to': title = "Báo cáo số liệu khiếu nại, tố cáo"; break;
+        var firebaseConfig = {
+            apiKey: "AIzaSyDunRDIeyBTVXTODoO22ywk1Q35cCx2sV8",
+            authDomain: "dansu-vksndtpct.firebaseapp.com",
+            databaseURL: "https://dansu-vksndtpct-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "dansu-vksndtpct",
+            storageBucket: "dansu-vksndtpct.firebasestorage.app",
+            appId: "1:843158256686:web:eb128d64c8b9bfd7aef3bf"
+        };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        var db = firebase.database();
+
+        let currentUser = null;
+
+        function checkLogin() {
+            const username = document.getElementById('user').value.trim();
+            const password = document.getElementById('pass').value.trim();
+
+            if (username === "admin" && password === "123") {
+                currentUser = { username: "admin", role: "super_admin", level: "central" };
+            } else {
+                // Kiểm tra từ Firebase (các tài khoản khác)
+                // Ở đây mình tạm thời dùng logic đơn giản, bạn có thể mở rộng sau
+                currentUser = { username, role: "staff", level: "provincial" };
             }
-            
-            const msg = `${title}\n\nVui lòng chọn mốc thời gian:\n\n` +
-                        `• Theo tháng (01 đến cuối tháng)\n` +
-                        `• 06 tháng đầu năm\n` +
-                        `• 09 tháng đầu năm\n` +
-                        `• Cả năm (12 tháng)\n` +
-                        `• Tùy chọn (từ ngày - đến ngày)`;
-            
-            alert(msg);
-            // Sau này bạn sẽ thay alert này bằng form chọn thời gian đẹp
+
+            localStorage.setItem('vks_user', JSON.stringify(currentUser));
+            sessionStorage.setItem('vks_logged_in', 'true');
+            showMainMenu();
+        }
+
+        function showMainMenu() {
+            document.getElementById('login-box').style.display = 'none';
+            document.getElementById('main-menu').style.display = 'block';
+
+            // Menu chức năng chính
+            document.getElementById('main-menu-items').innerHTML = `
+                <a href="dan_su.html" class="menu-item">I. QUẢN LÝ ÁN DÂN SỰ, HC, KD-TM, HN-GĐ, LĐ</a>
+                <a href="khieu_to.html" class="menu-item">II. KIỂM SÁT, GIẢI QUYẾT KHIẾU NẠI, TỐ CÁO</a>
+                <a href="thi_hanh_an.html" class="menu-item">III. KIỂM SÁT THI HÀNH ÁN DÂN SỰ</a>
+                <a href="quan_ly_tk.html" class="menu-item">QUẢN LÝ TÀI KHOẢN</a>
+                <a href="doi_mk.html" class="menu-item">ĐỔI MẬT KHẨU</a>
+            `;
+
+            // Menu báo cáo
+            document.getElementById('report-menu-items').innerHTML = `
+                <a href="#" onclick="showReportOptions('tonghop')" class="menu-item report-item">📊 BÁO CÁO TỔNG HỢP</a>
+                <a href="#" onclick="showReportOptions('an_dan_su')" class="menu-item report-item">📋 BÁO CÁO ÁN DÂN SỰ</a>
+                <a href="#" onclick="showReportOptions('thi_hanh_an')" class="menu-item report-item">📋 BÁO CÁO THI HÀNH ÁN</a>
+                <a href="#" onclick="showReportOptions('khieu_to')" class="menu-item report-item">📋 BÁO CÁO KHIẾU NẠI, TỐ CÁO</a>
+            `;
+        }
+
+        function showReportOptions(type) {
+            alert(`📊 Báo cáo ${type.toUpperCase()}\n\nChức năng này đang được phát triển.\nBạn muốn báo cáo theo tháng, 6 tháng, 9 tháng hay tùy chọn?`);
         }
 
         function logout() {
-            if (confirm("Bạn có chắc chắn muốn đăng xuất không?")) {
+            if (confirm("Đăng xuất?")) {
                 localStorage.removeItem('vks_user');
                 sessionStorage.removeItem('vks_logged_in');
                 location.reload();
             }
         }
 
-        // Khởi tạo (kiểm tra đã đăng nhập chưa)
+        // Khôi phục phiên khi load lại trang
         window.onload = function() {
-            if (!localStorage.getItem('vks_user')) {
-                alert("Vui lòng đăng nhập trước!");
-                window.location.href = "index.html"; // hoặc trang login nếu bạn tách riêng
+            if (localStorage.getItem('vks_user') && sessionStorage.getItem('vks_logged_in') === 'true') {
+                showMainMenu();
             }
         };
     </script>
