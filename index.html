@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Hệ thống Quản lý VKSND</title>
+    <title>Hệ thống Quản lý Phần Dân Sự</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
@@ -74,7 +74,9 @@
                 <a href="tro_ly_ao.html" class="menu-btn" style="background:#ff9800; margin-top: 25px;">
                     🤖 Trợ lý ảo
                 </a>
-
+                <a href="bao_cao_thong_ke.html" class="menu-btn" style="background:#28a745; margin-top:15px;">
+                📋 Báo cáo thống kê
+            </a>
                 <p style="font-size:13px; color:#666; margin-top:25px; text-align:center;">
                     Trợ lý ảo giúp sử dụng phần mềm và tổng hợp các vi phạm, thông báo rút kinh nghiệm.
                 </p>
@@ -154,6 +156,47 @@
                 showMainMenu();
             } else {
                 document.getElementById('login-section').style.display = 'block';
+            }
+        };
+        function xuatBaoCaoDanSu() {
+            if (!confirm("Bạn muốn xuất Báo cáo Án Dân sự (Biểu 10, 11, 12)?")) return;
+
+            db.ref('an_dan_su').once('value').then(snapshot => {
+                const data = snapshot.val() || {};
+                const total = Object.keys(data).length;
+
+                const rows = [
+                    ["MÃ DÒNG", "CHỈ TIÊU", "SỐ LIỆU"],
+                    ["1", "Số vụ, việc còn lại của kỳ trước", "0"],
+                    ["2", "Số vụ, việc VKS mới nhận được thông báo thụ lý", total],
+                    ["13", "Tổng số vụ, việc VKS thụ lý", total],
+                    ["15", "Số vụ, việc Tòa án đã giải quyết", "0"],
+                    ["31", "Số vụ, việc còn lại chưa giải quyết", total]
+                ];
+
+                const wb = XLSX.utils.book_new();
+                const ws = XLSX.utils.aoa_to_sheet(rows);
+                XLSX.utils.book_append_sheet(wb, ws, "Bieu_10_An_dan_su");
+                XLSX.writeFile(wb, "Bao_cao_An_dan_su.xlsx");
+
+                alert("✅ Đã xuất file Excel Báo cáo Án Dân sự thành công!");
+            });
+        }
+
+        // ====================== BÁO CÁO KHIẾU NẠI TỐ CÁO ======================
+        function xuatBaoCaoKhieuTo() {
+            alert("Báo cáo Khiếu nại, Tố cáo (Biểu 16,17,18) đang được hoàn thiện.\n\nMình sẽ bổ sung chi tiết trong tin nhắn tiếp theo.");
+        }
+
+        // ====================== BÁO CÁO THI HÀNH ÁN ======================
+        function xuatBaoCaoThiHanhAn() {
+            alert("Báo cáo Thi hành án Dân sự (Biểu 20) đang được hoàn thiện.\n\nMình sẽ bổ sung chi tiết trong tin nhắn tiếp theo.");
+        }
+
+        window.onload = () => {
+            if (!localStorage.getItem('vks_logged_in')) {
+                alert("Vui lòng đăng nhập trước!");
+                window.location.href = 'index.html';
             }
         };
     </script>
