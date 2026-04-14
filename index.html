@@ -66,15 +66,15 @@
             </div>
 
             <!-- Cột 2: Báo cáo & Trợ lý ảo -->
-            <div class="column">
-            <h2>📊 BÁO CÁO THỐNG KÊ</h2>
+           <div class="column">
+            <h2>📊 BÁO CÁO THỐNG KÊ THEO BIỂU MẪU VKSND</h2>
             
-            <a href="#" onclick="xuatBaoCaoDanSu()" class="report-btn">📈 Thống kê Án Dân sự, HN-GĐ, KD-TM,... (Biểu 10,11,12)</a>
-            <a href="#" onclick="xuatBaoCaoKhieuTo()" class="report-btn">📈 Thống kê Giải quyết, Kiểm sát việc giải quyết Khiếu nại, Tố cáo</a>
-            <a href="#" onclick="xuatBaoCaoThiHanhAn()" class="report-btn">📈 Thống kê Kiểm sát công tác Thi hành án Dân sự</a>
+            <a href="#" onclick="xuatBaoCaoDanSu()" class="report-btn">📈 Báo cáo Án Dân sự (Biểu 10,11,12)</a>
+            <a href="#" onclick="xuatBaoCaoKhieuTo()" class="report-btn">📈 Báo cáo Khiếu nại, Tố cáo (Biểu 16,17,18)</a>
+            <a href="#" onclick="xuatBaoCaoThiHanhAn()" class="report-btn">📈 Báo cáo Thi hành án Dân sự (Biểu 20)</a>
 
-            <a href="tro_ly_ao.html" class="menu-btn" style="background:#ff9800; margin-top: 25px;">
-                🤖 Trợ lý ảo - Hỗ trợ & Rút kinh nghiệm
+            <a href="tro_ly_ao.html" class="menu-btn" style="background:#ff9800; margin-top: 30px;">
+                🤖 Trợ lý ảo
             </a>
         </div>
         </div>
@@ -142,29 +142,18 @@
             }
         }
 
-        function showReportOptions(type) {
-            alert("Chức năng báo cáo " + type + " đang được phát triển.\n\nMình sẽ bổ sung chi tiết cho bạn sau.");
-        }
-
-        // Kiểm tra trạng thái đăng nhập khi load trang
-        window.onload = function() {
-            if (localStorage.getItem('vks_logged_in') === 'true') {
-                showMainMenu();
-            } else {
-                document.getElementById('login-section').style.display = 'block';
-            }
-        };
+        // ====================== BÁO CÁO ÁN DÂN SỰ ======================
         function xuatBaoCaoDanSu() {
-            if (!confirm("Bạn muốn xuất Báo cáo Án Dân sự (Biểu 10, 11, 12)?")) return;
+            if (!confirm("Xuất Báo cáo Án Dân sự (Biểu 10, 11, 12)?")) return;
 
             db.ref('an_dan_su').once('value').then(snapshot => {
-                const data = snapshot.val() || {};
-                const total = Object.keys(data).length;
+                const datas = snapshot.val() || {};
+                const total = Object.keys(datas).length;
 
                 const rows = [
                     ["MÃ DÒNG", "CHỈ TIÊU", "SỐ LIỆU"],
                     ["1", "Số vụ, việc còn lại của kỳ trước", "0"],
-                    ["2", "Số vụ, việc VKS mới nhận được thông báo thụ lý", total],
+                    ["2", "Số vụ, việc mới nhận được thông báo thụ lý", total],
                     ["13", "Tổng số vụ, việc VKS thụ lý", total],
                     ["15", "Số vụ, việc Tòa án đã giải quyết", "0"],
                     ["31", "Số vụ, việc còn lại chưa giải quyết", total]
@@ -172,21 +161,63 @@
 
                 const wb = XLSX.utils.book_new();
                 const ws = XLSX.utils.aoa_to_sheet(rows);
-                XLSX.utils.book_append_sheet(wb, ws, "Bieu_10_An_dan_su");
+                XLSX.utils.book_append_sheet(wb, ws, "Bieu_10_11_12_AnDanSu");
                 XLSX.writeFile(wb, "Bao_cao_An_dan_su.xlsx");
 
-                alert("✅ Đã xuất file Excel Báo cáo Án Dân sự thành công!");
+                alert("✅ Đã xuất thành công Báo cáo Án Dân sự!");
             });
         }
 
         // ====================== BÁO CÁO KHIẾU NẠI TỐ CÁO ======================
         function xuatBaoCaoKhieuTo() {
-            alert("Báo cáo Khiếu nại, Tố cáo (Biểu 16,17,18) đang được hoàn thiện.\n\nMình sẽ bổ sung chi tiết trong tin nhắn tiếp theo.");
+            if (!confirm("Xuất Báo cáo Khiếu nại, Tố cáo?")) return;
+
+            db.ref('don_khieu_to').once('value').then(snapshot => {
+                const datas = snapshot.val() || {};
+                const total = Object.keys(datas).length;
+
+                const rows = [
+                    ["MÃ DÒNG", "CHỈ TIÊU", "SỐ LIỆU"],
+                    ["1", "Số đơn còn lại kỳ trước", "0"],
+                    ["2", "Số đơn mới nhận trong kỳ", total],
+                    ["13", "Tổng số đơn VKS thụ lý", total],
+                    ["15", "Số đơn đã giải quyết", "0"],
+                    ["17", "Số đơn còn lại chưa giải quyết", total]
+                ];
+
+                const wb = XLSX.utils.book_new();
+                const ws = XLSX.utils.aoa_to_sheet(rows);
+                XLSX.utils.book_append_sheet(wb, ws, "Bieu_KhieuTo");
+                XLSX.writeFile(wb, "Bao_cao_Khieu_nai_To_cao.xlsx");
+
+                alert("✅ Đã xuất thành công Báo cáo Khiếu nại, Tố cáo!");
+            });
         }
 
         // ====================== BÁO CÁO THI HÀNH ÁN ======================
         function xuatBaoCaoThiHanhAn() {
-            alert("Báo cáo Thi hành án Dân sự (Biểu 20) đang được hoàn thiện.\n\nMình sẽ bổ sung chi tiết trong tin nhắn tiếp theo.");
+            if (!confirm("Xuất Báo cáo Thi hành án Dân sự?")) return;
+
+            db.ref('thi_hanh_an').once('value').then(snapshot => {
+                const datas = snapshot.val() || {};
+                const total = Object.keys(datas).length;
+
+                const rows = [
+                    ["MÃ DÒNG", "CHỈ TIÊU", "SỐ LIỆU"],
+                    ["1", "Số việc còn lại kỳ trước", "0"],
+                    ["2", "Số việc mới nhận trong kỳ", total],
+                    ["13", "Tổng số việc thụ lý", total],
+                    ["15", "Số việc đã thi hành xong", "0"],
+                    ["28", "Số việc còn lại chưa thi hành", total]
+                ];
+
+                const wb = XLSX.utils.book_new();
+                const ws = XLSX.utils.aoa_to_sheet(rows);
+                XLSX.utils.book_append_sheet(wb, ws, "Bieu_ThiHanhAn");
+                XLSX.writeFile(wb, "Bao_cao_Thi_hanh_an.xlsx");
+
+                alert("✅ Đã xuất thành công Báo cáo Thi hành án Dân sự!");
+            });
         }
 
         window.onload = () => {
