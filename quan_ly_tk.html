@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Quản lý Tài khoản - VKSNDTC</title>
+    <title>Quản lý Tài khoản - VKSND</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
@@ -29,7 +29,7 @@
 <body>
     <header>
         <a href="index.html" class="btn-back">← Menu chính</a>
-        <h1>VIỆN KIỂM SÁT NHÂN DÂN TỐI CAO</h1>
+        <h1>VIỆN KIỂM SÁT NHÂN DÂN THÀNH PHỐ CẦN THƠ</h1>
         <h2>QUẢN LÝ TÀI KHOẢN NGƯỜI DÙNG</h2>
     </header>
 
@@ -38,7 +38,7 @@
         
         <div class="form-group">
             <label>Tên đăng nhập (username):</label>
-            <input type="text" id="username" placeholder="Ví dụ: thienphuc">
+            <input type="text" id="username" placeholder="Ví dụ: nguyenvana">
         </div>
         <div class="form-group">
             <label>Mật khẩu:</label>
@@ -89,6 +89,7 @@
             <select id="chuc_vu_canbo">
                 <option value="Kiem sat vien">Kiểm sát viên</option>
                 <option value="Kiem tra vien">Kiểm tra viên</option>
+                <option value="Chuyen vien">Chuyên viên</option>
             </select>
         </div>
 
@@ -96,7 +97,7 @@
         <div id="lanhdao_fields" class="dynamic-fields" style="display:none;">
             <label>Cấp lãnh đạo:</label>
             <select id="cap_lanh_dao" onchange="toggleCapLanhDao()">
-                <option value="Cap vu">Cấp Vụ</option>
+                <option value="Cap vu">Cấp Vụ/Cục</option>
                 <option value="Cap vien">Cấp Viện</option>
                 <option value="Cap phong">Cấp Phòng</option>
             </select>
@@ -177,11 +178,10 @@
             select.innerHTML = '';
 
             if (cap === "Cap vu") {
-                select.innerHTML = `<option value="Vu truong">Vụ trưởng</option><option value="Vu pho">Vụ phó</option>`;
-            } else if (cap === "Cap vien") {
+                select.innerHTML = `<option value="Vu truong">Vụ trưởng</option><option value="Vu pho">Vụ phó</option><option value="Cuc truong">Cục trưởng</option><option value="Pho Cuc truong">Phó Cục trưởng</option>`;            } else if (cap === "Cap vien") {
                 select.innerHTML = `<option value="Vien truong">Viện trưởng</option><option value="Pho vien truong">Phó Viện trưởng</option>`;
             } else if (cap === "Cap phong") {
-                select.innerHTML = `<option value="Truong phong">Trưởng phòng</option><option value="Pho phong">Phó phòng</option>`;
+                select.innerHTML = `<option value="Truong phong">Trưởng phòng</option><option value="Pho truong phong">Phó trưởng phòng</option>`;
             }
         }
 
