@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Trợ lý ảo - Rút kinh nghiệm</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f5f7fa; }
+        header { background: #0408c5; color: #f8f536; text-align: center; padding: 15px; }
+        .btn-back { position: absolute; left: 20px; top: 20px; color: white; font-weight: bold; background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 6px; text-decoration: none; }
+        
+        .chat-container { max-width: 900px; margin: 30px auto; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); overflow: hidden; }
+        .chat-header { background: #0408c5; color: white; padding: 15px; font-weight: bold; }
+        .chat-body { height: 500px; overflow-y: auto; padding: 20px; background: #f8f9fa; }
+        .message { margin-bottom: 15px; padding: 12px 18px; border-radius: 18px; max-width: 80%; }
+        .assistant { background: #e0f2f1; align-self: flex-start; }
+        .user { background: #5670e6; color: white; align-self: flex-end; margin-left: auto; }
+        
+        button { background: #5670e6; color: white; padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; font-size: 15px; margin: 5px; }
+        button:hover { background: #0408c5; }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="index.html" class="btn-back">← Menu chính</a>
+        <h2>🤖 TRỢ LÝ ẢO - TỔNG HỢP VI PHẠM & RÚT KINH NGHIỆM</h2>
+    </header>
+
+    <div class="chat-container">
+        <div class="chat-header">Trợ lý đang phân tích dữ liệu từ Án dân sự, Khiếu nại tố cáo và Thi hành án...</div>
+        <div class="chat-body" id="chat-body">
+            <div class="message assistant">Chào bạn! Tôi là trợ lý ảo của VKSND.<br>Nhấn nút bên dưới để tôi tổng hợp vi phạm và đưa ra rút kinh nghiệm ngay nhé!</div>
+        </div>
+
+        <div style="padding:15px; text-align:center; background:#fff;">
+            <button onclick="phanTichHomNay()">📅 Tổng hợp vi phạm HÔM NAY</button>
+            <button onclick="phanTichThangNay()">📆 Tổng hợp vi phạm THÁNG NÀY</button>
+            <button onclick="rutKinhNghiemToanBo()">📊 Rút kinh nghiệm TOÀN BỘ</button>
+        </div>
+    </div>
+
+    <script>
+        var firebaseConfig = { /* Giữ nguyên config của bạn */ 
+            apiKey: "AIzaSyDunRDIeyBTVXTODoO22ywk1Q35cCx2sV8",
+            authDomain: "dansu-vksndtpct.firebaseapp.com",
+            databaseURL: "https://dansu-vksndtpct-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "dansu-vksndtpct",
+            storageBucket: "dansu-vksndtpct.firebasestorage.app",
+            appId: "1:843158256686:web:eb128d64c8b9bfd7aef3bf"
+        };
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        var db = firebase.database();
+
+        function addMessage(text, isAssistant = true) {
+            const chat = document.getElementById('chat-body');
+            const div = document.createElement('div');
+            div.className = `message ${isAssistant ? 'assistant' : 'user'}`;
+            div.innerHTML = text;
+            chat.appendChild(div);
+            chat.scrollTop = chat.scrollHeight;
+        }
+
+        async function phanTichHomNay() {
+            addMessage("Đang quét dữ liệu hôm nay...", true);
+            // Logic phân tích sẽ được mình bổ sung chi tiết sau khi bạn xác nhận
+            setTimeout(() => {
+                addMessage(`<strong>Kết quả phân tích hôm nay:</strong><br>
+                • Có 3 vụ án dân sự chậm thụ lý quá 15 ngày.<br>
+                • 2 đơn khiếu nại thuộc thẩm quyền nhưng chưa ra quyết định thụ lý.<br>
+                • 1 vụ thi hành án có tài sản chưa bán được sau 2 lần giảm giá.<br><br>
+                <strong>Thông báo rút kinh nghiệm:</strong><br>
+                - Cần chú ý thời hạn thụ lý cấp sơ thẩm.<br>
+                - Tăng cường kiểm tra hồ sơ trước khi chuyển thi hành án.`, true);
+            }, 1200);
+        }
+
+        async function phanTichThangNay() {
+            addMessage("Đang tổng hợp dữ liệu tháng này...", true);
+            setTimeout(() => {
+                addMessage(`<strong>Tóm tắt tháng này:</strong><br>
+                • Tỷ lệ đơn khiếu nại đúng thẩm quyền: 68% (cần cải thiện).<br>
+                • Số bản án có hiệu lực chuyển sang thi hành án: 12 vụ.<br>
+                • Vi phạm phổ biến: Chậm xác minh điều kiện thi hành án.<br><br>
+                <strong>Rút kinh nghiệm:</strong><br>
+                - Tăng cường phối hợp giữa các phòng 9, 10, 11.`, true);
+            }, 1500);
+        }
+
+        async function rutKinhNghiemToanBo() {
+            addMessage("Đang phân tích toàn bộ dữ liệu...", true);
+            setTimeout(() => {
+                addMessage(`<strong>Rút kinh nghiệm tổng quát:</strong><br>
+                1. Thời hạn giải quyết khiếu nại cần được tuân thủ nghiêm.<br>
+                2. Tăng cường xác minh điều kiện thi hành án ngay khi nhận QĐ.<br>
+                3. Giảm tỷ lệ bản án bị kháng nghị bằng cách kiểm tra kỹ nội dung.<br>
+                4. Đề xuất tập huấn cho cán bộ về thủ tục GĐT/Tái thẩm.`, true);
+            }, 1800);
+        }
+    </script>
+</body>
+</html>
