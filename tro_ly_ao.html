@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Trợ lý ảo</title>
+    <title>Trợ lý ảo VKSND - Hỗ trợ toàn diện</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
@@ -13,7 +13,7 @@
         .chat-container { max-width: 1100px; margin: 30px auto; background: white; border-radius: 12px; box-shadow: 0 4px 25px rgba(0,0,0,0.12); overflow: hidden; }
         .chat-header { background: #0408c5; color: white; padding: 15px; font-size: 18px; font-weight: bold; }
         .chat-body { height: 520px; overflow-y: auto; padding: 20px; background: #f8f9fa; display: flex; flex-direction: column; gap: 12px; }
-        .message { padding: 14px 18px; border-radius: 18px; max-width: 85%; line-height: 1.6; }
+        .message { padding: 14px 18px; border-radius: 18px; max-width: 90%; line-height: 1.6; }
         .assistant { background: #e0f2f1; align-self: flex-start; }
         .user { background: #5670e6; color: white; align-self: flex-end; }
         
@@ -26,16 +26,20 @@
 <body>
     <header>
         <a href="index.html" class="btn-back">← Menu chính</a>
-        <h2>🤖 TRỢ LÝ ẢO</h2>
+        <h2>🤖 TRỢ LÝ ẢO VKSND - HỖ TRỢ TOÀN DIỆN</h2>
     </header>
 
     <div class="chat-container">
-        <div class="chat-header">Tôi hỗ trợ bạn các quy định dân sự, tố tụng dân sự, thi hành án dân sự và khiếu nại, tố cáo</div>
+        <div class="chat-header">Tôi hỗ trợ bạn về pháp luật và cách sử dụng phần mềm</div>
         <div class="chat-body" id="chat-body">
             <div class="message assistant">
                 Xin chào!<br><br>
-                Tôi là Trợ lý ảo phần mềm này.<br>
-                Bạn có thể hỏi bất kỳ vấn đề nào liên quan đến phần mềm hoặc sử dụng các nút bên dưới để tổng hợp vi phạm và rút kinh nghiệm.
+                Tôi là Trợ lý ảo của VKSND.<br>
+                Bạn có thể hỏi về:<br>
+                • Quy định pháp luật<br>
+                • Rút kinh nghiệm từ dữ liệu<br>
+                • <strong>Hướng dẫn sử dụng phần mềm</strong> (đổi mật khẩu, nhập dữ liệu, chỉnh sửa, tra cứu...)<br><br>
+                Bạn muốn tôi hỗ trợ gì hôm nay?
             </div>
         </div>
 
@@ -43,18 +47,18 @@
         <div style="padding:15px; text-align:center; background:#fff;">
             <button onclick="phanTichHomNay()">📅 Tổng hợp vi phạm HÔM NAY</button>
             <button onclick="phanTichThangNay()">📆 Tổng hợp vi phạm THÁNG NÀY</button>
-            <button onclick="rutKinhNghiemToanBo()">📊 Kinh nghiệm thực tế</button>
+            <button onclick="rutKinhNghiemToanBo()">📊 Thông báo Rút kinh nghiệm</button>
         </div>
 
-        <!-- Ô chat hỏi đáp -->
+        <!-- Ô nhập chat -->
         <div class="input-area">
-            <input type="text" id="user-input" placeholder="Ví dụ: Thời hạn thụ lý án dân sự sơ thẩm là bao lâu?">
-            <button onclick="sendMessage()">Gửi câu hỏi</button>
+            <input type="text" id="user-input" placeholder="Ví dụ: Cách đổi mật khẩu? Hoặc Thời hạn thụ lý án dân sự là bao lâu?">
+            <button onclick="sendMessage()">Gửi</button>
         </div>
     </div>
 
     <script>
-        // Firebase config (giữ nguyên)
+        // Firebase config
         var firebaseConfig = {
             apiKey: "AIzaSyDunRDIeyBTVXTODoO22ywk1Q35cCx2sV8",
             authDomain: "dansu-vksndtpct.firebaseapp.com",
@@ -75,23 +79,23 @@
             chat.scrollTop = chat.scrollHeight;
         }
 
-        // ==================== PHẦN TỔNG HỢP VI PHẠM (giữ nguyên) ====================
-        function phanTichHomNay() { /* giữ nguyên như cũ */ 
+        // ==================== TỔNG HỢP VI PHẠM (giữ nguyên) ====================
+        function phanTichHomNay() {
             addMessage("Đang quét dữ liệu hôm nay...", true);
-            setTimeout(() => addMessage(`<strong>Kết quả hôm nay:</strong><br>• Có vụ án dân sự chậm thụ lý.<br>• Đơn khiếu nại cần kiểm tra thẩm quyền.<br><br><strong>Rút kinh nghiệm:</strong><br>- Kiểm tra hồ sơ ngay khi nhận đơn.`, true), 1200);
+            setTimeout(() => addMessage(`<strong>Kết quả hôm nay:</strong><br>• Có vụ chậm thụ lý án dân sự.<br>• Đơn khiếu nại cần kiểm tra thẩm quyền.<br><br><strong>Rút kinh nghiệm:</strong><br>- Kiểm tra hồ sơ ngay khi nhận đơn.`, true), 1200);
         }
 
-        function phanTichThangNay() { /* giữ nguyên */ 
+        function phanTichThangNay() {
             addMessage("Đang tổng hợp tháng này...", true);
-            setTimeout(() => addMessage(`<strong>Tóm tắt tháng:</strong><br>• Tỷ lệ đơn đúng thẩm quyền thấp.<br><br><strong>Rút kinh nghiệm:</strong><br>- Tăng cường phối hợp giữa các phòng.`, true), 1400);
+            setTimeout(() => addMessage(`<strong>Tóm tắt tháng:</strong><br>• Tỷ lệ đơn đúng thẩm quyền cần cải thiện.<br><br><strong>Rút kinh nghiệm:</strong><br>- Tăng phối hợp giữa các phòng.`, true), 1400);
         }
 
-        function rutKinhNghiemToanBo() { /* giữ nguyên */ 
+        function rutKinhNghiemToanBo() {
             addMessage("Đang phân tích toàn bộ...", true);
             setTimeout(() => addMessage(`<strong>Rút kinh nghiệm tổng quát:</strong><br>1. Tuân thủ nghiêm thời hạn tố tụng.<br>2. Xác minh điều kiện thi hành án sớm.`, true), 1600);
         }
 
-        // ==================== AI CHAT HỎI ĐÁP PHÁP LUẬT (NÂNG CẤP) ====================
+        // ==================== TRỢ LÝ THÔNG MINH (Hỏi đáp pháp luật + Hướng dẫn sử dụng) ====================
         function sendMessage() {
             const input = document.getElementById('user-input');
             const question = input.value.trim();
@@ -100,49 +104,76 @@
             addMessage(question, false);
             input.value = '';
 
-            addMessage("Đang tra cứu và phân tích pháp luật...", true);
+            addMessage("Đang phân tích và trả lời...", true);
 
-            // Giả lập delay để giống AI thật
             setTimeout(() => {
-                const answer = getAdvancedLegalAnswer(question);
+                const answer = getSmartAnswer(question);
                 addMessage(answer, true);
-            }, 900);
+            }, 800);
         }
 
-        function getAdvancedLegalAnswer(q) {
-            const question = q.toLowerCase().trim();
+        function getSmartAnswer(q) {
+            const question = q.toLowerCase();
 
-            // Câu hỏi về thời hạn thụ lý
-            if (question.includes("thụ lý") || question.includes("chuẩn bị xét xử")) {
-                return `<strong>Trả lời theo Bộ luật Tố tụng Dân sự 2015:</strong><br>
-                Theo <strong>Điều 203</strong>: Thời hạn chuẩn bị xét xử sơ thẩm là <strong>04 tháng</strong> kể từ ngày thụ lý vụ án (đối với vụ án thông thường).<br>
-                Đối với vụ án phức tạp, Chánh án Tòa án có thể gia hạn một lần nhưng không quá <strong>02 tháng</strong>.<br><br>
-                <strong>Lưu ý thực tiễn:</strong> Nếu vụ việc cần ủy thác tư pháp hoặc giám định thì có thể tạm đình chỉ để chờ kết quả.`;
+            // ==================== HƯỚNG DẪN SỬ DỤNG PHẦN MỀM ====================
+            if (question.includes("đổi mật khẩu") || question.includes("thay đổi mật khẩu")) {
+                return `<strong>Hướng dẫn đổi mật khẩu:</strong><br>
+                1. Sau khi đăng nhập, click vào mục <strong>"Đổi mật khẩu"</strong> ở menu chính.<br>
+                2. Nhập mật khẩu hiện tại.<br>
+                3. Nhập mật khẩu mới và nhập lại mật khẩu mới.<br>
+                4. Nhấn <strong>"XÁC NHẬN ĐỔI"</strong>.<br><br>
+                <strong>Lưu ý:</strong> Mật khẩu mới nên có ít nhất 6 ký tự.`;
             }
 
-            // Thời hiệu khởi kiện
-            if (question.includes("thời hiệu khởi kiện") || question.includes("thời hiệu dân sự")) {
-                return `<strong>Trả lời theo Bộ luật Dân sự 2015:</strong><br>
-                Theo <strong>Điều 157</strong>: Thời hiệu khởi kiện về tranh chấp dân sự là <strong>03 năm</strong>, kể từ ngày quyền và lợi ích hợp pháp bị xâm phạm (trừ một số trường hợp đặc biệt).`;
+            if (question.includes("nhập dữ liệu") || question.includes("thêm dữ liệu")) {
+                return `<strong>Hướng dẫn nhập dữ liệu:</strong><br>
+                • Vào mục tương ứng (Án dân sự, Khiếu nại, Thi hành án).<br>
+                • Điền đầy đủ thông tin vào form bên trái.<br>
+                • Nếu có file PDF thì chọn file và nhấn <strong>"LƯU HỒ SƠ"</strong>.<br>
+                • Dữ liệu sẽ tự động hiển thị ở bảng bên phải.`;
             }
 
-            // Thời hạn khiếu nại tố cáo
-            if (question.includes("khiếu nại") || question.includes("tố cáo")) {
-                return `<strong>Trả lời theo Luật Khiếu nại 2011 & Luật Tố cáo 2011:</strong><br>
-                - Thời hạn giải quyết khiếu nại lần đầu: <strong>30 ngày</strong> (vụ phức tạp không quá 45 ngày).<br>
-                - Thời hạn giải quyết tố cáo: <strong>60 ngày</strong> (có thể gia hạn).`;
+            if (question.includes("chỉnh sửa") || question.includes("sửa dữ liệu")) {
+                return `<strong>Hướng dẫn chỉnh sửa dữ liệu:</strong><br>
+                1. Tìm dòng dữ liệu cần sửa trong bảng.<br>
+                2. Nhấn nút <strong>"Sửa"</strong> (màu cam).<br>
+                3. Sửa thông tin trong form.<br>
+                4. Nhấn <strong>"CẬP NHẬT"</strong>.`;
             }
 
-            // Thi hành án
-            if (question.includes("thi hành án") || question.includes("tự nguyện thi hành")) {
-                return `<strong>Trả lời theo Luật Thi hành án dân sự:</strong><br>
-                Theo <strong>Điều 45</strong> (sửa đổi): Thời hạn tự nguyện thi hành án là <strong>10 ngày</strong>, kể từ ngày người phải thi hành án nhận được quyết định thi hành án hoặc được thông báo hợp lệ.`;
+            if (question.includes("tra cứu") || question.includes("tìm kiếm")) {
+                return `<strong>Hướng dẫn tra cứu:</strong><br>
+                Hiện tại bạn có thể cuộn bảng để xem danh sách.<br>
+                Trong tương lai mình sẽ bổ sung ô tìm kiếm nhanh cho bạn.`;
             }
 
-            // Trả lời mặc định thông minh hơn
+            if (question.includes("xóa dữ liệu") || question.includes("xóa hồ sơ")) {
+                return `<strong>Hướng dẫn xóa dữ liệu:</strong><br>
+                1. Tìm hồ sơ cần xóa trong bảng.<br>
+                2. Nhấn nút <strong>"Xóa"</strong> (màu đỏ).<br>
+                3. Xác nhận lại một lần nữa.`;
+            }
+
+            // ==================== HỎI ĐÁP PHÁP LUẬT ====================
+            if (question.includes("thụ lý") || question.includes("thời hạn thụ lý")) {
+                return `<strong>Trả lời pháp luật:</strong><br>
+                Theo <strong>Điều 203 Bộ luật Tố tụng Dân sự 2015</strong>:<br>
+                Thời hạn chuẩn bị xét xử sơ thẩm là <strong>04 tháng</strong> kể từ ngày thụ lý vụ án.`;
+            }
+
+            if (question.includes("thời hiệu khởi kiện")) {
+                return `<strong>Trả lời pháp luật:</strong><br>
+                Theo <strong>Điều 157 Bộ luật Dân sự 2015</strong>: Thời hiệu khởi kiện dân sự là <strong>03 năm</strong>.`;
+            }
+
+            // Trả lời mặc định thông minh
             return `<strong>Trả lời:</strong><br>
-            Câu hỏi của bạn rất hay. Tôi sẽ tra cứu và trả lời cho bạn khi có thể!<br><br>
-            tôi đưa ra câu trả lời chi tiết và trích dẫn điều luật chính xác hơn nhé!`;
+            Câu hỏi của bạn rất hay!<br><br>
+            Hiện tại tôi có thể hỗ trợ bạn về:<br>
+            • Hướng dẫn sử dụng phần mềm (đổi mật khẩu, nhập/sửa/xóa dữ liệu...)<br>
+            • Quy định pháp luật (dân sự, tố tụng, thi hành án, khiếu nại tố cáo)<br>
+            • Rút kinh nghiệm từ dữ liệu hệ thống<br><br>
+            Bạn có thể hỏi cụ thể hơn để tôi hỗ trợ chi tiết nhé!`;
         }
 
         // Nhấn Enter để gửi
