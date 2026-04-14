@@ -30,7 +30,8 @@
 </head>
 <body>
     <header>
-        <h1>HỆ THỐNG QUẢN LÝ VIỆC KIỂM SÁT NHÂN DÂN</h1>
+        <h1>VIỆN KIỂM SÁT NHÂN DÂN TỐI CAO</h1>
+        <h2>HỆ THỐNG QUẢN LÝ PHẦN DÂN SỰ</h2>
         <a href="#" onclick="logout()" class="btn-back" id="logout-btn" style="display:none;">Đăng xuất</a>
     </header>
 
@@ -57,9 +58,9 @@
             <!-- Cột 1: Chức năng chính -->
             <div class="column">
                 <h2>I. CHỨC NĂNG CHÍNH</h2>
-                <a href="dan_su.html" class="menu-btn">I. Quản lý Án Dân sự</a>
-                <a href="khieu_to.html" class="menu-btn">II. Giải quyết Khiếu nại, Tố cáo</a>
-                <a href="thi_hanh_an.html" class="menu-btn">III. Thi hành án Dân sự</a>
+                <a href="dan_su.html" class="menu-btn">I. Quản lý Án Dân sự, HN-GĐ, KD-TM, Hành chính, Lao động và các việc khác</a>
+                <a href="khieu_to.html" class="menu-btn">II. Giải quyết, Kiểm sát việc giải quyết Khiếu nại, Tố cáo</a>
+                <a href="thi_hanh_an.html" class="menu-btn">III. Kiểm sát công tác Thi hành án Dân sự</a>
                 <a href="quan_ly_tk.html" class="menu-btn">Quản lý Tài khoản</a>
                 <a href="doi_mk.html" class="menu-btn">Đổi mật khẩu</a>
             </div>
@@ -67,16 +68,15 @@
             <!-- Cột 2: Báo cáo & Trợ lý ảo -->
             <div class="column">
                 <h2>📊 BÁO CÁO & TRỢ LÝ</h2>
-                <a href="#" onclick="showReportOptions('an_dan_su')" class="report-btn">📈 Báo cáo Án Dân sự</a>
-                <a href="#" onclick="showReportOptions('khieu_to')" class="report-btn">📈 Báo cáo Khiếu nại, Tố cáo</a>
-                <a href="#" onclick="showReportOptions('thi_hanh_an')" class="report-btn">📈 Báo cáo Thi hành án Dân sự</a>
-                
+                <a href="#" onclick="showReportOptions('an_dan_su')" class="report-btn">📈 Báo cáo Án Dân sự, HN-GĐ, KD-TM, Hành chính, Lao động...</a>
+                <a href="#" onclick="showReportOptions('khieu_to')" class="report-btn">📈 Báo cáo Giải quyết, Kiểm sát việc giải quyếtKhiếu nại, Tố cáo</a>
+                <a href="#" onclick="showReportOptions('thi_hanh_an')" class="report-btn">📈 Báo cáo Kiểm sát công tác Thi hành án Dân sự</a>
                 <a href="tro_ly_ao.html" class="menu-btn" style="background:#ff9800; margin-top: 25px;">
                     🤖 Trợ lý ảo
                 </a>
 
                 <p style="font-size:13px; color:#666; margin-top:25px; text-align:center;">
-                    Trợ lý sẽ giúp tổng hợp vi phạm và đưa ra rút kinh nghiệm từ dữ liệu hệ thống.
+                    Trợ lý ảo giúp sử dụng phần mềm và tổng hợp các vi phạm, thông báo rút kinh nghiệm.
                 </p>
             </div>
         </div>
