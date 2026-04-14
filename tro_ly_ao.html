@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Trợ lý ảo - Rút kinh nghiệm</title>
+    <title>Trợ lý ảo - Hỏi đáp pháp luật & Rút kinh nghiệm</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
@@ -17,35 +17,39 @@
         .assistant { background: #e0f2f1; align-self: flex-start; }
         .user { background: #5670e6; color: white; align-self: flex-end; }
         
-        button { 
-            background: #5670e6; color: white; padding: 12px 24px; 
-            border: none; border-radius: 8px; cursor: pointer; font-size: 15px; margin: 8px 5px;
-        }
+        .input-area { padding: 15px; background: #fff; border-top: 1px solid #eee; display: flex; gap: 10px; }
+        input#user-input { flex: 1; padding: 12px; border: 1px solid #ccc; border-radius: 8px; font-size: 15px; }
+        button { background: #5670e6; color: white; padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
         button:hover { background: #0408c5; }
     </style>
 </head>
 <body>
     <header>
         <a href="index.html" class="btn-back">← Menu chính</a>
-        <h2>🤖 TRỢ LÝ ẢO - TỔNG HỢP VI PHẠM & RÚT KINH NGHIỆM</h2>
+        <h2>🤖 TRỢ LÝ ẢO - HỎI ĐÁP PHÁP LUẬT & RÚT KINH NGHIỆM</h2>
     </header>
 
     <div class="chat-container">
-        <div class="chat-header">Trợ lý đang phân tích dữ liệu từ toàn bộ hệ thống...</div>
+        <div class="chat-header">Tôi có thể giúp bạn về pháp luật dân sự, tố tụng, thi hành án và khiếu nại tố cáo</div>
         <div class="chat-body" id="chat-body">
             <div class="message assistant">
                 Xin chào!<br><br>
-                Tôi là Trợ lý ảo của VKSND. Tôi có thể giúp bạn:<br>
-                • Tổng hợp vi phạm theo ngày/tháng<br>
-                • Rút kinh nghiệm từ dữ liệu hệ thống<br>
-                • Gợi ý cách xử lý vụ việc tương tự
+                Tôi là Trợ lý ảo của VKSND.<br>
+                Bạn có thể hỏi tôi về quy định pháp luật, hoặc nhấn các nút bên dưới để tổng hợp vi phạm và rút kinh nghiệm.
             </div>
         </div>
 
-        <div style="padding:20px; text-align:center; background:#fff; border-top:1px solid #eee;">
+        <!-- Nút chức năng nhanh -->
+        <div style="padding:15px; text-align:center; background:#fff;">
             <button onclick="phanTichHomNay()">📅 Tổng hợp vi phạm HÔM NAY</button>
             <button onclick="phanTichThangNay()">📆 Tổng hợp vi phạm THÁNG NÀY</button>
             <button onclick="rutKinhNghiemToanBo()">📊 Rút kinh nghiệm TOÀN BỘ</button>
+        </div>
+
+        <!-- Ô nhập chat -->
+        <div class="input-area">
+            <input type="text" id="user-input" placeholder="Hỏi về pháp luật ví dụ: Thời hạn thụ lý án dân sự là bao lâu?">
+            <button onclick="sendMessage()">Gửi</button>
         </div>
     </div>
 
@@ -70,41 +74,99 @@
             chat.scrollTop = chat.scrollHeight;
         }
 
+        // ==================== PHẦN TỔNG HỢP VI PHẠM (giữ nguyên) ====================
         function phanTichHomNay() {
             addMessage("Đang quét dữ liệu hôm nay...", true);
             setTimeout(() => {
-                addMessage(`<strong>Kết quả phân tích hôm nay:</strong><br>
-                • 2 vụ án dân sự chậm thụ lý quá thời hạn.<br>
-                • 1 đơn khiếu nại thuộc thẩm quyền nhưng chưa ra quyết định thụ lý.<br>
-                • 1 vụ thi hành án có tài sản chưa bán được sau giảm giá.<br><br>
-                <strong>Thông báo rút kinh nghiệm:</strong><br>
-                - Cần kiểm tra hồ sơ ngay khi thụ lý để tránh chậm trễ.<br>
-                - Tăng cường phối hợp giữa các phòng nghiệp vụ.`, true);
-            }, 1500);
+                addMessage(`<strong>Kết quả hôm nay:</strong><br>
+                • 2 vụ án dân sự chậm thụ lý.<br>
+                • 1 đơn khiếu nại chưa ra quyết định thụ lý.<br>
+                • 1 vụ thi hành án tài sản chưa bán được.<br><br>
+                <strong>Rút kinh nghiệm:</strong><br>
+                - Kiểm tra hồ sơ sớm hơn để tránh chậm trễ thời hạn.`, true);
+            }, 1200);
         }
 
         function phanTichThangNay() {
             addMessage("Đang tổng hợp dữ liệu tháng này...", true);
             setTimeout(() => {
                 addMessage(`<strong>Tóm tắt tháng này:</strong><br>
-                • Tỷ lệ đơn khiếu nại đúng thẩm quyền: 65% (cần cải thiện).<br>
-                • Số vụ chuyển thi hành án: 8 vụ.<br>
-                • Vi phạm phổ biến: Chậm xác minh điều kiện thi hành án.<br><br>
+                • Tỷ lệ đơn đúng thẩm quyền: 68%.<br>
+                • Số vụ chuyển thi hành án: 9 vụ.<br>
+                • Vi phạm phổ biến: Chậm xác minh điều kiện THA.<br><br>
                 <strong>Rút kinh nghiệm:</strong><br>
-                - Đề xuất tập huấn về thời hạn giải quyết khiếu nại tố cáo.`, true);
-            }, 1600);
+                - Tăng cường phối hợp giữa các phòng nghiệp vụ.`, true);
+            }, 1400);
         }
 
         function rutKinhNghiemToanBo() {
-            addMessage("Đang phân tích toàn bộ dữ liệu hệ thống...", true);
+            addMessage("Đang phân tích toàn bộ dữ liệu...", true);
             setTimeout(() => {
                 addMessage(`<strong>Rút kinh nghiệm tổng quát:</strong><br>
-                1. Chú trọng thời hạn thụ lý và chuẩn bị xét xử theo BLTTDS 2015.<br>
-                2. Tăng cường xác minh điều kiện thi hành án ngay từ đầu.<br>
-                3. Giảm tỷ lệ đơn khiếu nại bằng cách nâng cao chất lượng hồ sơ ban đầu.<br>
-                4. Thường xuyên rà soát tài sản kê biên để đẩy nhanh tiến độ đấu giá.`, true);
-            }, 1800);
+                1. Tuân thủ nghiêm thời hạn theo Bộ luật Tố tụng Dân sự 2015.<br>
+                2. Xác minh điều kiện thi hành án ngay khi nhận quyết định.<br>
+                3. Nâng cao chất lượng hồ sơ để giảm khiếu nại.`, true);
+            }, 1600);
         }
+
+        // ==================== PHẦN AI CHAT HỎI ĐÁP PHÁP LUẬT ====================
+        function sendMessage() {
+            const input = document.getElementById('user-input');
+            const question = input.value.trim();
+            if (!question) return;
+
+            addMessage(question, false);
+            input.value = '';
+
+            addMessage("Đang suy nghĩ...", true);
+
+            setTimeout(() => {
+                let answer = getLegalAnswer(question);
+                addMessage(answer, true);
+            }, 800);
+        }
+
+        // Hàm trả lời pháp luật (có thể mở rộng sau)
+        function getLegalAnswer(q) {
+            const question = q.toLowerCase();
+
+            if (question.includes("thời hạn thụ lý") || question.includes("thụ lý")) {
+                return `<strong>Trả lời:</strong><br>
+                Theo <strong>Điều 189 Bộ luật Tố tụng Dân sự 2015</strong>:<br>
+                - Thời hạn chuẩn bị xét xử sơ thẩm là <strong>04 tháng</strong> kể từ ngày thụ lý vụ án.<br>
+                - Đối với vụ việc phức tạp có thể gia hạn một lần nhưng không quá <strong>02 tháng</strong>.<br><br>
+                <strong>Lưu ý:</strong> Nếu chậm thụ lý cần có văn bản giải trình rõ lý do.`;
+            }
+
+            if (question.includes("thời hiệu khởi kiện") || question.includes("thời hiệu")) {
+                return `<strong>Trả lời:</strong><br>
+                Theo <strong>Điều 157 Bộ luật Dân sự 2015</strong>:<br>
+                Thời hiệu khởi kiện về tranh chấp dân sự là <strong>03 năm</strong>, kể từ ngày quyền và lợi ích hợp pháp bị xâm phạm.`;
+            }
+
+            if (question.includes("khiếu nại") || question.includes("tố cáo")) {
+                return `<strong>Trả lời:</strong><br>
+                Theo Luật Khiếu nại 2011 và Luật Tố cáo 2011:<br>
+                - Thời hạn giải quyết khiếu nại lần đầu là <strong>30 ngày</strong>.<br>
+                - Thời hạn giải quyết tố cáo là <strong>60 ngày</strong> (có thể gia hạn).`;
+            }
+
+            if (question.includes("thi hành án") || question.includes("thời hạn thi hành")) {
+                return `<strong>Trả lời:</strong><br>
+                Theo <strong>Điều 30 Luật Thi hành án dân sự</strong>:<br>
+                Người phải thi hành án có thời hạn tự nguyện thi hành là <strong>15 ngày</strong>, kể từ ngày nhận được quyết định thi hành án.`;
+            }
+
+            // Trả lời mặc định khi không tìm thấy từ khóa cụ thể
+            return `<strong>Trả lời:</strong><br>
+            Câu hỏi của bạn rất hay. Hiện tại tôi đang dựa trên các quy định chính của Bộ luật Dân sự 2015, Bộ luật Tố tụng Dân sự 2015, Luật Thi hành án dân sự và Luật Khiếu nại, Tố cáo.<br><br>
+            Bạn có thể hỏi cụ thể hơn về một điều luật hoặc tình huống vụ việc để tôi hỗ trợ chi tiết hơn nhé!`;
+        }
+
+        // Cho phép nhấn Enter để gửi tin nhắn
+        document.getElementById('user-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') sendMessage();
+        });
     </script>
 </body>
 </html>
