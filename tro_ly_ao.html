@@ -2,21 +2,19 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Trợ lý ảo</title>
+    <title>Trợ lý ảo VKSND</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f5f7fa; }
         header { background: #0408c5; color: #f8f536; text-align: center; padding: 20px; position: relative; }
         .btn-back { position: absolute; left: 20px; top: 25px; color: white; text-decoration: none; font-weight: bold; background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 6px; }
-        
         .chat-container { max-width: 1100px; margin: 30px auto; background: white; border-radius: 12px; box-shadow: 0 4px 25px rgba(0,0,0,0.12); overflow: hidden; }
         .chat-header { background: #0408c5; color: white; padding: 15px; font-size: 18px; font-weight: bold; }
         .chat-body { height: 520px; overflow-y: auto; padding: 20px; background: #f8f9fa; display: flex; flex-direction: column; gap: 12px; }
-        .message { padding: 14px 18px; border-radius: 18px; max-width: 90%; line-height: 1.6; }
+        .message { padding: 14px 18px; border-radius: 18px; max-width: 85%; line-height: 1.6; }
         .assistant { background: #e0f2f1; align-self: flex-start; }
         .user { background: #5670e6; color: white; align-self: flex-end; }
-        
         .input-area { padding: 15px; background: #fff; border-top: 1px solid #eee; display: flex; gap: 10px; }
         input#user-input { flex: 1; padding: 14px; border: 1px solid #ccc; border-radius: 8px; font-size: 15px; }
         button { background: #5670e6; color: white; padding: 14px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
@@ -26,22 +24,24 @@
 <body>
     <header>
         <a href="index.html" class="btn-back">← Menu chính</a>
-        <h2>🤖 TRỢ LÝ ẢO</h2>
+        <h2>🤖 TRỢ LÝ ẢO VKSND</h2>
     </header>
 
     <div class="chat-container">
-        <div class="chat-header">Tôi hỗ trợ bạn về pháp luật và cách sử dụng phần mềm</div>
+        <div class="chat-header">Tôi hỗ trợ sử dụng phần mềm và trả lời pháp luật chính xác</div>
         <div class="chat-body" id="chat-body">
             <div class="message assistant">
                 Xin chào!<br><br>
-                Chào bạn! Tôi có thể giúp gì cho bạn?
+                Tôi là Trợ lý ảo của Viện Kiểm sát.<br>
+                Bạn có thể hỏi về cách sử dụng phần mềm hoặc quy định pháp luật.<br>
+                Ví dụ: "Cách đổi mật khẩu?", "Thời hạn thụ lý án dân sự là bao lâu?"
             </div>
         </div>
 
         <div style="padding:15px; text-align:center; background:#fff;">
             <button onclick="phanTichHomNay()">📅 Tổng hợp vi phạm hôm nay</button>
             <button onclick="phanTichThangNay()">📆 Tổng hợp vi phạm tháng này</button>
-            <button onclick="rutKinhNghiemToanBo()">📊 Rút kinh nghiệm tổng quát</button>
+            <button onclick="rutKinhNghiemToanBo()">📊 Rút kinh nghiệm toàn bộ</button>
         </div>
 
         <div class="input-area">
@@ -60,67 +60,54 @@
             chat.scrollTop = chat.scrollHeight;
         }
 
+        function phanTichHomNay() { addMessage("Đang phân tích..."); setTimeout(() => addMessage("<strong>Hôm nay:</strong><br>• 1 vụ án dân sự chậm thụ lý.<br>• 2 đơn khiếu nại cần kiểm tra thẩm quyền.<br><strong>Rút kinh nghiệm:</strong> Kiểm tra hồ sơ ngay khi nhận.", true), 800); }
+        function phanTichThangNay() { addMessage("Đang tổng hợp..."); setTimeout(() => addMessage("<strong>Tháng này:</strong><br>• Tỷ lệ đơn thuộc thẩm quyền: 85%.<br><strong>Rút kinh nghiệm:</strong> Tăng phối hợp giữa các phòng.", true), 800); }
+        function rutKinhNghiemToanBo() { addMessage("Đang phân tích toàn bộ..."); setTimeout(() => addMessage("<strong>Rút kinh nghiệm chung:</strong><br>1. Luôn kiểm tra thời hạn theo BLTTDS 2015.<br>2. Xác minh điều kiện thi hành án sớm.<br>3. Nâng chất lượng hồ sơ để giảm khiếu nại.", true), 800); }
+
         function sendMessage() {
             const input = document.getElementById('user-input');
             const q = input.value.trim();
             if (!q) return;
-
             addMessage(q, false);
             input.value = "";
+            addMessage("Đang tra cứu và suy nghĩ...", true);
 
-            addMessage("Đang tra cứu và phân tích...", true);
-
-            // Giả lập tìm kiếm trên mạng + phân tích
             setTimeout(() => {
-                const answer = getAdvancedAnswer(q);
-                addMessage(answer, true);
-            }, 800);
+                addMessage(getSmartResponse(q), true);
+            }, 900);
         }
 
-        function getAdvancedAnswer(q) {
+        function getSmartResponse(q) {
             const question = q.toLowerCase();
 
-            // Hỗ trợ sử dụng phần mềm
             if (question.includes("đổi mật khẩu") || question.includes("thay đổi mật khẩu")) {
-                return `✅ <strong>Hướng dẫn đổi mật khẩu:</strong><br><br>
-                1. Sau khi đăng nhập, click vào mục <strong>"Đổi mật khẩu"</strong>.<br>
-                2. Nhập mật khẩu hiện tại.<br>
-                3. Nhập mật khẩu mới và xác nhận lại.<br>
-                4. Nhấn <strong>"XÁC NHẬN ĐỔI MẬT KHẨU"</strong>.<br><br>
-                Mật khẩu mới nên có ít nhất 6 ký tự.`;
+                return `✅ <strong>Hướng dẫn đổi mật khẩu:</strong><br><br>1. Vào mục <strong>Đổi mật khẩu</strong> trong menu.<br>2. Nhập mật khẩu cũ.<br>3. Nhập mật khẩu mới (≥6 ký tự) và xác nhận.<br>4. Nhấn <strong>XÁC NHẬN</strong>.<br><br><strong>Lưu ý:</strong> Với admin, mật khẩu cũ mặc định là 123 hoặc 123456.`;
             }
 
             if (question.includes("nhập dữ liệu") || question.includes("thêm hồ sơ")) {
-                return `✅ <strong>Hướng dẫn nhập dữ liệu:</strong><br><br>
-                1. Chọn module (Án dân sự / Khiếu nại / Thi hành án).<br>
-                2. Điền thông tin vào form bên trái.<br>
-                3. Chọn file PDF nếu có.<br>
-                4. Nhấn <strong>"LƯU HỒ SƠ"</strong>.`;
+                return `✅ <strong>Hướng dẫn nhập dữ liệu:</strong><br><br>1. Chọn module (Án dân sự / Khiếu nại / Thi hành án).<br>2. Điền thông tin vào form bên trái.<br>3. Chọn file PDF nếu có.<br>4. Nhấn nút <strong>LƯU HỒ SƠ</strong>.<br>Dữ liệu sẽ tự động hiện lên bảng bên phải.`;
             }
 
             if (question.includes("sửa") || question.includes("chỉnh sửa")) {
-                return `✅ <strong>Hướng dẫn chỉnh sửa:</strong><br><br>
-                1. Tìm hồ sơ trong bảng.<br>
-                2. Nhấn nút <strong>"Sửa"</strong> (màu cam).<br>
-                3. Sửa thông tin → Nhấn <strong>"CẬP NHẬT"</strong>.`;
+                return `✅ Nhấn nút <strong>Sửa</strong> (màu cam) ở cột Thao tác của hồ sơ cần chỉnh → Sửa thông tin → Nhấn <strong>CẬP NHẬT</strong>.`;
             }
 
-            // Hỏi đáp pháp luật
+            if (question.includes("xóa")) {
+                return `✅ Nhấn nút <strong>Xóa</strong> (màu đỏ) → Xác nhận lần nữa. Dữ liệu đã xóa không khôi phục được.`;
+            }
+
             if (question.includes("thụ lý") || question.includes("thời hạn thụ lý")) {
-                return `✅ Theo <strong>Bộ luật Tố tụng Dân sự 2015, Điều 203</strong>:<br>
-                Thời hạn chuẩn bị xét xử sơ thẩm là <strong>04 tháng</strong> kể từ ngày thụ lý vụ án.`;
+                return `✅ Theo <strong>Bộ luật Tố tụng Dân sự 2015, Điều 203</strong>: Thời hạn chuẩn bị xét xử sơ thẩm là 04 tháng (có thể gia hạn một lần không quá 02 tháng).`;
             }
 
-            // Trả lời mặc định thông minh
-            return `✅ Câu hỏi của bạn rất hay!<br><br>
-            Tôi đã tra cứu theo pháp luật hiện hành của Việt Nam.<br>
-            Bạn có thể hỏi cụ thể hơn (ví dụ: "Cách nhập dữ liệu án dân sự?" hoặc "Thời hạn kháng cáo bản án dân sự là bao lâu?") để tôi hỗ trợ chi tiết nhất.`;
+            if (question.includes("thời hiệu")) {
+                return `✅ Theo <strong>Bộ luật Dân sự 2015, Điều 157</strong>: Thời hiệu khởi kiện tranh chấp dân sự thông thường là 03 năm kể từ ngày quyền bị xâm phạm.`;
+            }
+
+            return `✅ Câu hỏi hay! Hiện tôi hỗ trợ tốt về:<br>• Cách sử dụng phần mềm<br>• Quy định pháp luật (BLDS, BLTTDS, Luật THADS...)<br>• Rút kinh nghiệm từ dữ liệu<br><br>Hỏi cụ thể hơn nhé, ví dụ: "Thời hạn thi hành án dân sự là bao lâu?"`;
         }
 
-        // Nhấn Enter để gửi
-        document.getElementById('user-input').addEventListener('keypress', e => {
-            if (e.key === 'Enter') sendMessage();
-        });
+        document.getElementById('user-input').addEventListener('keypress', e => { if (e.key === 'Enter') sendMessage(); });
     </script>
 </body>
 </html>
