@@ -34,7 +34,7 @@
     </div>
 
     <script>
-        const firebaseConfig = { /* giữ nguyên config của bạn */ 
+        const firebaseConfig = {
             apiKey: "AIzaSyDunRDIeyBTVXTODoO22ywk1Q35cCx2sV8",
             authDomain: "dansu-vksndtpct.firebaseapp.com",
             databaseURL: "https://dansu-vksndtpct-default-rtdb.asia-southeast1.firebasedatabase.app",
@@ -67,7 +67,6 @@
             if (newP.length < 6) return showMessage("Mật khẩu mới phải ≥ 6 ký tự!", false);
             if (newP !== confirmP) return showMessage("Mật khẩu mới không khớp!", false);
 
-            // Xử lý đặc biệt cho admin
             if (currentUser === "admin") {
                 if (oldP === "123" || oldP === "123456") {
                     db.ref('users/admin/password').set(newP).then(() => {
@@ -80,7 +79,6 @@
                 }
             }
 
-            // User thường
             db.ref('users/' + currentUser).once('value').then(snapshot => {
                 const user = snapshot.val();
                 if (user && user.password === oldP) {
@@ -94,7 +92,6 @@
             });
         }
 
-        // Nhấn Enter để xác nhận
         document.addEventListener('keypress', e => { if (e.key === "Enter") changePass(); });
     </script>
 </body>
