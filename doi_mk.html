@@ -6,49 +6,12 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
-        body { 
-            font-family: 'Segoe UI', sans-serif; 
-            margin: 0; 
-            background: #f5f7fa; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            min-height: 100vh; 
-        }
-        .box { 
-            background: white; 
-            padding: 40px 30px; 
-            border-radius: 12px; 
-            box-shadow: 0 6px 20px rgba(0,0,0,0.12); 
-            width: 420px; 
-            text-align: center; 
-        }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f5f7fa; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .box { background: white; padding: 40px 30px; border-radius: 12px; box-shadow: 0 6px 20px rgba(0,0,0,0.12); width: 420px; text-align: center; }
         h2 { color: #0408c5; margin-bottom: 10px; }
-        p#display_user { 
-            font-weight: bold; 
-            color: #5670e6; 
-            margin: 15px 0 25px 0; 
-            font-size: 16px; 
-        }
-        input { 
-            width: 100%; 
-            padding: 12px; 
-            margin: 10px 0; 
-            border: 1px solid #ccc; 
-            border-radius: 6px; 
-            box-sizing: border-box; 
-            font-size: 15px; 
-        }
-        button { 
-            width: 100%; 
-            padding: 14px; 
-            margin: 10px 0; 
-            border: none; 
-            border-radius: 8px; 
-            cursor: pointer; 
-            font-weight: bold; 
-            font-size: 15px; 
-        }
+        p#display_user { font-weight: bold; color: #5670e6; margin: 15px 0 25px 0; font-size: 16px; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 15px; }
+        button { width: 100%; padding: 14px; margin: 10px 0; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 15px; }
         .btn-change { background: #16a085; color: white; }
         .btn-cancel { background: #95a5a6; color: white; }
         .message { margin: 15px 0; padding: 12px; border-radius: 6px; font-size: 14px; }
@@ -83,12 +46,9 @@
 
         let currentUser = localStorage.getItem('vks_username');
 
-        // Hiển thị tên người dùng
         window.onload = function() {
             if (!currentUser) {
-                document.getElementById('display_user').innerHTML = 
-                    '<span style="color:red;">Bạn chưa đăng nhập!</span><br><br>' +
-                    '<a href="index.html" style="color:#5670e6;">→ Về trang đăng nhập</a>';
+                document.getElementById('display_user').innerHTML = '<span style="color:red;">Bạn chưa đăng nhập!</span><br><a href="index.html">→ Về trang đăng nhập</a>';
                 return;
             }
             document.getElementById('display_user').innerText = "Tài khoản: " + currentUser;
@@ -107,49 +67,22 @@
             const newP = document.getElementById('new_p').value.trim();
             const newPConfirm = document.getElementById('new_p_confirm').value.trim();
 
-            if (!currentUser) {
-                showMessage("Vui lòng đăng nhập trước!");
-                return;
-            }
-            if (!oldP || !newP || !newPConfirm) {
-                showMessage("Vui lòng nhập đầy đủ thông tin!");
-                return;
-            }
-            if (newP !== newPConfirm) {
-                showMessage("Mật khẩu mới nhập lại không khớp!");
-                return;
-            }
-            if (newP.length < 4) {
-                showMessage("Mật khẩu mới phải có ít nhất 4 ký tự!");
-                return;
-            }
+            if (!currentUser) return showMessage("Vui lòng đăng nhập trước!");
+            if (!oldP || !newP || !newPConfirm) return showMessage("Vui lòng nhập đầy đủ!");
+            if (newP !== newPConfirm) return showMessage("Mật khẩu mới nhập lại không khớp!");
+            if (newP.length < 4) return showMessage("Mật khẩu mới phải có ít nhất 4 ký tự!");
 
-            db.ref('users/' + currentUser).once('value').then((snapshot) => {
+            db.ref('users/' + currentUser).once('value').then(snapshot => {
                 const userData = snapshot.val();
-                
-                if (!userData) {
-                    showMessage("Không tìm thấy tài khoản!");
-                    return;
-                }
+                if (!userData) return showMessage("Không tìm thấy tài khoản!");
 
-                if (userData.password !== oldP) {
-                    showMessage("Mật khẩu hiện tại không đúng!");
-                    return;
-                }
+                if (userData.password !== oldP) return showMessage("Mật khẩu hiện tại không đúng!");
 
-                // Cập nhật mật khẩu mới
                 db.ref('users/' + currentUser + '/password').set(newP).then(() => {
                     showMessage("✅ Đổi mật khẩu thành công!", "green");
-                    
-                    setTimeout(() => {
-                        window.location.href = 'index.html';
-                    }, 1500);
-                }).catch(err => {
-                    showMessage("Lỗi khi cập nhật mật khẩu: " + err.message);
+                    setTimeout(() => window.location.href = 'index.html', 1500);
                 });
-            }).catch(err => {
-                showMessage("Lỗi kết nối cơ sở dữ liệu!");
-            });
+            }).catch(() => showMessage("Lỗi kết nối cơ sở dữ liệu!"));
         }
     </script>
 </body>
