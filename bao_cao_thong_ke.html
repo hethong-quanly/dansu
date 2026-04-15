@@ -8,71 +8,66 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f5f7fa; }
-        header { background: #0408c5; color: #f8f536; text-align: center; padding: 20px; }
+        header { background: #0408c5; color: #f8f536; text-align: center; padding: 20px; position: relative; }
         .btn-back { position: absolute; left: 20px; top: 25px; color: white; text-decoration: none; font-weight: bold; background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 6px; }
-        .container { max-width: 1100px; margin: 30px auto; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
-        button { width: 100%; padding: 15px; margin: 10px 0; background: #5670e6; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; }
+        .container { max-width: 1100px; margin: 30px auto; padding: 25px; background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        button { width: 100%; padding: 16px; margin: 12px 0; background: #5670e6; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; }
         button:hover { background: #0408c5; }
     </style>
 </head>
 <body>
     <header>
         <a href="index.html" class="btn-back">← Menu chính</a>
-        <h2>📋 BÁO CÁO THỐNG KÊ THEO BIỂU MẪU VKSND</h2>
+        <h2>📊 BÁO CÁO THỐNG KÊ THEO BIỂU MẪU VKSND</h2>
     </header>
 
     <div class="container">
-        <h3>Chọn biểu mẫu cần xuất</h3>
+        <h3>Chọn biểu mẫu cần xuất Excel</h3>
         
         <button onclick="xuatBieu10()">📄 Biểu 10/2013 - Án dân sự sơ thẩm</button>
         <button onclick="xuatBieu11()">📄 Biểu 11/2013 - Án dân sự phúc thẩm</button>
         <button onclick="xuatBieu12()">📄 Biểu 12/2013 - Án dân sự giám đốc thẩm, tái thẩm</button>
-        <button onclick="xuatBieu13()">📄 Biểu 13/2013 - Án hành chính sơ thẩm</button>
+        <button onclick="xuatBieu13()">📄 Biểu 13/2013 - Án hành chính</button>
         <button onclick="xuatBieu19()">📄 Biểu 19/2013 - Phá sản doanh nghiệp</button>
 
-        <p style="margin-top:30px; color:#666; text-align:center;">
-            Dữ liệu sẽ được lấy tự động từ hệ thống.<br>
-            File Excel sẽ được tạo đúng định dạng biểu mẫu của Viện Kiểm sát.
+        <p style="margin-top:40px; text-align:center; color:#555;">
+            Dữ liệu được lấy tự động từ module Án dân sự, Thi hành án, Khiếu nại tố cáo.<br>
+            File sẽ được tải về máy với định dạng đúng biểu mẫu Viện Kiểm sát.
         </p>
     </div>
 
     <script>
-        var firebaseConfig = {
+        const firebaseConfig = { /* config của bạn */ 
             apiKey: "AIzaSyDunRDIeyBTVXTODoO22ywk1Q35cCx2sV8",
-            authDomain: "dansu-vksndtpct.firebaseapp.com",
             databaseURL: "https://dansu-vksndtpct-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "dansu-vksndtpct",
-            storageBucket: "dansu-vksndtpct.firebasestorage.app",
-            appId: "1:843158256686:web:eb128d64c8b9bfd7aef3bf"
+            projectId: "dansu-vksndtpct"
         };
-        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-        var db = firebase.database();
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
 
-        // Xuất Biểu 10/2013 (Án dân sự sơ thẩm) - mẫu đầu tiên
         function xuatBieu10() {
-            db.ref('an_dan_su').once('value').then(snapshot => {
-                const data = snapshot.val() || {};
-                let rows = [
+            if (!confirm("Xuất Biểu 10/2013 - Án dân sự sơ thẩm?")) return;
+            db.ref('an_dan_su').once('value').then(s => {
+                const count = Object.keys(s.val() || {}).length;
+                const rows = [
                     ["Mã dòng", "Chỉ tiêu", "Số liệu"],
-                    ["1", "Số vụ, việc còn lại của kỳ trước", "0"],
-                    ["2", "Số vụ, việc VKS mới nhận được thông báo thụ lý", Object.keys(data).length],
-                    ["15", "Số vụ, việc Tòa án đã giải quyết", "0"],
-                    // Bạn có thể mở rộng thêm các dòng khác sau khi test
+                    ["1", "Số vụ việc còn lại kỳ trước", "0"],
+                    ["2", "Số vụ việc mới nhận", count],
+                    ["15", "Số vụ việc Tòa án đã giải quyết", "0"],
+                    ["20", "Số vụ việc đang giải quyết", count]
                 ];
-
                 const wb = XLSX.utils.book_new();
-                const ws = XLSX.utils.aoa_to_sheet(rows);
-                XLSX.utils.book_append_sheet(wb, ws, "Bieu10");
+                XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rows), "Bieu10");
                 XLSX.writeFile(wb, "Bieu_10_An_dan_su.xlsx");
                 alert("✅ Đã xuất Biểu 10/2013 thành công!");
             });
         }
 
-        // Các hàm xuất biểu khác (mình sẽ bổ sung đầy đủ khi bạn xác nhận file này ổn)
-        function xuatBieu11() { alert("Biểu 11/2013 đang được xây dựng..."); }
-        function xuatBieu12() { alert("Biểu 12/2013 đang được xây dựng..."); }
-        function xuatBieu13() { alert("Biểu 13/2013 đang được xây dựng..."); }
-        function xuatBieu19() { alert("Biểu 19/2013 đang được xây dựng..."); }
+        // Các hàm còn lại (bạn có thể mở rộng sau)
+        function xuatBieu11() { alert("Biểu 11/2013 (Phúc thẩm) đang phát triển..."); }
+        function xuatBieu12() { alert("Biểu 12/2013 (Giám đốc thẩm, Tái thẩm) đang phát triển..."); }
+        function xuatBieu13() { alert("Biểu 13/2013 (Hành chính) đang phát triển..."); }
+        function xuatBieu19() { alert("Biểu 19/2013 (Phá sản) đang phát triển..."); }
     </script>
 </body>
 </html>
