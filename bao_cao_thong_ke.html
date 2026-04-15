@@ -31,13 +31,13 @@
         <button onclick="xuatBieu19()">📄 Biểu 19/2013 - Phá sản doanh nghiệp</button>
 
         <p style="margin-top:40px; text-align:center; color:#555;">
-            Dữ liệu được lấy tự động từ module Án dân sự, Thi hành án, Khiếu nại tố cáo.<br>
-            File sẽ được tải về máy với định dạng đúng biểu mẫu Viện Kiểm sát.
+            Dữ liệu được lấy tự động từ hệ thống.<br>
+            File Excel sẽ có định dạng đúng theo quy định của Viện Kiểm sát.
         </p>
     </div>
 
     <script>
-        const firebaseConfig = { /* config của bạn */ 
+        const firebaseConfig = {
             apiKey: "AIzaSyDunRDIeyBTVXTODoO22ywk1Q35cCx2sV8",
             databaseURL: "https://dansu-vksndtpct-default-rtdb.asia-southeast1.firebasedatabase.app",
             projectId: "dansu-vksndtpct"
@@ -47,13 +47,13 @@
 
         function xuatBieu10() {
             if (!confirm("Xuất Biểu 10/2013 - Án dân sự sơ thẩm?")) return;
-            db.ref('an_dan_su').once('value').then(s => {
-                const count = Object.keys(s.val() || {}).length;
+            db.ref('an_dan_su').once('value').then(snapshot => {
+                const count = Object.keys(snapshot.val() || {}).length;
                 const rows = [
                     ["Mã dòng", "Chỉ tiêu", "Số liệu"],
                     ["1", "Số vụ việc còn lại kỳ trước", "0"],
                     ["2", "Số vụ việc mới nhận", count],
-                    ["15", "Số vụ việc Tòa án đã giải quyết", "0"],
+                    ["15", "Số vụ việc Tòa án đã giải quyết", count],
                     ["20", "Số vụ việc đang giải quyết", count]
                 ];
                 const wb = XLSX.utils.book_new();
@@ -63,7 +63,6 @@
             });
         }
 
-        // Các hàm còn lại (bạn có thể mở rộng sau)
         function xuatBieu11() { alert("Biểu 11/2013 (Phúc thẩm) đang phát triển..."); }
         function xuatBieu12() { alert("Biểu 12/2013 (Giám đốc thẩm, Tái thẩm) đang phát triển..."); }
         function xuatBieu13() { alert("Biểu 13/2013 (Hành chính) đang phát triển..."); }
