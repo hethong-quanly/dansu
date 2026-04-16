@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Quản lý Kiểm sát Thi hành án Dân sự</title>
+    <title>Quản lý Thi hành án Dân sự</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
@@ -47,15 +47,13 @@
             <div class="form-group"><label>QĐTHA số:</label><input type="text" id="so_qd_tha"></div>
             <div class="form-group"><label>Ngày ban hành QĐTHA:</label><input type="date" id="ngay_ban_hanh_qd"></div>
 
-            <!-- Chấp hành viên (nhiều người) -->
             <div class="form-group">
                 <label>Chấp hành viên:</label>
                 <div id="chap_hanh_vien_list"></div>
                 <button class="btn-add" onclick="addChapHanhVien()">+ Thêm Chấp hành viên</button>
             </div>
 
-            <!-- Phân công Kiểm sát viên -->
-            <div class="form-group"><label>Quyết định phân công KSV số:</label><input type="text" id="qd_phan_cong_ksv_so" placeholder="Số/QĐ-VKS"></div>
+            <div class="form-group"><label>Quyết định phân công KSV số:</label><input type="text" id="qd_phan_cong_ksv_so"></div>
             <div class="form-group"><label>Ngày phân công KSV:</label><input type="date" id="ngay_phan_cong_ksv"></div>
             <div class="form-group">
                 <label>Kiểm sát viên:</label>
@@ -71,14 +69,13 @@
             <div class="section">
                 <h4>Nội dung thi hành án</h4>
                 <div class="form-group"><label>Nội dung phải thi hành:</label><textarea id="noi_dung_tha" rows="3"></textarea></div>
-                <div class="form-group"><label>Số tiền phải thi hành:</label><input type="text" id="so_tien_tha" placeholder="Ví dụ: 500.000.000 VNĐ"></div>
+                <div class="form-group"><label>Số tiền phải thi hành:</label><input type="text" id="so_tien_tha"></div>
                 <div class="form-group"><label>Tài sản phải thi hành:</label><textarea id="tai_san_tha" rows="2"></textarea></div>
             </div>
 
             <div class="form-group"><label>Ngày xác minh điều kiện THA:</label><input type="date" id="ngay_xac_minh"></div>
             <div class="form-group"><label>Kết quả xác minh:</label><textarea id="ket_qua_xac_minh" rows="3"></textarea></div>
 
-            <!-- Phần có điều kiện thi hành -->
             <div class="section">
                 <label><strong>Tình trạng thi hành:</strong></label>
                 <select id="tinh_trang_tha" onchange="toggleDinhGiaFields()">
@@ -87,13 +84,10 @@
                 </select>
             </div>
 
-            <!-- Định giá & Đấu giá tài sản -->
             <div id="dinh_gia_section" class="section" style="display:none;">
                 <h4>Định giá & Đấu giá tài sản</h4>
                 <div class="form-group"><label>Công ty thẩm định giá:</label><input type="text" id="cong_ty_tham_dinh"></div>
-                <div class="form-group"><label>Giá trị tài sản (theo định giá):</label><input type="text" id="gia_tri_tai_san"></div>
-
-                <!-- Đấu giá lần 1 -->
+                <div class="form-group"><label>Giá trị tài sản:</label><input type="text" id="gia_tri_tai_san"></div>
                 <div class="form-group"><label>Ngày đưa ra bán đấu giá lần 1:</label><input type="date" id="ngay_dau_gia_lan1"></div>
                 <div class="form-group">
                     <label>Kết quả đấu giá lần 1:</label>
@@ -106,13 +100,10 @@
                     <label>Giá bán thành công lần 1:</label>
                     <input type="text" id="gia_ban_thanh_cong_lan1">
                 </div>
-
-                <!-- Giảm giá lần 1,2,3... -->
                 <div id="giam_gia_list"></div>
-                <button class="btn-add" onclick="addGiamGiaItem()" style="margin-top:10px;">+ Thêm lần giảm giá</button>
+                <button class="btn-add" onclick="addGiamGiaItem()">+ Thêm lần giảm giá</button>
             </div>
 
-            <!-- Ngày thi hành xong -->
             <div class="form-group"><label>Ngày thi hành xong:</label><input type="date" id="ngay_thi_hanh_xong"></div>
 
             <div class="form-group">
@@ -146,15 +137,12 @@
 
     <script>
         var firebaseConfig = {
-           firebaseConfig = {
-  apiKey: "AIzaSyDunRDIeyBTVXTODoO22ywk1Q35cCx2sV8",
-  authDomain: "dansu-vksndtpct.firebaseapp.com",
-  databaseURL: "https://dansu-vksndtpct-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "dansu-vksndtpct",
-  storageBucket: "dansu-vksndtpct.firebasestorage.app",
-  messagingSenderId: "843158256686",
-  appId: "1:843158256686:web:eb128d64c8b9bfd7aef3bf",
-  measurementId: "G-953X2137HC"
+            apiKey: "AIzaSyDunRDIeyBTVXTODoO22ywk1Q35cCx2sV8",
+            authDomain: "dansu-vksndtpct.firebaseapp.com",
+            databaseURL: "https://dansu-vksndtpct-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "dansu-vksndtpct",
+            storageBucket: "dansu-vksndtpct.firebasestorage.app",
+            appId: "1:843158256686:web:eb128d64c8b9bfd7aef3bf"
         };
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         var db = firebase.database();
@@ -162,7 +150,6 @@
 
         let editingKey = null;
 
-        // Thêm Chấp hành viên
         function addChapHanhVien() {
             const container = document.getElementById('chap_hanh_vien_list');
             const div = document.createElement('div');
@@ -171,7 +158,6 @@
             container.appendChild(div);
         }
 
-        // Thêm Kiểm sát viên
         function addKSV() {
             const container = document.getElementById('ksv_list');
             const div = document.createElement('div');
@@ -180,7 +166,6 @@
             container.appendChild(div);
         }
 
-        // Thêm lần giảm giá
         function addGiamGiaItem() {
             const container = document.getElementById('giam_gia_list');
             const div = document.createElement('div');
@@ -262,23 +247,45 @@
         }
 
         function resetForm() {
-            // Reset tất cả các trường (bao gồm các list động)
             document.getElementById('chap_hanh_vien_list').innerHTML = '';
             document.getElementById('ksv_list').innerHTML = '';
             document.getElementById('giam_gia_list').innerHTML = '';
             document.getElementById('tinh_trang_tha').value = "Co dieu kien";
             toggleDinhGiaFields();
-            // ... reset các trường input khác ...
             editingKey = null;
-            document.getElementById('btn-save').innerText = 'LƯU HỒ SƠ THI HÀNH ÁN';
         }
 
-        // loadData, editRecord, deleteRecord giữ nguyên như trước (bạn có thể copy từ file cũ của mình)
+        function loadData() {
+            db.ref('thi_hanh_an').on('value', (snapshot) => {
+                const datas = snapshot.val();
+                let html = '';
+                let stt = 1;
+                if (datas) {
+                    Object.keys(datas).forEach(key => {
+                        const item = datas[key];
+                        html += `<tr>
+                            <td>${stt++}</td>
+                            <td>${item.so_qd_tha || ''}</td>
+                            <td>${item.ngay_nhan_qd || ''}</td>
+                            <td>${item.nguoi_phai_tha || ''}</td>
+                            <td>${item.noi_dung_tha || ''}</td>
+                            <td>${item.tinh_trang_tha || ''}</td>
+                            <td>${item.ngay_thi_hanh_xong || ''}</td>
+                            <td>${item.pdf_url ? '<a href="'+item.pdf_url+'" target="_blank" class="btn-pdf">PDF</a>' : 'Không có'}</td>
+                            <td>
+                                <button class="btn-edit" onclick="editRecord('${key}')">Sửa</button>
+                                <button class="btn-delete" onclick="deleteRecord('${key}')">Xóa</button>
+                            </td>
+                        </tr>`;
+                    });
+                }
+                document.getElementById('table-body').innerHTML = html || '<tr><td colspan="9" style="text-align:center;color:#999">Chưa có hồ sơ nào</td></tr>';
+            });
+        }
 
         window.onload = () => {
-            // loadData();
+            loadData();
             toggleDinhGiaFields();
-            toggleGiamGiaFields();
         };
     </script>
 </body>
