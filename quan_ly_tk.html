@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Quản lý Tài khoản - VKSND</title>
+    <title>Quản lý Tài khoản</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
@@ -29,7 +29,7 @@
 <body>
     <header>
         <a href="index.html" class="btn-back">← Menu chính</a>
-        <h1>VIỆN KIỂM SÁT NHÂN DÂN THÀNH PHỐ CẦN THƠ</h1>
+        <h1>VIỆN KIỂM SÁT NHÂN DÂN TỐI CAO</h1>
         <h2>QUẢN LÝ TÀI KHOẢN NGƯỜI DÙNG</h2>
     </header>
 
@@ -72,10 +72,6 @@
                 <option value="9">Khu vực 9</option><option value="10">Khu vực 10</option>
                 <option value="11">Khu vực 11</option><option value="12">Khu vực 12</option>
                 <option value="13">Khu vực 13</option><option value="14">Khu vực 14</option>
-                <option value="13">Khu vực 15</option><option value="14">Khu vực 16</option>
-                <option value="13">Khu vực 17</option><option value="14">Khu vực 18</option>
-                <option value="13">Khu vực 19</option><option value="14">Khu vực 20</option>
-                <option value="13">Khu vực 21</option><option value="14">Khu vực 22</option>
             </select>
         </div>
 
@@ -135,15 +131,13 @@
 
     <script>
         var firebaseConfig = {
-  apiKey: "AIzaSyDunRDIeyBTVXTODoO22ywk1Q35cCx2sV8",
-  authDomain: "dansu-vksndtpct.firebaseapp.com",
-  databaseURL: "https://dansu-vksndtpct-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "dansu-vksndtpct",
-  storageBucket: "dansu-vksndtpct.firebasestorage.app",
-  messagingSenderId: "843158256686",
-  appId: "1:843158256686:web:eb128d64c8b9bfd7aef3bf",
-  measurementId: "G-953X2137HC"
-};
+            apiKey: "AIzaSyDunRDIeyBTVXTODoO22ywk1Q35cCx2sV8",
+            authDomain: "dansu-vksndtpct.firebaseapp.com",
+            databaseURL: "https://dansu-vksndtpct-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "dansu-vksndtpct",
+            storageBucket: "dansu-vksndtpct.firebasestorage.app",
+            appId: "1:843158256686:web:eb128d64c8b9bfd7aef3bf"
+        };
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         var db = firebase.database();
 
@@ -184,7 +178,7 @@
             select.innerHTML = '';
 
             if (cap === "Cap vu") {
-                select.innerHTML = `<option value="Vu truong">Vụ trưởng</option><option value="Vu pho">Phó Vụ trưởng</option><option value="Cuc truong">Cục trưởng</option><option value="Pho Cuc truong">Phó Cục trưởng</option>`;            } else if (cap === "Cap vien") {
+                select.innerHTML = `<option value="Vu truong">Vụ trưởng</option><option value="Vu pho">Vụ phó</option><option value="Cuc truong">Cục trưởng</option><option value="Pho Cuc truong">Phó Cục trưởng</option>`;            } else if (cap === "Cap vien") {
                 select.innerHTML = `<option value="Vien truong">Viện trưởng</option><option value="Pho vien truong">Phó Viện trưởng</option>`;
             } else if (cap === "Cap phong") {
                 select.innerHTML = `<option value="Truong phong">Trưởng phòng</option><option value="Pho truong phong">Phó trưởng phòng</option>`;
@@ -215,6 +209,7 @@
                 timestamp: Date.now()
             };
 
+            // Lưu thêm chức vụ nếu là cán bộ hoặc lãnh đạo
             if (userData.loai_tai_khoan === "Can bo") {
                 userData.chuc_vu = document.getElementById('chuc_vu_canbo').value;
             } else if (userData.loai_tai_khoan === "Lanh dao") {
@@ -223,10 +218,10 @@
             }
 
             db.ref('users/' + username).set(userData).then(() => {
-                alert("Lưu tài khoản thành công!");
+                alert("✅ Lưu tài khoản thành công!");
                 resetForm();
                 loadUsers();
-            });
+            }).catch(err => alert("Lỗi: " + err.message));
         }
 
         function loadUsers() {
@@ -277,11 +272,10 @@
         }
 
         window.onload = () => {
-            loadProvinces();   // ← Quan trọng: Tải danh sách tỉnh
+            loadProvinces();
             loadUsers();
             toggleCapFields();
             toggleLoaiFields();
-            toggleCapLanhDao();
         };
     </script>
 </body>
