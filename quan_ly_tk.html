@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Quản lý Tài khoản</title>
+    <title>Quản lý Tài khoản - VKSND</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
@@ -10,20 +10,20 @@
         header { background: #0408c5; color: #f8f536; text-align: center; padding: 15px; position: relative; }
         .btn-back { position: absolute; left: 20px; top: 20px; color: white; text-decoration: none; font-weight: bold; background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 6px; }
         
-        .container { max-width: 1100px; margin: 20px auto; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .container { max-width: 1200px; margin: 20px auto; padding: 25px; background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
         .form-group { margin-bottom: 18px; }
-        label { font-weight: bold; display: block; margin-bottom: 6px; color: #333; }
-        input, select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
+        label { font-weight: bold; display: block; margin-bottom: 8px; color: #333; }
+        input, select { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; }
         
-        table { width: 100%; border-collapse: collapse; margin-top: 25px; font-size: 13px; }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        table { width: 100%; border-collapse: collapse; margin-top: 30px; font-size: 14px; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
         th { background: #e0f2f1; color: #0408c5; }
         
         .btn-save { background: #5670e6; color: white; padding: 14px; border: none; border-radius: 8px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 15px; }
-        .btn-reset { background: #ff9800; color: white; padding: 6px 12px; border: none; border-radius: 5px; cursor: pointer; }
-        .btn-delete { background: #d32f2f; color: white; padding: 6px 12px; border: none; border-radius: 5px; cursor: pointer; }
+        .btn-reset { background: #ff9800; color: white; padding: 8px 14px; border: none; border-radius: 5px; cursor: pointer; }
+        .btn-delete { background: #d32f2f; color: white; padding: 8px 14px; border: none; border-radius: 5px; cursor: pointer; }
         
-        .message { padding: 12px; margin: 10px 0; border-radius: 6px; text-align: center; font-weight: bold; }
+        .message { padding: 14px; margin: 15px 0; border-radius: 8px; text-align: center; font-weight: bold; }
         .success { background: #d4edda; color: #155724; }
         .error { background: #f8d7da; color: #721c24; }
     </style>
@@ -31,28 +31,41 @@
 <body>
     <header>
         <a href="index.html" class="btn-back">← Menu chính</a>
-        <h2>QUẢN LÝ TÀI KHOẢN</h2>
+        <h2>QUẢN LÝ TÀI KHOẢN - 3 CẤP</h2>
     </header>
 
     <div class="container">
         <h3>Tạo tài khoản mới</h3>
         <div id="message"></div>
 
-        <div class="form-group"><label>Tên đăng nhập:</label><input type="text" id="username"></div>
-        <div class="form-group"><label>Họ và tên:</label><input type="text" id="fullname"></div>
-        <div class="form-group"><label>Mật khẩu mặc định:</label><input type="text" id="password" value="123456" readonly></div>
-
         <div class="form-group">
-            <label>Cấp:</label>
-            <select id="level" onchange="toggleUnit()">
-                <option value="thanh_pho">Cấp Thành phố</option>
-                <option value="khu_vuc">Cấp Khu vực</option>
-            </select>
+            <label>Tên đăng nhập (username):</label>
+            <input type="text" id="username" placeholder="Ví dụ: cantho_kv5">
+        </div>
+        <div class="form-group">
+            <label>Họ và tên:</label>
+            <input type="text" id="fullname" placeholder="Nguyễn Văn A">
         </div>
 
         <div class="form-group">
-            <label>Đơn vị:</label>
-            <select id="unit"></select>
+            <label>Cấp tài khoản:</label>
+            <select id="level" onchange="toggleLevel()">
+                <option value="toi_cao">Cấp Tối cao (VKSND Tối cao)</option>
+                <option value="tinh">Cấp Tỉnh / Thành phố</option>
+                <option value="khuvuc">Cấp Khu vực</option>
+            </select>
+        </div>
+
+        <!-- Tỉnh / Thành phố -->
+        <div id="tinh_group" class="form-group" style="display:none;">
+            <label>Tỉnh / Thành phố:</label>
+            <select id="tinh_thanh"></select>
+        </div>
+
+        <!-- Khu vực -->
+        <div id="khuvuc_group" class="form-group" style="display:none;">
+            <label>Khu vực:</label>
+            <select id="khu_vuc"></select>
         </div>
 
         <button class="btn-save" onclick="createUser()">TẠO TÀI KHOẢN MỚI</button>
@@ -88,57 +101,89 @@
 
         const currentUsername = localStorage.getItem('vks_username');
         if (currentUsername !== 'admin') {
-            alert("Chỉ Admin mới được truy cập trang này!");
+            alert("Chỉ tài khoản Admin mới được truy cập trang này!");
             window.location.href = "index.html";
         }
 
-        function toggleUnit() {
+        // Danh sách 34 tỉnh/thành phố (bạn có thể bổ sung thêm)
+        const provinces = [
+            "Hà Nội","TP. Hồ Chí Minh","Cần Thơ","Đà Nẵng","Hải Phòng",
+            "An Giang","Bà Rịa - Vũng Tàu","Bắc Giang","Bắc Kạn","Bạc Liêu",
+            "Bắc Ninh","Bến Tre","Bình Định","Bình Dương","Bình Phước",
+            "Bình Thuận","Cà Mau","Cao Bằng","Đắk Lắk","Đắk Nông",
+            "Điện Biên","Đồng Nai","Đồng Tháp","Gia Lai","Hà Giang",
+            "Hà Nam","Hà Tĩnh","Hải Dương","Hậu Giang","Hòa Bình",
+            "Hưng Yên","Khánh Hòa","Kiên Giang","Kon Tum","Lai Châu",
+            "Lâm Đồng","Lạng Sơn","Lào Cai","Long An","Nam Định",
+            "Nghệ An","Ninh Bình","Ninh Thuận","Phú Thọ","Phú Yên",
+            "Quảng Bình","Quảng Nam","Quảng Ngãi","Quảng Ninh","Quảng Trị",
+            "Sóc Trăng","Sơn La","Tây Ninh","Thái Bình","Thái Nguyên",
+            "Thanh Hóa","Thừa Thiên Huế","Tiền Giang","Trà Vinh","Tuyên Quang",
+            "Vĩnh Long","Vĩnh Phúc","Yên Bái"
+        ];
+
+        function toggleLevel() {
             const level = document.getElementById('level').value;
-            const unitSelect = document.getElementById('unit');
-            unitSelect.innerHTML = '';
-            if (level === 'thanh_pho') {
-                ['Phòng 9', 'Phòng 10', 'Phòng 11', 'Phòng TT-KT'].forEach(u => {
-                    const opt = document.createElement('option');
-                    opt.value = u; opt.textContent = u;
-                    unitSelect.appendChild(opt);
-                });
-            } else {
-                for (let i = 1; i <= 14; i++) {
-                    const opt = document.createElement('option');
-                    opt.value = `Khu vực ${i}`; opt.textContent = `Khu vực ${i}`;
-                    unitSelect.appendChild(opt);
-                }
+            document.getElementById('tinh_group').style.display = (level === 'tinh') ? 'block' : 'none';
+            document.getElementById('khuvuc_group').style.display = (level === 'khuvuc') ? 'block' : 'none';
+
+            const tinhSelect = document.getElementById('tinh_thanh');
+            const khuvucSelect = document.getElementById('khu_vuc');
+
+            tinhSelect.innerHTML = '<option value="">-- Chọn Tỉnh/Thành phố --</option>';
+            provinces.forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = p;
+                opt.textContent = p;
+                tinhSelect.appendChild(opt);
+            });
+
+            khuvucSelect.innerHTML = '<option value="">-- Chọn Khu vực --</option>';
+            for (let i = 1; i <= 14; i++) {
+                const opt = document.createElement('option');
+                opt.value = `Khu vực ${i}`;
+                opt.textContent = `Khu vực ${i}`;
+                khuvucSelect.appendChild(opt);
             }
         }
 
         function createUser() {
             const username = document.getElementById('username').value.trim();
             const fullname = document.getElementById('fullname').value.trim();
-            const password = "123456"; // Mặc định
             const level = document.getElementById('level').value;
-            const unit = document.getElementById('unit').value;
+            const tinh = document.getElementById('tinh_thanh').value;
+            const khuvuc = document.getElementById('khu_vuc').value;
+
+            const messageDiv = document.getElementById('message');
 
             if (!username || !fullname) {
-                showMessage("Vui lòng nhập đầy đủ Username và Họ tên!", "error");
+                messageDiv.innerHTML = `<div class="error">Vui lòng nhập Username và Họ tên!</div>`;
                 return;
             }
 
+            let unit = '';
+            if (level === 'tinh') unit = tinh;
+            else if (level === 'khuvuc') unit = khuvuc;
+            else unit = 'VKSND Tối cao';
+
             db.ref('users/' + username).once('value').then(snapshot => {
                 if (snapshot.exists()) {
-                    showMessage("Tài khoản này đã tồn tại!", "error");
+                    messageDiv.innerHTML = `<div class="error">Tài khoản này đã tồn tại!</div>`;
                 } else {
                     db.ref('users/' + username).set({
                         fullname: fullname,
-                        password: password,
+                        password: "123456",
                         level: level,
                         unit: unit,
                         createdAt: Date.now()
                     }).then(() => {
-                        showMessage("✅ Tạo tài khoản thành công! Mật khẩu mặc định: 123456", "success");
+                        messageDiv.innerHTML = `<div class="success">✅ Tạo tài khoản thành công!<br>Mật khẩu mặc định: <strong>123456</strong></div>`;
                         loadUsers();
                         // Reset form
                         document.getElementById('username').value = '';
                         document.getElementById('fullname').value = '';
+                    }).catch(err => {
+                        messageDiv.innerHTML = `<div class="error">Lỗi lưu dữ liệu: ${err.message}</div>`;
                     });
                 }
             });
@@ -150,10 +195,15 @@
                 let html = '';
                 Object.keys(users).forEach(key => {
                     const u = users[key];
+                    let capText = '';
+                    if (u.level === 'toi_cao') capText = 'Cấp Tối cao';
+                    else if (u.level === 'tinh') capText = 'Cấp Tỉnh/TP';
+                    else if (u.level === 'khuvuc') capText = 'Cấp Khu vực';
+
                     html += `<tr>
                         <td><strong>${key}</strong></td>
                         <td>${u.fullname || ''}</td>
-                        <td>${u.level === 'thanh_pho' ? 'Thành phố' : 'Khu vực'}</td>
+                        <td>${capText}</td>
                         <td>${u.unit || ''}</td>
                         <td>
                             <button class="btn-reset" onclick="resetPassword('${key}')">Reset MK</button>
@@ -161,14 +211,15 @@
                         </td>
                     </tr>`;
                 });
-                document.getElementById('table-body').innerHTML = html || '<tr><td colspan="5" style="text-align:center;color:#999">Chưa có tài khoản nào</td></tr>';
+                document.getElementById('table-body').innerHTML = html || 
+                    '<tr><td colspan="5" style="text-align:center;color:#999">Chưa có tài khoản nào</td></tr>';
             });
         }
 
         function resetPassword(username) {
             if (confirm(`Reset mật khẩu của ${username} về 123456?`)) {
                 db.ref('users/' + username).update({ password: "123456" }).then(() => {
-                    showMessage(`Đã reset mật khẩu của ${username}`, "success");
+                    alert(`Đã reset mật khẩu của ${username}`);
                 });
             }
         }
@@ -180,16 +231,8 @@
             }
         }
 
-        function showMessage(text, type) {
-            const msg = document.createElement('div');
-            msg.className = `message ${type}`;
-            msg.textContent = text;
-            document.querySelector('.container').prepend(msg);
-            setTimeout(() => msg.remove(), 4000);
-        }
-
         window.onload = () => {
-            toggleUnit();
+            toggleLevel();
             loadUsers();
         };
     </script>
