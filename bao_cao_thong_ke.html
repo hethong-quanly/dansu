@@ -2,76 +2,200 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Báo cáo thống kê - VKSND</title>
+    <title>Báo cáo Thống kê - Hệ thống Quản lý Kiểm sát Phần Dân sự</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f5f7fa; }
-        header { background: #0408c5; color: #f8f536; text-align: center; padding: 20px; position: relative; }
-        .btn-back { position: absolute; left: 20px; top: 25px; color: white; text-decoration: none; font-weight: bold; background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 6px; }
-        .container { max-width: 1100px; margin: 30px auto; padding: 25px; background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
-        button { width: 100%; padding: 16px; margin: 12px 0; background: #5670e6; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; }
-        button:hover { background: #0408c5; }
+        header { background: #0408c5; color: #f8f536; text-align: center; padding: 15px; position: relative; }
+        .btn-back { position: absolute; left: 20px; top: 20px; color: white; text-decoration: none; font-weight: bold; background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 6px; }
+        
+        .container { max-width: 1100px; margin: 30px auto; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h2 { color: #0408c5; text-align: center; }
+        .form-group { margin: 15px 0; }
+        label { font-weight: bold; display: block; margin-bottom: 6px; }
+        select, input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; }
+        button { padding: 12px 20px; margin: 10px 5px; border: none; border-radius: 8px; font-size: 15px; cursor: pointer; font-weight: bold; }
+        .btn-blue { background: #1e88e5; color: white; }
+        .btn-green { background: #43a047; color: white; }
+        .result { margin-top: 30px; padding: 20px; background: #f0f4ff; border-radius: 8px; min-height: 200px; }
     </style>
 </head>
 <body>
     <header>
         <a href="index.html" class="btn-back">← Menu chính</a>
-        <h2>📊 BÁO CÁO THỐNG KÊ NGÀNH KIỂM SÁT NHÂN DÂN</h2>
+        <h2>BÁO CÁO THỐNG KÊ - HỆ THỐNG QUẢN LÝ KIỂM SÁT PHẦN DÂN SỰ</h2>
     </header>
 
     <div class="container">
-        <h3>Chọn biểu mẫu cần xuất Excel</h3>
-        
-        <button onclick="xuatBieu10()">📄 Biểu 10/2013 - Án dân sự sơ thẩm</button>
-        <button onclick="xuatBieu11()">📄 Biểu 11/2013 - Án dân sự phúc thẩm</button>
-        <button onclick="xuatBieu12()">📄 Biểu 12/2013 - Án dân sự giám đốc thẩm, tái thẩm</button>
-        <button onclick="xuatBieu13()">📄 Biểu 13/2013 - Án hành chính</button>
-        <button onclick="xuatBieu19()">📄 Biểu 19/2013 - Phá sản doanh nghiệp</button>
+        <h2>📊 CHỌN LOẠI BÁO CÁO VÀ KỲ THỐNG KÊ</h2>
 
-        <p style="margin-top:40px; text-align:center; color:#555;">
-            Dữ liệu được lấy tự động từ hệ thống.<br>
-            File Excel sẽ có định dạng đúng theo quy định của Viện Kiểm sát.
-        </p>
+        <div class="form-group">
+            <label>Loại báo cáo:</label>
+            <select id="reportType">
+                <option value="dan_su">I. Thống kê Án Dân sự (Biểu 10,11,12)</option>
+                <option value="khieu_to">II. Thống kê Khiếu nại, Tố cáo (Biểu 16,17,18)</option>
+                <option value="thi_hanh_an">III. Thống kê Thi hành án Dân sự (Biểu 20)</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Kỳ báo cáo:</label>
+            <select id="periodType" onchange="toggleCustomDate()">
+                <option value="month">Theo tháng (01 đến cuối tháng)</option>
+                <option value="6month">6 tháng</option>
+                <option value="9month">9 tháng</option>
+                <option value="12month">12 tháng</option>
+                <option value="custom">Tùy chọn (chọn ngày)</option>
+            </select>
+        </div>
+
+        <div id="customDate" style="display:none;">
+            <div class="form-group">
+                <label>Từ ngày:</label>
+                <input type="date" id="fromDate">
+            </div>
+            <div class="form-group">
+                <label>Đến ngày:</label>
+                <input type="date" id="toDate">
+            </div>
+        </div>
+
+        <div style="text-align:center;">
+            <button class="btn-blue" onclick="generateReport()">📊 Xem báo cáo</button>
+            <button class="btn-green" onclick="exportToExcel()">📥 Xuất file Excel</button>
+        </div>
+
+        <div class="result" id="resultArea">
+            <p style="text-align:center;color:#666;">Chọn loại báo cáo và kỳ thống kê, sau đó nhấn "Xem báo cáo"</p>
+        </div>
     </div>
 
     <script>
-        const firebaseConfig = {
-  apiKey: "AIzaSyDunRDIeyBTVXTODoO22ywk1Q35cCx2sV8",
-  authDomain: "dansu-vksndtpct.firebaseapp.com",
-  databaseURL: "https://dansu-vksndtpct-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "dansu-vksndtpct",
-  storageBucket: "dansu-vksndtpct.firebasestorage.app",
-  messagingSenderId: "843158256686",
-  appId: "1:843158256686:web:eb128d64c8b9bfd7aef3bf",
-  measurementId: "G-953X2137HC"
+        var firebaseConfig = {
+            apiKey: "AIzaSyDunRDIeyBTVXTODoO22ywk1Q35cCx2sV8",
+            authDomain: "dansu-vksndtpct.firebaseapp.com",
+            databaseURL: "https://dansu-vksndtpct-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "dansu-vksndtpct",
+            storageBucket: "dansu-vksndtpct.firebasestorage.app",
+            appId: "1:843158256686:web:eb128d64c8b9bfd7aef3bf"
         };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        var db = firebase.database();
 
-        function xuatBieu10() {
-            if (!confirm("Xuất Biểu 10/2013 - Án dân sự sơ thẩm?")) return;
-            db.ref('an_dan_su').once('value').then(snapshot => {
-                const count = Object.keys(snapshot.val() || {}).length;
-                const rows = [
-                    ["Mã dòng", "Chỉ tiêu", "Số liệu"],
-                    ["1", "Số vụ việc còn lại kỳ trước", "0"],
-                    ["2", "Số vụ việc mới nhận", count],
-                    ["15", "Số vụ việc Tòa án đã giải quyết", count],
-                    ["20", "Số vụ việc đang giải quyết", count]
-                ];
-                const wb = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(rows), "Bieu10");
-                XLSX.writeFile(wb, "Bieu_10_An_dan_su.xlsx");
-                alert("✅ Đã xuất Biểu 10/2013 thành công!");
+        let currentData = []; // Lưu dữ liệu để xuất Excel
+
+        function toggleCustomDate() {
+            const isCustom = document.getElementById('periodType').value === 'custom';
+            document.getElementById('customDate').style.display = isCustom ? 'block' : 'none';
+        }
+
+        async function getDataFromFirebase(refPath) {
+            return new Promise((resolve) => {
+                db.ref(refPath).once('value', snapshot => {
+                    resolve(snapshot.val() || {});
+                });
             });
         }
 
-        function xuatBieu11() { alert("Biểu 11/2013 (Phúc thẩm) đang phát triển..."); }
-        function xuatBieu12() { alert("Biểu 12/2013 (Giám đốc thẩm, Tái thẩm) đang phát triển..."); }
-        function xuatBieu13() { alert("Biểu 13/2013 (Hành chính) đang phát triển..."); }
-        function xuatBieu19() { alert("Biểu 19/2013 (Phá sản) đang phát triển..."); }
+        async function generateReport() {
+            const type = document.getElementById('reportType').value;
+            const period = document.getElementById('periodType').value;
+            let fromDate, toDate;
+
+            // Xử lý kỳ thời gian (có thể tinh chỉnh thêm theo ngày hiện tại)
+            const now = new Date();
+            if (period === 'custom') {
+                fromDate = new Date(document.getElementById('fromDate').value);
+                toDate = new Date(document.getElementById('toDate').value);
+            } else if (period === 'month') {
+                fromDate = new Date(now.getFullYear(), now.getMonth(), 1);
+                toDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+            } else if (period === '6month') {
+                fromDate = new Date(now.getFullYear(), now.getMonth() - 5, 1);
+                toDate = now;
+            } else if (period === '9month') {
+                fromDate = new Date(now.getFullYear(), now.getMonth() - 8, 1);
+                toDate = now;
+            } else { // 12month
+                fromDate = new Date(now.getFullYear() - 1, now.getMonth(), 1);
+                toDate = now;
+            }
+
+            let html = `<h3>Kết quả thống kê ${type.toUpperCase()} - Kỳ ${period}</h3><table style="width:100%;border-collapse:collapse;"><tr><th>Chỉ tiêu</th><th>Số lượng</th></tr>`;
+
+            if (type === 'dan_su') {
+                const data = await getDataFromFirebase('an_dan_su');
+                let total = 0, coHieuLuc = 0;
+                Object.values(data).forEach(item => {
+                    const ts = new Date(item.timestamp || 0);
+                    if (ts >= fromDate && ts <= toDate) {
+                        total++;
+                        if (item.trang_thai_hieu_luc === 'Co_hieu_luc') coHieuLuc++;
+                    }
+                });
+                html += `<tr><td>Tổng số án dân sự</td><td>${total}</td></tr>`;
+                html += `<tr><td>Án có hiệu lực (chuyển thi hành)</td><td>${coHieuLuc}</td></tr>`;
+                currentData = [{Chỉ_tiêu: 'Tổng số án dân sự', Số_lượng: total}, {Chỉ_tiêu: 'Án có hiệu lực', Số_lượng: coHieuLuc}];
+            } 
+            else if (type === 'khieu_to') {
+                const data = await getDataFromFirebase('don_khieu_to');
+                let total = 0, danSu = 0, tha = 0;
+                Object.values(data).forEach(item => {
+                    const ts = new Date(item.timestamp || 0);
+                    if (ts >= fromDate && ts <= toDate) {
+                        total++;
+                        if (item.phan_loai === 'Dan su') danSu++;
+                        if (item.phan_loai === 'Thi hanh an') tha++;
+                    }
+                });
+                html += `<tr><td>Tổng số đơn khiếu nại, tố cáo</td><td>${total}</td></tr>`;
+                html += `<tr><td>Đơn liên quan Dân sự</td><td>${danSu}</td></tr>`;
+                html += `<tr><td>Đơn liên quan Thi hành án</td><td>${tha}</td></tr>`;
+                currentData = [{Chỉ_tiêu: 'Tổng số đơn', Số_lượng: total}, {Chỉ_tiêu: 'Đơn Dân sự', Số_lượng: danSu}, {Chỉ_tiêu: 'Đơn Thi hành án', Số_lượng: tha}];
+            } 
+            else if (type === 'thi_hanh_an') {
+                const data = await getDataFromFirebase('thi_hanh_an');
+                let total = 0, daXong = 0, coDieuKien = 0;
+                Object.values(data).forEach(item => {
+                    const ts = new Date(item.timestamp || 0);
+                    if (ts >= fromDate && ts <= toDate) {
+                        total++;
+                        if (item.ngay_thi_hanh_xong) daXong++;
+                        if (item.tinh_trang_tha === 'Co dieu kien') coDieuKien++;
+                    }
+                });
+                html += `<tr><td>Tổng số hồ sơ thi hành án</td><td>${total}</td></tr>`;
+                html += `<tr><td>Đã thi hành xong</td><td>${daXong}</td></tr>`;
+                html += `<tr><td>Có điều kiện thi hành</td><td>${coDieuKien}</td></tr>`;
+                currentData = [{Chỉ_tiêu: 'Tổng số hồ sơ', Số_lượng: total}, {Chỉ_tiêu: 'Đã thi hành xong', Số_lượng: daXong}, {Chỉ_tiêu: 'Có điều kiện', Số_lượng: coDieuKien}];
+            }
+
+            html += `</table>`;
+            document.getElementById('resultArea').innerHTML = html;
+        }
+
+        function exportToExcel() {
+            if (currentData.length === 0) {
+                alert("Vui lòng xem báo cáo trước khi xuất Excel!");
+                return;
+            }
+
+            const ws = XLSX.utils.json_to_sheet(currentData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "BaoCao");
+
+            // Thêm tiêu đề biểu mẫu
+            const type = document.getElementById('reportType').value;
+            let sheetName = type === 'dan_su' ? 'Bieu_10_11_12' : type === 'khieu_to' ? 'Bieu_16_17_18' : 'Bieu_20';
+            XLSX.writeFile(wb, `BaoCao_${sheetName}_${new Date().toISOString().slice(0,10)}.xlsx`);
+        }
+
+        // Khởi tạo
+        window.onload = () => {
+            toggleCustomDate();
+        };
     </script>
 </body>
 </html>
