@@ -185,19 +185,122 @@
             });
         }
 
-        // Các hàm addNguyenDon, addBiDon, addLienQuan, addKhangCaoItem giữ nguyên như cũ của bạn
-        // (Tôi giữ ngắn gọn để không quá dài, bạn copy từ file cũ của mình vào)
+       addNguyenDon() {
+            const container = document.getElementById('nguyen_don_list');
+            const div = document.createElement('div');
+            div.className = 'multi-item';
+            div.innerHTML = `
+                <input type="text" placeholder="Tên Nguyên đơn" style="flex:2">
+                <input type="text" placeholder="Địa chỉ" style="flex:3">
+                <button type="button" onclick="this.parentElement.remove()" style="background:#d32f2f;color:white;padding:6px 10px;border:none;border-radius:4px;">X</button>
+            `;
+            container.appendChild(div);
+        }
+
+        function addBiDon() {
+            const container = document.getElementById('bi_don_list');
+            const div = document.createElement('div');
+            div.className = 'multi-item';
+            div.innerHTML = `
+                <input type="text" placeholder="Tên Bị đơn" style="flex:2">
+                <input type="text" placeholder="Địa chỉ" style="flex:3">
+                <button type="button" onclick="this.parentElement.remove()" style="background:#d32f2f;color:white;padding:6px 10px;border:none;border-radius:4px;">X</button>
+            `;
+            container.appendChild(div);
+        }
+
+        function addLienQuan() {
+            const container = document.getElementById('lien_quan_list');
+            const div = document.createElement('div');
+            div.className = 'multi-item';
+            div.innerHTML = `
+                <input type="text" placeholder="Tên Người liên quan" style="flex:2">
+                <input type="text" placeholder="Địa chỉ" style="flex:3">
+                <button type="button" onclick="this.parentElement.remove()" style="background:#d32f2f;color:white;padding:6px 10px;border:none;border-radius:4px;">X</button>
+            `;
+            container.appendChild(div);
+        }
+
+        // ====================== THÊM KHÁNG CÁO / YÊU CẦU ======================
+        function addKhangCaoItem() {
+            const container = document.getElementById('khang_cao_list');
+            const div = document.createElement('div');
+            div.className = 'multi-item';
+            div.innerHTML = `
+                <select style="flex:1.2">
+                    <option value="Nguyen don">Nguyên đơn</option>
+                    <option value="Bi don">Bị đơn</option>
+                    <option value="Nguoi lien quan">Người có quyền lợi nghĩa vụ liên quan</option>
+                    <option value="Vien kiem sat">Viện kiểm sát</option>
+                </select>
+                <input type="text" placeholder="Tên" style="flex:2">
+                <input type="text" placeholder="Địa chỉ" style="flex:2">
+                <textarea placeholder="Nội dung kháng cáo / kháng nghị / yêu cầu..." rows="2" style="flex:3"></textarea>
+                <button type="button" onclick="this.parentElement.remove()" style="background:#d32f2f;color:white;padding:6px 10px;border:none;border-radius:4px;">X</button>
+            `;
+            container.appendChild(div);
+        }
+
+        function toggleXetXuFields() {
+            const cap = document.getElementById('cap_thu_ly').value;
+            
+            // Ẩn/Hiện phần Sơ thẩm
+            document.getElementById('so_tham_section').style.display = (cap === "So tham") ? "block" : "none";
+            
+            // Ẩn/Hiện phần Đã xét xử
+            document.getElementById('da_xet_xu_section').style.display = (cap === "So tham") ? "none" : "block";
+        }
 
         function saveData() {
             const file = document.getElementById('pdf_file').files[0];
-            // ... code saveData cũ của bạn ...
-            // Sau khi save thành công, kiểm tra hiệu lực
+
+            const data = {
+                cap_thu_ly: document.getElementById('cap_thu_ly').value,
+                ngay_thu_ly: document.getElementById('ngay_thu_ly').value,
+                noi_dung: document.getElementById('noi_dung').value,
+                tham_phan: document.getElementById('tham_phan').value,
+                thu_ky: document.getElementById('thu_ky').value,
+                ksv: document.getElementById('ksv').value,
+                timestamp: Date.now()
+            };
+
+            // Lưu thông tin đã xét xử nếu có
+            if (document.getElementById('da_xet_xu_section').style.display !== "none") {
+                data.so_ban_an = document.getElementById('so_ban_an').value;
+                data.ngay_ban_hanh = document.getElementById('ngay_ban_hanh').value;
+                data.noi_dung_da_tuyen = document.getElementById('noi_dung_da_tuyen').value;
+            }
+
+            if (file) {
+                const storageRef = storage.ref('pdfs_an/' + Date.now() + '_' + file.name);
+                storageRef.put(file).then(snapshot => {
+                    snapshot.ref.getDownloadURL().then(url => {
+                        data.pdf_url = url;
+                        saveToDatabase(data);
+                    });
+                });
+            } else {
+                saveToDatabase(data);
+            }
+        }
+
+        function saveData() {
+            const file = document.getElementById('pdf_file').files[0];
+           function saveData() {
+            const file = document.getElementById('pdf_file').files[0];
+            if (document.getElementById('trang_thai_hieu_luc') && document.getElementById('trang_thai_hieu_luc').value === "Co_hieu_luc") {
+                transferToThiHanhAn();
+            }
+        }
+        window.onload = () => {
+            loadData();
+            toggleXetXuFields();
+        };
             if (document.getElementById('trang_thai_hieu_luc') && document.getElementById('trang_thai_hieu_luc').value === "Co_hieu_luc") {
                 transferToThiHanhAn();
             }
         }
 
-        // Load, edit, delete giữ nguyên như file cũ của bạn
         window.onload = () => {
             loadData();
             toggleXetXuFields();
