@@ -267,6 +267,18 @@
         document.addEventListener('keypress', (e) => {
             if (e.key === "Enter") login();
         });
+        function clearLoginCache() {
+            localStorage.removeItem('vks_logged_in');
+            localStorage.removeItem('vks_username');
+            alert("Đã xóa trạng thái đăng nhập cũ.\nHãy tải lại trang bằng Ctrl + F5");
+            document.getElementById('login-screen').style.display = 'block';
+            document.getElementById('main-menu').style.display = 'none';
+        }
+        window.onload = () => {
+            if (localStorage.getItem('vks_logged_in') === 'true') {
+                showMainMenu();
+            }
+        }
     </script>
 </body>
 </html>
