@@ -142,7 +142,7 @@
             <img src="https://vienkiemsat.cantho.gov.vn/files/images/logo-vks.png" alt="Logo VKS">
         </div>
         <div class="header-title">
-            <h1>VIỆN KIỂM SÁT NHÂN DÂN TỐI CAO</h1>
+            <h1>VIỆN KIỂM SÁT NHÂN DÂN THÀNH PHỐ CẦN THƠ</h1>
             <h3>HỆ THỐNG QUẢN LÝ KIỂM SÁT PHẦN DÂN SỰ</h3>
         </div>
         <a href="#" onclick="logout()" class="btn-logout" id="logout-btn" style="display:none;">Đăng xuất</a>
@@ -174,10 +174,9 @@
 
             <div class="column">
                 <h2>📊 BÁO CÁO THỐNG KÊ</h2>
-                <a href="#" onclick="xuatBaoCaoDanSu()" class="report-btn">📈 Thống kê án Dân sự (Biểu 10,11,12)</a>
-                <a href="#" onclick="xuatBaoCaoKhieuTo()" class="report-btn">📈 Thống kê Khiếu nại, Tố cáo (Biểu 16,17,18)</a>
-                <a href="#" onclick="xuatBaoCaoThiHanhAn()" class="report-btn">📈 Thống kê Thi hành án Dân sự (Biểu 20)</a>
-
+            <button class="btn-green" onclick="window.location='bao_cao_thong_ke.html'">📈 Báo cáo thống kê tổng hợp</button>
+            <button class="btn-orange" onclick="window.location='bao_cao_thong_ke.html'">Nhập dữ liệu từ file Excel</button>
+            
                 <a href="tro_ly_ao.html" class="menu-btn" style="background:#ff9800; margin-top: 30px;">
                     🤖 Trợ lý ảo
                 </a>
@@ -232,7 +231,7 @@
         }
 
         function forgotPassword() {
-            alert("Vui lòng liên hệ Admin để được hỗ trợ reset mật khẩu.\nMật khẩu mặc định: 123456");
+            alert("Vui lòng liên hệ Admin để được hỗ trợ");
         }
 
         function showMainMenu() {
