@@ -241,7 +241,23 @@
             editingKey = null;
             document.getElementById('btn-save').innerText = 'LƯU ĐƠN';
         }
-
+function exportToWord(item) {
+    const content = `
+        <html><head><meta charset="utf-8"><style>body{font-family:Times New Roman;font-size:14pt;}</style></head>
+        <body>
+            <h2>Hồ sơ ${item.cap_thu_ly || 'Thi hành án' || 'Khiếu tố'}</h2>
+            <p><strong>Người tạo:</strong> ${item.createdBy}</p>
+            <p><strong>Đơn vị:</strong> ${item.unit}</p>
+            <p><strong>Nội dung:</strong> ${item.noi_dung || item.noi_dung_tha || item.noi_dung || '...'}</p>
+        </body></html>`;
+    
+    const blob = new Blob(['\ufeff', content], { type: 'application/msword' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `HoSo_${new Date().toISOString().slice(0,10)}.doc`;
+    a.click();
+}
         // ================== KHỞI ĐỘNG ==================
         window.onload = () => {
             if (!checkLogin()) return;
