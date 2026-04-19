@@ -202,8 +202,9 @@
                         <td>${item.tham_quyen || ''}</td>
                         <td>${tomTat}</td>
                         <td>
-                            <button class="btn-edit" onclick="editDon('${key}')">Sửa</button>
-                            <button class="btn-delete" onclick="deleteDon('${key}')">Xóa</button>
+                            <button class="btn-edit" onclick="editRecord('${key}')">Sửa</button>
+                            <button class="btn-delete" onclick="deleteRecord('${key}')">Xóa</button>
+                            <button onclick="exportToWord('${key}', 'khieu_to')">Word</button>
                         </td>
                     </tr>`;
                 });
