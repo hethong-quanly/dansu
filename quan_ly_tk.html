@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Quản lý Tài khoản - VKSND</title>
+    <title>Quản lý Tài khoản - VKSNDTC</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
@@ -31,7 +31,8 @@
 <body>
     <header>
         <a href="index.html" class="btn-back">← Menu chính</a>
-        <h2>QUẢN LÝ TÀI KHOẢN - 3 CẤP</h2>
+        <h1>VIỆN KIỂM SÁT NHÂN DÂN TỐI CAO</h1>
+        <h2>QUẢN LÝ TÀI KHOẢN</h2>
     </header>
 
     <div class="container">
@@ -40,19 +41,19 @@
 
         <div class="form-group">
             <label>Tên đăng nhập (username):</label>
-            <input type="text" id="username" placeholder="Ví dụ: cantho_ksv1">
+            <input type="text" id="username" placeholder="Ví dụ: cantho_kv1">
         </div>
         <div class="form-group">
             <label>Họ và tên:</label>
-            <input type="text" id="fullname" placeholder="Nguyễn Văn A">
+            <input type="text" id="fullname" placeholder="KV1-CANTHO">
         </div>
 
         <div class="form-group">
             <label>Cấp tài khoản:</label>
             <select id="level" onchange="toggleLevel()">
-                <option value="toi_cao">Cấp Tối cao (VKSND Tối cao)</option>
-                <option value="tinh">Cấp Tỉnh / Thành phố</option>
-                <option value="khuvuc">Cấp Khu vực</option>
+                <option value="toi_cao">VKSND Tối cao</option>
+                <option value="tinh">Tỉnh / Thành phố</option>
+                <option value="khuvuc">Khu vực</option>
             </select>
         </div>
 
@@ -77,6 +78,8 @@
             
             <label>Phòng:</label>
             <select id="phong_khuvuc">
+                <option value="Khu vuc 1">Khu vực 1</option> <option value="Khu vuc 2">Khu vực 2</option> <option value="Khu vuc 3">Khu vực 3</option> <option value="Khu vuc 4">Khu vực 4</option> <option value="Khu vuc 5">Khu vực 5</option> <option value="Khu vuc 6">Khu vực 6</option> <option value="Khu vuc 7">Khu vực 7</option> <option value="Khu vuc 8">Khu vực 8</option> <option value="Khu vuc 9">Khu vực 9</option> <option value="Khu vuc 10">Khu vực 10</option> 
+                <option value="Khu vuc 11">Khu vực 11</option> <option value="Khu vuc 12">Khu vực 12</option> <option value="Khu vuc 13">Khu vực 13</option> <option value="Khu vuc 14">Khu vực 14</option> <option value="Khu vuc 15">Khu vực 15</option> <option value="Khu vuc 16">Khu vực 16</option> <option value="Khu vuc 18">Khu vực 18</option> <option value="Khu vuc 19">Khu vực 19</option> 
                 <option value="Phong 9">Phòng 9</option>
                 <option value="Phong 10">Phòng 10</option>
                 <option value="Phong 11">Phòng 11</option>
