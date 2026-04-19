@@ -11,15 +11,16 @@
         header { background:#0408c5; color:#f8f536; padding:15px; text-align:center; position:relative; }
         .btn-back { position:absolute; left:20px; top:20px; color:white; text-decoration:none; background:rgba(255,255,255,0.2); padding:8px 16px; border-radius:6px; }
         .container { max-width:1200px; margin:30px auto; padding:25px; background:white; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.1); }
-        select, input, button { padding:12px; margin:8px 0; border-radius:8px; font-size:15px; width:100%; }
-        button { border:none; font-weight:bold; cursor:pointer; }
+        h2 { color:#0408c5; text-align:center; }
+        select, input, button { padding:12px; margin:8px 0; border-radius:8px; font-size:15px; }
+        button { border:none; font-weight:bold; cursor:pointer; width:100%; }
         .btn-blue { background:#1e88e5; color:white; }
         .btn-green { background:#43a047; color:white; }
         .section { margin:25px 0; padding:20px; background:#f9f9f9; border-radius:10px; }
         table { width:100%; border-collapse:collapse; margin-top:15px; }
         th, td { border:1px solid #ddd; padding:10px; text-align:left; }
         th { background:#e0f2f1; }
-        .result { margin-top:20px; padding:15px; background:#f0f4ff; border-radius:8px; min-height:200px; overflow:auto; }
+        .result { margin-top:20px; padding:15px; background:#f0f4ff; border-radius:8px; min-height:250px; overflow:auto; }
     </style>
 </head>
 <body>
@@ -31,6 +32,7 @@
     <div class="container">
         <div class="section">
             <h3>Chọn loại báo cáo & Thời gian</h3>
+            
             <select id="reportType">
                 <option value="an_dan_su">Án Dân sự</option>
                 <option value="thi_hanh_an">Thi hành án Dân sự</option>
@@ -38,14 +40,14 @@
             </select>
 
             <select id="periodType" onchange="toggleCustomDate()">
-                <option value="all">Tất cả</option>
+                <option value="all">Tất cả thời gian</option>
                 <option value="month">Tháng này</option>
-                <option value="custom">Tùy chọn (Từ - Đến)</option>
+                <option value="custom">Tùy chọn khoảng thời gian</option>
             </select>
 
-            <div id="customDate" style="display:none; display:flex; gap:10px;">
-                <input type="date" id="fromDate">
-                <input type="date" id="toDate">
+            <div id="customDate" style="display:none; margin-top:10px;">
+                <input type="date" id="fromDate" style="width:48%"> 
+                <input type="date" id="toDate" style="width:48%">
             </div>
 
             <button class="btn-blue" onclick="generateReport()">📊 Xem báo cáo</button>
@@ -70,7 +72,7 @@
         var db = firebase.database();
 
         let currentUser = null;
-        let currentData = [];   // dùng để xuất Excel
+        let currentData = [];
 
         function checkLogin() {
             currentUser = JSON.parse(localStorage.getItem('vks_user') || '{}');
@@ -84,60 +86,75 @@
 
         function toggleCustomDate() {
             document.getElementById('customDate').style.display = 
-                document.getElementById('periodType').value === 'custom' ? 'flex' : 'none';
+                (document.getElementById('periodType').value === 'custom') ? 'block' : 'none';
         }
 
         async function generateReport() {
             if (!checkLogin()) return;
 
             const type = document.getElementById('reportType').value;
-            const period = document.getElementById('periodType').value;
-            let refPath = type === 'an_dan_su' ? 'an_dan_su' : type === 'thi_hanh_an' ? 'thi_hanh_an' : 'don_khieu_to';
+            const periodType = document.getElementById('periodType').value;
+            let refPath = type === 'an_dan_su' ? 'an_dan_su' : 
+                         type === 'thi_hanh_an' ? 'thi_hanh_an' : 'don_khieu_to';
 
             const snap = await db.ref(refPath).once('value');
             const datas = snap.val() || {};
             currentData = [];
-            let html = `<h3>Báo cáo ${document.getElementById('reportType').options[document.getElementById('reportType').selectedIndex].text}</h3>`;
-            html += `<table><tr><th>STT</th><th>Ngày</th><th>Nội dung</th><th>Người tạo</th><th>Đơn vị</th></tr>`;
-
             let count = 0;
+            let html = `<h3>Báo cáo ${document.getElementById('reportType').options[document.getElementById('reportType').selectedIndex].text}</h3>`;
+
+            html += `<table><tr><th>STT</th><th>Ngày</th><th>Nội dung chính</th><th>Người tạo</th><th>Đơn vị</th></tr>`;
+
             const now = new Date();
-            const thisMonthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+            const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
 
             Object.keys(datas).forEach(key => {
                 const item = datas[key];
-                const timestamp = item.timestamp || 0;
+                const ts = item.timestamp || 0;
 
-                // Lọc thời gian
-                let passTime = true;
-                if (period === 'month') passTime = timestamp >= thisMonthStart;
-                else if (period === 'custom') {
+                // Lọc theo thời gian
+                let passFilter = true;
+                if (periodType === 'month') {
+                    passFilter = ts >= monthStart;
+                } else if (periodType === 'custom') {
                     const from = new Date(document.getElementById('fromDate').value).getTime();
-                    const to = new Date(document.getElementById('toDate').value).getTime() + 86400000;
-                    passTime = timestamp >= from && timestamp <= to;
+                    const to = new Date(document.getElementById('toDate').value).getTime() + 86400000; // +1 ngày
+                    passFilter = ts >= from && ts <= to;
                 }
 
                 const canView = currentUser.level === 'toi_cao' || 
                                (item.unit && item.unit === currentUser.unit) ||
                                (item.createdBy && item.createdBy === currentUser.username);
 
-                if (!canView || !passTime) return;
+                if (!canView || !passFilter) return;
 
                 count++;
-                const ngay = item.ngay_nhan || item.ngay_thu_ly || item.ngay_nhan_qd || 'Không rõ';
-                const tomTat = (item.noi_dung || item.noi_dung_tha || item.ho_ten || '').substring(0, 100) + '...';
+                const ngay = item.ngay_nhan || item.ngay_thu_ly || item.ngay_nhan_qd || item.ngay_ghi || 'Không rõ';
+                const tomTat = (item.noi_dung || item.noi_dung_tha || item.ho_ten || 'Không có nội dung').substring(0, 90) + '...';
 
-                html += `<tr><td>${count}</td><td>${ngay}</td><td>${tomTat}</td><td>${item.createdBy || ''}</td><td>${item.unit || ''}</td></tr>`;
+                html += `<tr>
+                    <td>${count}</td>
+                    <td>${ngay}</td>
+                    <td>${tomTat}</td>
+                    <td>${item.createdBy || ''}</td>
+                    <td>${item.unit || ''}</td>
+                </tr>`;
 
-                currentData.push({STT: count, Ngay: ngay, NoiDung: tomTat, NguoiTao: item.createdBy, DonVi: item.unit});
+                currentData.push({
+                    STT: count,
+                    Ngay: ngay,
+                    NoiDung: tomTat,
+                    NguoiTao: item.createdBy || '',
+                    DonVi: item.unit || ''
+                });
             });
 
-            html += `</table><p><strong>Tổng số: ${count} hồ sơ</strong></p>`;
+            html += `</table><p><strong>Tổng cộng: ${count} hồ sơ</strong></p>`;
             document.getElementById('resultArea').innerHTML = html || '<p>Không có dữ liệu trong khoảng thời gian đã chọn.</p>';
         }
 
         function exportToExcel() {
-            if (currentData.length === 0) return alert("Vui lòng xem báo cáo trước!");
+            if (currentData.length === 0) return alert("Vui lòng xem báo cáo trước khi xuất!");
             const ws = XLSX.utils.json_to_sheet(currentData);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "BaoCao");
