@@ -66,14 +66,21 @@
                     <option value="Tố cáo">Tố cáo</option>
                     <option value="Kiến nghị/Phản ánh">Kiến nghị/Phản ánh</option>
                     <option value="Dan su">Dân sự</option>
-                    <option value="Thi hanh an">Thi hành án</option>
+                    <option value="Thi hanh an">Thi hành án dân sự</option>
                     <option value="Khac">Khác</option>
                 </select>
             </div>
 
-            <div class="form-group">
-                <label>Đề xuất xử lý:</label>
-                <textarea id="de_xuat_tu_dien" rows="3"></textarea>
+            <!-- Phần thuộc thẩm quyền giải quyết -->
+            <div id="tham_quyen_fields" class="section">
+                <div class="form-group"><label>Ngày thụ lý giải quyết:</label><input type="date" id="ngay_thu_ly_giai_quyet"></div>
+                <div class="form-group"><label>Quyết định thụ lý đơn số:</label><input type="text" id="qd_thu_ly_so"></div>
+                <div class="form-group"><label>Cán bộ / KSV được phân công:</label><input type="text" id="can_bo_ksv"></div>
+            </div>
+
+            <div class="section">
+                <label><strong>Đề xuất xử lý:</strong></label>
+                <textarea id="de_xuat_tu_dien" rows="3" placeholder="Nhập nội dung đề xuất..."></textarea>
             </div>
 
             <div class="form-group">
@@ -105,7 +112,7 @@
     </div>
 
     <script>
-        // ================== FIREBASE ==================
+        // ================== FIREBASE CONFIG ==================
         var firebaseConfig = {
             apiKey: "AIzaSyDunRDIeyBTVXTODoO22ywk1Q35cCx2sV8",
             authDomain: "dansu-vksndtpct.firebaseapp.com",
@@ -131,11 +138,11 @@
             return true;
         }
 
-        // ================== LƯU ĐƠN ==================
         function saveData() {
             if (!checkLogin()) return;
 
             const file = document.getElementById('pdf_file').files[0];
+            const phanLoai = document.getElementById('phan_loai').value;
 
             const data = {
                 ngay_nhan: document.getElementById('ngay_nhan').value,
@@ -143,7 +150,7 @@
                 ho_ten: document.getElementById('ho_ten').value,
                 dia_chi: document.getElementById('dia_chi').value,
                 noi_dung: document.getElementById('noi_dung').value,
-                phan_loai: document.getElementById('phan_loai').value,
+                phan_loai: phanLoai,
                 de_xuat_tu_dien: document.getElementById('de_xuat_tu_dien').value,
                 createdBy: currentUser.username,
                 unit: currentUser.unit || "Cần Thơ",
@@ -155,33 +162,32 @@
                 storageRef.put(file).then(snapshot => {
                     snapshot.ref.getDownloadURL().then(url => {
                         data.pdf_url = url;
-                        saveToDatabase(data);
+                        saveToDatabase(data, phanLoai);
                     });
                 });
             } else {
-                saveToDatabase(data);
+                saveToDatabase(data, phanLoai);
             }
         }
 
-        function saveToDatabase(data) {
+        function saveToDatabase(data, phanLoai) {
             if (editingKey) {
                 db.ref('don_khieu_to/' + editingKey).update(data).then(() => {
-                    handleTransfer(data);
+                    handleTransfer(data, phanLoai);
                     alert("Cập nhật đơn thành công!");
                     resetForm();
                 });
             } else {
                 db.ref('don_khieu_to').push(data).then(() => {
-                    handleTransfer(data);
+                    handleTransfer(data, phanLoai);
                     alert("Lưu đơn thành công!");
                     resetForm();
                 });
             }
         }
 
-        // Chuyển dữ liệu sang module khác
-        function handleTransfer(data) {
-            if (data.phan_loai === "Dan su") {
+        function handleTransfer(data, phanLoai) {
+            if (phanLoai === "Dan su") {
                 const danSuData = {
                     cap_thu_ly: "So tham",
                     ngay_thu_ly: data.ngay_nhan,
@@ -194,7 +200,7 @@
                 db.ref('an_dan_su').push(danSuData);
                 alert("Đã chuyển dữ liệu sang phần Án Dân sự!");
             } 
-            else if (data.phan_loai === "Thi hanh an") {
+            else if (phanLoai === "Thi hanh an") {
                 const thaData = {
                     ngay_nhan_qd: data.ngay_nhan,
                     nguoi_phai_tha: data.ho_ten,
@@ -230,7 +236,6 @@
                 Object.keys(datas).forEach(key => {
                     const item = datas[key];
 
-                    // Filter theo đơn vị và người tạo
                     const canView = currentUser.level === 'toi_cao' || 
                                    (item.unit && item.unit === currentUser.unit) ||
                                    (item.createdBy && item.createdBy === currentUser.username);
@@ -259,7 +264,6 @@
             });
         }
 
-        // Các hàm edit và delete (cơ bản)
         function editRecord(key) {
             alert("Chức năng sửa đang được hoàn thiện. Bạn có thể xóa và tạo mới tạm thời.");
         }
