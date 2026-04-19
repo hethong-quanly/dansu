@@ -723,6 +723,44 @@ function exportToWord(item) {
     a.download = `HoSo_${new Date().toISOString().slice(0,10)}.doc`;
     a.click();
 }
+    // ====================== XUẤT WORD ======================
+function exportToWord(key, module) {
+    if (!key) return alert("Không tìm thấy dữ liệu!");
+
+    let refPath = module === 'dan_su' ? 'an_dan_su' : 
+                  module === 'thi_hanh_an' ? 'thi_hanh_an' : 'don_khieu_to';
+
+    db.ref(refPath + '/' + key).once('value').then(snapshot => {
+        const item = snapshot.val();
+        if (!item) return alert("Không tìm thấy hồ sơ!");
+
+        const content = `
+            <html>
+            <head><meta charset="utf-8">
+            <style>
+                body { font-family: 'Times New Roman', serif; font-size: 14pt; line-height: 1.6; }
+                h2 { text-align: center; }
+                .label { font-weight: bold; }
+            </style>
+            </head>
+            <body>
+                <h2>HỒ SƠ ${module.toUpperCase()}</h2>
+                <p><span class="label">Người tạo:</span> ${item.createdBy || ''}</p>
+                <p><span class="label">Đơn vị:</span> ${item.unit || ''}</p>
+                <p><span class="label">Ngày:</span> ${item.ngay_nhan || item.ngay_thu_ly || item.ngay_nhan_qd || ''}</p>
+                <hr>
+                <p><span class="label">Nội dung:</span><br>${item.noi_dung || item.noi_dung_tha || item.ho_ten || 'Không có nội dung'}</p>
+            </body>
+            </html>`;
+
+        const blob = new Blob(['\ufeff', content], { type: 'application/msword' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `HoSo_${module}_${new Date().toISOString().slice(0,10)}.doc`;
+        a.click();
+    });
+}
         window.onload = () => {
             loadData();
             toggleXetXuFields();
