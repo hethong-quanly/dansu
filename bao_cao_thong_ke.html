@@ -2,73 +2,49 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Báo cáo Thống kê - Hệ thống Quản lý Kiểm sát Phần Dân sự</title>
+    <title>Báo cáo Thống kê Tổng hợp</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f5f7fa; }
-        header { background: #0408c5; color: #f8f536; text-align: center; padding: 15px; position: relative; }
-        .btn-back { position: absolute; left: 20px; top: 20px; color: white; text-decoration: none; font-weight: bold; background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 6px; }
-        
-        .container { max-width: 1100px; margin: 30px auto; padding: 20px; background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h2 { color: #0408c5; text-align: center; }
-        .form-group { margin: 15px 0; }
-        label { font-weight: bold; display: block; margin-bottom: 6px; }
-        select, input { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 15px; }
-        button { padding: 12px 20px; margin: 10px 5px; border: none; border-radius: 8px; font-size: 15px; cursor: pointer; font-weight: bold; }
-        .btn-blue { background: #1e88e5; color: white; }
-        .btn-green { background: #43a047; color: white; }
-        .result { margin-top: 30px; padding: 20px; background: #f0f4ff; border-radius: 8px; min-height: 200px; }
+        body { font-family:'Segoe UI',sans-serif; margin:0; background:#f5f7fa; }
+        header { background:#0408c5; color:#f8f536; padding:15px; text-align:center; position:relative; }
+        .btn-back { position:absolute; left:20px; top:20px; color:white; text-decoration:none; background:rgba(255,255,255,0.2); padding:8px 16px; border-radius:6px; }
+        .container { max-width:1100px; margin:30px auto; padding:25px; background:white; border-radius:12px; box-shadow:0 4px 15px rgba(0,0,0,0.1); }
+        h2 { color:#0408c5; text-align:center; }
+        select, input, button { padding:12px; margin:8px 0; border-radius:8px; font-size:15px; width:100%; }
+        button { border:none; font-weight:bold; cursor:pointer; }
+        .btn-blue { background:#1e88e5; color:white; }
+        .btn-green { background:#43a047; color:white; }
+        .btn-orange { background:#f57c00; color:white; }
+        .section { margin:25px 0; padding:20px; background:#f9f9f9; border-radius:10px; }
+        table { width:100%; border-collapse:collapse; margin-top:15px; }
+        th, td { border:1px solid #ddd; padding:10px; text-align:left; }
+        th { background:#e0f2f1; }
+        .result { margin-top:20px; padding:15px; background:#f0f4ff; border-radius:8px; min-height:200px; }
     </style>
 </head>
 <body>
     <header>
         <a href="index.html" class="btn-back">← Menu chính</a>
-        <h2>BÁO CÁO THỐNG KÊ - HỆ THỐNG QUẢN LÝ KIỂM SÁT PHẦN DÂN SỰ</h2>
+        <h2>BÁO CÁO THỐNG KÊ TỔNG HỢP</h2>
     </header>
 
     <div class="container">
-        <h2>📊 CHỌN LOẠI BÁO CÁO VÀ KỲ THỐNG KÊ</h2>
-
-        <div class="form-group">
-            <label>Loại báo cáo:</label>
+        <div class="section">
+            <h3>Chọn loại báo cáo</h3>
             <select id="reportType">
-                <option value="dan_su">I. Thống kê Án Dân sự (Biểu 10,11,12)</option>
-                <option value="khieu_to">II. Thống kê Khiếu nại, Tố cáo (Biểu 16,17,18)</option>
-                <option value="thi_hanh_an">III. Thống kê Thi hành án Dân sự (Biểu 20)</option>
+                <option value="an_dan_su">Án Dân sự, HN-GĐ, KD-TM, HC, Lao động,...</option>
+                <option value="thi_hanh_an">Kiểm sát Thi hành án Dân sự</option>
+                <option value="don_khieu_to">Kiểm sát, giải quyết Khiếu nại - Tố cáo</option>
             </select>
-        </div>
 
-        <div class="form-group">
-            <label>Kỳ báo cáo:</label>
-            <select id="periodType" onchange="toggleCustomDate()">
-                <option value="month">Theo tháng (01 đến cuối tháng)</option>
-                <option value="6month">6 tháng</option>
-                <option value="9month">9 tháng</option>
-                <option value="12month">12 tháng</option>
-                <option value="custom">Tùy chọn (chọn ngày)</option>
-            </select>
-        </div>
-
-        <div id="customDate" style="display:none;">
-            <div class="form-group">
-                <label>Từ ngày:</label>
-                <input type="date" id="fromDate">
-            </div>
-            <div class="form-group">
-                <label>Đến ngày:</label>
-                <input type="date" id="toDate">
-            </div>
-        </div>
-
-        <div style="text-align:center;">
             <button class="btn-blue" onclick="generateReport()">📊 Xem báo cáo</button>
-            <button class="btn-green" onclick="exportToExcel()">📥 Xuất file Excel</button>
+            <button class="btn-green" onclick="exportToExcel()">📥 Xuất Excel</button>
         </div>
 
-        <div class="result" id="resultArea">
-            <p style="text-align:center;color:#666;">Chọn loại báo cáo và kỳ thống kê, sau đó nhấn "Xem báo cáo"</p>
+        <div id="resultArea" class="result">
+            Chọn loại báo cáo và nhấn "Xem báo cáo" để xem kết quả theo đơn vị của bạn.
         </div>
     </div>
 
@@ -84,96 +60,71 @@
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         var db = firebase.database();
 
-        let currentData = []; // Lưu dữ liệu để xuất Excel
+        let currentUser = null;
+        let currentData = [];   // dùng để xuất Excel
 
-        function toggleCustomDate() {
-            const isCustom = document.getElementById('periodType').value === 'custom';
-            document.getElementById('customDate').style.display = isCustom ? 'block' : 'none';
-        }
-
-        async function getDataFromFirebase(refPath) {
-            return new Promise((resolve) => {
-                db.ref(refPath).once('value', snapshot => {
-                    resolve(snapshot.val() || {});
-                });
-            });
+        function checkLogin() {
+            currentUser = JSON.parse(localStorage.getItem('vks_user') || '{}');
+            if (!currentUser.username) {
+                alert("Vui lòng đăng nhập trước!");
+                window.location.href = "index.html";
+                return false;
+            }
+            return true;
         }
 
         async function generateReport() {
+            if (!checkLogin()) return;
+
             const type = document.getElementById('reportType').value;
-            const period = document.getElementById('periodType').value;
-            let fromDate, toDate;
+            let refPath = '';
+            let title = '';
 
-            // Xử lý kỳ thời gian (có thể tinh chỉnh thêm theo ngày hiện tại)
-            const now = new Date();
-            if (period === 'custom') {
-                fromDate = new Date(document.getElementById('fromDate').value);
-                toDate = new Date(document.getElementById('toDate').value);
-            } else if (period === 'month') {
-                fromDate = new Date(now.getFullYear(), now.getMonth(), 1);
-                toDate = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-            } else if (period === '6month') {
-                fromDate = new Date(now.getFullYear(), now.getMonth() - 5, 1);
-                toDate = now;
-            } else if (period === '9month') {
-                fromDate = new Date(now.getFullYear(), now.getMonth() - 8, 1);
-                toDate = now;
-            } else { // 12month
-                fromDate = new Date(now.getFullYear() - 1, now.getMonth(), 1);
-                toDate = now;
-            }
+            if (type === 'an_dan_su') { refPath = 'an_dan_su'; title = 'Án Dân sự'; }
+            else if (type === 'thi_hanh_an') { refPath = 'thi_hanh_an'; title = 'Thi hành án Dân sự'; }
+            else if (type === 'don_khieu_to') { refPath = 'don_khieu_to'; title = 'Đơn Khiếu nại - Tố cáo'; }
 
-            let html = `<h3>Kết quả thống kê ${type.toUpperCase()} - Kỳ ${period}</h3><table style="width:100%;border-collapse:collapse;"><tr><th>Chỉ tiêu</th><th>Số lượng</th></tr>`;
+            const snap = await db.ref(refPath).once('value');
+            const datas = snap.val() || {};
+            currentData = [];
 
-            if (type === 'dan_su') {
-                const data = await getDataFromFirebase('an_dan_su');
-                let total = 0, coHieuLuc = 0;
-                Object.values(data).forEach(item => {
-                    const ts = new Date(item.timestamp || 0);
-                    if (ts >= fromDate && ts <= toDate) {
-                        total++;
-                        if (item.trang_thai_hieu_luc === 'Co_hieu_luc') coHieuLuc++;
-                    }
+            let html = `<h3>Báo cáo ${title} - ${currentUser.unit || 'Toàn hệ thống'}</h3>`;
+            html += `<table><tr><th>STT</th><th>Ngày</th><th>Nội dung chính</th><th>Người tạo</th></tr>`;
+
+            let count = 0;
+
+            Object.keys(datas).forEach(key => {
+                const item = datas[key];
+
+                const canView = currentUser.level === 'toi_cao' || 
+                               (item.unit && item.unit === currentUser.unit) ||
+                               (item.createdBy && item.createdBy === currentUser.username);
+
+                if (!canView) return;
+
+                count++;
+                const ngay = item.ngay_nhan || item.ngay_thu_ly || item.ngay_nhan_qd || 'Không rõ';
+                const tomTat = (item.noi_dung || item.noi_dung_tha || item.ho_ten || '').substring(0, 80) + '...';
+
+                html += `<tr>
+                    <td>${count}</td>
+                    <td>${ngay}</td>
+                    <td>${tomTat}</td>
+                    <td>${item.createdBy || 'N/A'}</td>
+                </tr>`;
+
+                currentData.push({
+                    STT: count,
+                    Ngay: ngay,
+                    NoiDung: tomTat,
+                    NguoiTao: item.createdBy || 'N/A',
+                    DonVi: item.unit || ''
                 });
-                html += `<tr><td>Tổng số án dân sự</td><td>${total}</td></tr>`;
-                html += `<tr><td>Án có hiệu lực (chuyển thi hành)</td><td>${coHieuLuc}</td></tr>`;
-                currentData = [{Chỉ_tiêu: 'Tổng số án dân sự', Số_lượng: total}, {Chỉ_tiêu: 'Án có hiệu lực', Số_lượng: coHieuLuc}];
-            } 
-            else if (type === 'khieu_to') {
-                const data = await getDataFromFirebase('don_khieu_to');
-                let total = 0, danSu = 0, tha = 0;
-                Object.values(data).forEach(item => {
-                    const ts = new Date(item.timestamp || 0);
-                    if (ts >= fromDate && ts <= toDate) {
-                        total++;
-                        if (item.phan_loai === 'Dan su') danSu++;
-                        if (item.phan_loai === 'Thi hanh an') tha++;
-                    }
-                });
-                html += `<tr><td>Tổng số đơn khiếu nại, tố cáo</td><td>${total}</td></tr>`;
-                html += `<tr><td>Đơn liên quan Dân sự</td><td>${danSu}</td></tr>`;
-                html += `<tr><td>Đơn liên quan Thi hành án</td><td>${tha}</td></tr>`;
-                currentData = [{Chỉ_tiêu: 'Tổng số đơn', Số_lượng: total}, {Chỉ_tiêu: 'Đơn Dân sự', Số_lượng: danSu}, {Chỉ_tiêu: 'Đơn Thi hành án', Số_lượng: tha}];
-            } 
-            else if (type === 'thi_hanh_an') {
-                const data = await getDataFromFirebase('thi_hanh_an');
-                let total = 0, daXong = 0, coDieuKien = 0;
-                Object.values(data).forEach(item => {
-                    const ts = new Date(item.timestamp || 0);
-                    if (ts >= fromDate && ts <= toDate) {
-                        total++;
-                        if (item.ngay_thi_hanh_xong) daXong++;
-                        if (item.tinh_trang_tha === 'Co dieu kien') coDieuKien++;
-                    }
-                });
-                html += `<tr><td>Tổng số hồ sơ thi hành án</td><td>${total}</td></tr>`;
-                html += `<tr><td>Đã thi hành xong</td><td>${daXong}</td></tr>`;
-                html += `<tr><td>Có điều kiện thi hành</td><td>${coDieuKien}</td></tr>`;
-                currentData = [{Chỉ_tiêu: 'Tổng số hồ sơ', Số_lượng: total}, {Chỉ_tiêu: 'Đã thi hành xong', Số_lượng: daXong}, {Chỉ_tiêu: 'Có điều kiện', Số_lượng: coDieuKien}];
-            }
+            });
 
-            html += `</table>`;
-            document.getElementById('resultArea').innerHTML = html;
+            html += `</table><p><strong>Tổng số: ${count} hồ sơ</strong></p>`;
+
+            document.getElementById('resultArea').innerHTML = html || '<p>Không có dữ liệu thuộc thẩm quyền của bạn.</p>';
         }
 
         function exportToExcel() {
@@ -181,20 +132,14 @@
                 alert("Vui lòng xem báo cáo trước khi xuất Excel!");
                 return;
             }
-
             const ws = XLSX.utils.json_to_sheet(currentData);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, "BaoCao");
-
-            // Thêm tiêu đề biểu mẫu
-            const type = document.getElementById('reportType').value;
-            let sheetName = type === 'dan_su' ? 'Bieu_10_11_12' : type === 'khieu_to' ? 'Bieu_16_17_18' : 'Bieu_20';
-            XLSX.writeFile(wb, `BaoCao_${sheetName}_${new Date().toISOString().slice(0,10)}.xlsx`);
+            XLSX.writeFile(wb, `BaoCao_${document.getElementById('reportType').options[document.getElementById('reportType').selectedIndex].text}_${new Date().toISOString().slice(0,10)}.xlsx`);
         }
 
-        // Khởi tạo
         window.onload = () => {
-            toggleCustomDate();
+            checkLogin();
         };
     </script>
 </body>
