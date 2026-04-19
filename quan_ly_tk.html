@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Quản lý Tài khoản - VKSNDTC</title>
+    <title>Quản lý Tài khoản - VKSND</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
@@ -31,84 +31,80 @@
 <body>
     <header>
         <a href="index.html" class="btn-back">← Menu chính</a>
-        <h1>VIỆN KIỂM SÁT NHÂN DÂN TỐI CAO</h1>
-        <h2>QUẢN LÝ TÀI KHOẢN</h2>
+        <h2>QUẢN LÝ TÀI KHOẢN - 3 CẤP</h2>
     </header>
 
     <div class="container">
-       <!-- Phần form tạo tài khoản - thay thế phần cũ -->
-<h3>Tạo tài khoản mới</h3>
-<div id="message"></div>
+        <h3>Tạo tài khoản mới</h3>
+        <div id="message"></div>
 
-<div class="form-group">
-    <label>Tên đăng nhập (username):</label>
-    <input type="text" id="username" placeholder="Ví dụ: cantho_ksv1">
-</div>
-<div class="form-group">
-    <label>Họ và tên:</label>
-    <input type="text" id="fullname" placeholder="Nguyễn Văn A">
-</div>
+        <div class="form-group">
+            <label>Tên đăng nhập (username):</label>
+            <input type="text" id="username" placeholder="Ví dụ: cantho_ksv1">
+        </div>
+        <div class="form-group">
+            <label>Họ và tên:</label>
+            <input type="text" id="fullname" placeholder="Nguyễn Văn A">
+        </div>
 
-<div class="form-group">
-    <label>Cấp tài khoản:</label>
-    <select id="level" onchange="toggleLevel()">
-        <option value="toi_cao">Cấp Tối cao (VKSND Tối cao)</option>
-        <option value="tinh">Cấp Tỉnh / Thành phố</option>
-        <option value="khuvuc">Cấp Khu vực</option>
-    </select>
-</div>
+        <div class="form-group">
+            <label>Cấp tài khoản:</label>
+            <select id="level" onchange="toggleLevel()">
+                <option value="toi_cao">Cấp Tối cao (VKSND Tối cao)</option>
+                <option value="tinh">Cấp Tỉnh / Thành phố</option>
+                <option value="khuvuc">Cấp Khu vực</option>
+            </select>
+        </div>
 
-<!-- Cấp Tỉnh / Thành phố -->
-<div id="tinh_group" class="form-group" style="display:none;">
-    <label>Tỉnh / Thành phố:</label>
-    <select id="tinh_thanh"></select>
-    
-    <label>Chức vụ:</label>
-    <select id="chuc_vu_tinh">
-        <option value="Vien truong">Viện trưởng</option>
-        <option value="Pho vien truong">Phó Viện trưởng</option>
-        <option value="Kiem sat vien">Kiểm sát viên</option>
-        <option value="Khac">Khác</option>
-    </select>
-</div>
+        <!-- Cấp Tỉnh / Thành phố -->
+        <div id="tinh_group" class="form-group" style="display:none;">
+            <label>Tỉnh / Thành phố:</label>
+            <select id="tinh_thanh"></select>
+            
+            <label>Chức vụ:</label>
+            <select id="chuc_vu_tinh">
+                <option value="Vien truong">Viện trưởng</option>
+                <option value="Pho vien truong">Phó Viện trưởng</option>
+                <option value="Kiem sat vien">Kiểm sát viên</option>
+                <option value="Khac">Khác</option>
+            </select>
+        </div>
 
-<!-- Cấp Khu vực -->
-<div id="khuvuc_group" class="form-group" style="display:none;">
-    <label>Khu vực:</label>
-    <select id="khu_vuc"></select>
-    
-    <label>Phòng:</label>
-    <select id="phong_khuvuc">
-        <option value="Phong 9">Phòng 9</option>
-        <option value="Phong 10">Phòng 10</option>
-        <option value="Phong 11">Phòng 11</option>
-        <option value="Phong 15">Phòng 15</option>
-    </select>
-    
-    <label>Chức vụ:</label>
-    <select id="chuc_vu_khuvuc">
-        <option value="Truong phong">Trưởng phòng</option>
-        <option value="Vien truong">Viện trưởng</option>
-         <option value="Pho truong phong">Phó trưởng phòng</option>
-        <option value="Pho vien truong">Phó Viện trưởng</option>
-        <option value="Kiem sat vien">Kiểm sát viên</option>
-        <option value="Khac">Khác</option>
-    </select>
-</div>
+        <!-- Cấp Khu vực -->
+        <div id="khuvuc_group" class="form-group" style="display:none;">
+            <label>Khu vực:</label>
+            <select id="khu_vuc"></select>
+            
+            <label>Phòng:</label>
+            <select id="phong_khuvuc">
+                <option value="Phong 9">Phòng 9</option>
+                <option value="Phong 10">Phòng 10</option>
+                <option value="Phong 11">Phòng 11</option>
+                <option value="Phong 15">Phòng 15</option>
+            </select>
+            
+            <label>Chức vụ:</label>
+            <select id="chuc_vu_khuvuc">
+                <option value="Truong phong">Trưởng phòng</option>
+                <option value="Pho truong phong">Phó trưởng phòng</option>
+                <option value="Kiem sat vien">Kiểm sát viên</option>
+                <option value="Khac">Khác</option>
+            </select>
+        </div>
 
-<!-- Cấp Tối cao -->
-<div id="toicao_group" class="form-group" style="display:none;">
-    <label>Chức vụ:</label>
-    <select id="chuc_vu_toicao">
-        <option value="Cuc truong">Cục trưởng</option>
-        <option value="Vu truong">Vụ trưởng</option>
-        <option value="Pho cuc truong">Phó Cục trưởng</option>
-        <option value="Pho vu truong">Phó Vụ trưởng</option>
-        <option value="Khac">Khác</option>
-    </select>
-</div>
+        <!-- Cấp Tối cao -->
+        <div id="toicao_group" class="form-group" style="display:none;">
+            <label>Chức vụ:</label>
+            <select id="chuc_vu_toicao">
+                <option value="Cuc truong">Cục trưởng</option>
+                <option value="Vu truong">Vụ trưởng</option>
+                <option value="Pho cuc truong">Phó Cục trưởng</option>
+                <option value="Pho vu truong">Phó Vụ trưởng</option>
+                <option value="Khac">Khác</option>
+            </select>
+        </div>
 
-<button class="btn-save" onclick="createUser()">TẠO TÀI KHOẢN MỚI</button>
+        <button class="btn-save" onclick="createUser()">TẠO TÀI KHOẢN MỚI</button>
     </div>
 
     <div class="container">
@@ -120,6 +116,7 @@
                     <th>Họ tên</th>
                     <th>Cấp</th>
                     <th>Đơn vị</th>
+                    <th>Chức vụ</th>
                     <th>Thao tác</th>
                 </tr>
             </thead>
@@ -128,6 +125,7 @@
     </div>
 
     <script>
+        // ================== KHỞI TẠO FIREBASE ==================
         var firebaseConfig = {
             apiKey: "AIzaSyDunRDIeyBTVXTODoO22ywk1Q35cCx2sV8",
             authDomain: "dansu-vksndtpct.firebaseapp.com",
@@ -139,134 +137,144 @@
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         var db = firebase.database();
 
-        const currentUsername = localStorage.getItem('vks_username');
-        if (currentUsername !== 'admin') {
-            alert("Chỉ tài khoản Admin mới được truy cập trang này!");
-            window.location.href = "index.html";
+        let currentUser = null;
+
+        // ================== KIỂM TRA QUYỀN ADMIN ==================
+        function checkAdminPermission() {
+            currentUser = JSON.parse(localStorage.getItem('vks_user') || '{}');
+            
+            if (!currentUser.username) {
+                alert("Vui lòng đăng nhập trước!");
+                window.location.href = "index.html";
+                return false;
+            }
+
+            const isAdmin = 
+                currentUser.username === "admin" || 
+                currentUser.level === "toi_cao" ||
+                (currentUser.position && 
+                    (currentUser.position.includes("truong") || 
+                     currentUser.position.includes("Vien truong") || 
+                     currentUser.position.includes("Cuc truong") ||
+                     currentUser.position.includes("Truong phong")));
+
+            if (!isAdmin) {
+                alert("Chỉ tài khoản Admin hoặc Lãnh đạo (Viện trưởng / Cục trưởng / Trưởng phòng) mới được truy cập trang này!");
+                window.location.href = "index.html";
+                return false;
+            }
+            return true;
         }
 
-        // Danh sách 34 tỉnh/thành phố (bạn có thể bổ sung thêm)
-        const provinces = [
-            "Hà Nội","TP. Hồ Chí Minh","Cần Thơ","Đà Nẵng","Hải Phòng",
-            "An Giang","Bà Rịa - Vũng Tàu","Bắc Giang","Bắc Kạn","Bạc Liêu",
-            "Bắc Ninh","Bến Tre","Bình Định","Bình Dương","Bình Phước",
-            "Bình Thuận","Cà Mau","Cao Bằng","Đắk Lắk","Đắk Nông",
-            "Điện Biên","Đồng Nai","Đồng Tháp","Gia Lai","Hà Giang",
-            "Hà Nam","Hà Tĩnh","Hải Dương","Hậu Giang","Hòa Bình",
-            "Hưng Yên","Khánh Hòa","Kiên Giang","Kon Tum","Lai Châu",
-            "Lâm Đồng","Lạng Sơn","Lào Cai","Long An","Nam Định",
-            "Nghệ An","Ninh Bình","Ninh Thuận","Phú Thọ","Phú Yên",
-            "Quảng Bình","Quảng Nam","Quảng Ngãi","Quảng Ninh","Quảng Trị",
-            "Sóc Trăng","Sơn La","Tây Ninh","Thái Bình","Thái Nguyên",
-            "Thanh Hóa","Thừa Thiên Huế","Tiền Giang","Trà Vinh","Tuyên Quang",
-            "Vĩnh Long","Vĩnh Phúc","Yên Bái"
-        ];
+        // ================== TOGGLE CẤP TÀI KHOẢN ==================
+        const provinces = ["Cần Thơ","Hà Nội","TP. Hồ Chí Minh","Đà Nẵng","Hải Phòng","An Giang","Bạc Liêu","Bến Tre","Cà Mau","Đồng Tháp","Hậu Giang","Kiên Giang","Long An","Sóc Trăng","Tiền Giang","Trà Vinh","Vĩnh Long","Khác"];
 
         function toggleLevel() {
-    const level = document.getElementById('level').value;
-    
-    // Ẩn tất cả
-    document.getElementById('tinh_group').style.display = 'none';
-    document.getElementById('khuvuc_group').style.display = 'none';
-    document.getElementById('toicao_group').style.display = 'none';
+            const level = document.getElementById('level').value;
+            
+            document.getElementById('tinh_group').style.display = 'none';
+            document.getElementById('khuvuc_group').style.display = 'none';
+            document.getElementById('toicao_group').style.display = 'none';
 
-    if (level === 'tinh') {
-        document.getElementById('tinh_group').style.display = 'block';
-        // Populate tỉnh (giữ nguyên code cũ của bạn)
-        const tinhSelect = document.getElementById('tinh_thanh');
-        tinhSelect.innerHTML = '<option value="">-- Chọn Tỉnh/Thành phố --</option>';
-        provinces.forEach(p => {
-            const opt = document.createElement('option');
-            opt.value = p; opt.textContent = p;
-            tinhSelect.appendChild(opt);
-        });
-    } 
-    else if (level === 'khuvuc') {
-        document.getElementById('khuvuc_group').style.display = 'block';
-        // Populate khu vực
-        const kvSelect = document.getElementById('khu_vuc');
-        kvSelect.innerHTML = '<option value="">-- Chọn Khu vực --</option>';
-        for (let i = 1; i <= 14; i++) {
-            const opt = document.createElement('option');
-            opt.value = `Khu vực ${i}`; opt.textContent = `Khu vực ${i}`;
-            kvSelect.appendChild(opt);
+            if (level === 'tinh') {
+                document.getElementById('tinh_group').style.display = 'block';
+                const tinhSelect = document.getElementById('tinh_thanh');
+                tinhSelect.innerHTML = '<option value="">-- Chọn Tỉnh/Thành phố --</option>';
+                provinces.forEach(p => {
+                    const opt = document.createElement('option');
+                    opt.value = p; opt.textContent = p;
+                    tinhSelect.appendChild(opt);
+                });
+            } 
+            else if (level === 'khuvuc') {
+                document.getElementById('khuvuc_group').style.display = 'block';
+                const kvSelect = document.getElementById('khu_vuc');
+                kvSelect.innerHTML = '<option value="">-- Chọn Khu vực --</option>';
+                for (let i = 1; i <= 14; i++) {
+                    const opt = document.createElement('option');
+                    opt.value = `Khu vực ${i}`; opt.textContent = `Khu vực ${i}`;
+                    kvSelect.appendChild(opt);
+                }
+            } 
+            else if (level === 'toi_cao') {
+                document.getElementById('toicao_group').style.display = 'block';
+            }
         }
-    } 
-    else if (level === 'toi_cao') {
-        document.getElementById('toicao_group').style.display = 'block';
-    }
-}
 
-       function createUser() {
-    const username = document.getElementById('username').value.trim();
-    const fullname = document.getElementById('fullname').value.trim();
-    const level = document.getElementById('level').value;
+        // ================== TẠO TÀI KHOẢN MỚI ==================
+        function createUser() {
+            const username = document.getElementById('username').value.trim();
+            const fullname = document.getElementById('fullname').value.trim();
+            const level = document.getElementById('level').value;
 
-    if (!username || !fullname) {
-        document.getElementById('message').innerHTML = `<div class="error">Vui lòng nhập Username và Họ tên!</div>`;
-        return;
-    }
+            if (!username || !fullname) {
+                document.getElementById('message').innerHTML = `<div class="error">Vui lòng nhập Username và Họ tên!</div>`;
+                return;
+            }
 
-    let unit = '', position = '', department = '';
+            let unit = '', department = '', position = '';
 
-    if (level === 'tinh') {
-        unit = document.getElementById('tinh_thanh').value;
-        position = document.getElementById('chuc_vu_tinh').value;
-    } else if (level === 'khuvuc') {
-        unit = document.getElementById('khu_vuc').value;
-        department = document.getElementById('phong_khuvuc').value;
-        position = document.getElementById('chuc_vu_khuvuc').value;
-    } else if (level === 'toi_cao') {
-        unit = 'VKSND Tối cao';
-        position = document.getElementById('chuc_vu_toicao').value;
-    }
+            if (level === 'tinh') {
+                unit = document.getElementById('tinh_thanh').value;
+                position = document.getElementById('chuc_vu_tinh').value;
+            } else if (level === 'khuvuc') {
+                unit = document.getElementById('khu_vuc').value;
+                department = document.getElementById('phong_khuvuc').value;
+                position = document.getElementById('chuc_vu_khuvuc').value;
+            } else if (level === 'toi_cao') {
+                unit = 'VKSND Tối cao';
+                position = document.getElementById('chuc_vu_toicao').value;
+            }
 
-    // Lưu thêm thông tin
-    db.ref('users/' + username).once('value').then(snapshot => {
-        if (snapshot.exists()) {
-            document.getElementById('message').innerHTML = `<div class="error">Tài khoản đã tồn tại!</div>`;
-        } else {
-            db.ref('users/' + username).set({
-                fullname: fullname,
-                password: "123456",
-                level: level,
-                unit: unit,
-                department: department || null,
-                position: position,
-                createdAt: Date.now(),
-                role: (level === 'toi_cao' || position.includes('truong')) ? 'admin' : 'user'   // ví dụ phân quyền đơn giản
-            }).then(() => {
-                document.getElementById('message').innerHTML = `<div class="success">✅ Tạo thành công!<br>Mật khẩu mặc định: <strong>123456</strong></div>`;
-                loadUsers();
-                // reset form...
+            db.ref('users/' + username).once('value').then(snapshot => {
+                if (snapshot.exists()) {
+                    document.getElementById('message').innerHTML = `<div class="error">Tài khoản này đã tồn tại!</div>`;
+                } else {
+                    db.ref('users/' + username).set({
+                        fullname: fullname,
+                        password: "123456",
+                        level: level,
+                        unit: unit,
+                        department: department || null,
+                        position: position,
+                        createdAt: Date.now()
+                    }).then(() => {
+                        document.getElementById('message').innerHTML = `<div class="success">✅ Tạo tài khoản thành công!<br>Mật khẩu mặc định: <strong>123456</strong></div>`;
+                        loadUsers();
+                        // Reset form
+                        document.getElementById('username').value = '';
+                        document.getElementById('fullname').value = '';
+                    });
+                }
             });
         }
-    });
-}
+
+        // ================== LOAD DANH SÁCH TÀI KHOẢN ==================
         function loadUsers() {
             db.ref('users').on('value', snapshot => {
                 const users = snapshot.val() || {};
                 let html = '';
+                
                 Object.keys(users).forEach(key => {
                     const u = users[key];
-                    let capText = '';
-                    if (u.level === 'toi_cao') capText = 'Cấp Tối cao';
-                    else if (u.level === 'tinh') capText = 'Cấp Tỉnh/TP';
-                    else if (u.level === 'khuvuc') capText = 'Cấp Khu vực';
+                    let capText = u.level === 'toi_cao' ? 'Cấp Tối cao' : 
+                                  u.level === 'tinh' ? 'Cấp Tỉnh/TP' : 'Cấp Khu vực';
 
                     html += `<tr>
                         <td><strong>${key}</strong></td>
                         <td>${u.fullname || ''}</td>
                         <td>${capText}</td>
                         <td>${u.unit || ''}</td>
+                        <td>${u.position || ''}</td>
                         <td>
                             <button class="btn-reset" onclick="resetPassword('${key}')">Reset MK</button>
                             ${key !== 'admin' ? `<button class="btn-delete" onclick="deleteUser('${key}')">Xóa</button>` : ''}
                         </td>
                     </tr>`;
                 });
+
                 document.getElementById('table-body').innerHTML = html || 
-                    '<tr><td colspan="5" style="text-align:center;color:#999">Chưa có tài khoản nào</td></tr>';
+                    '<tr><td colspan="6" style="text-align:center;color:#999">Chưa có tài khoản nào</td></tr>';
             });
         }
 
@@ -284,47 +292,13 @@
                 db.ref('users/' + username).remove().then(() => loadUsers());
             }
         }
-// ================== KIỂM TRA QUYỀN TRUY CẬP QUẢN LÝ TÀI KHOẢN ==================
-function checkAdminPermission() {
-    const user = JSON.parse(localStorage.getItem('vks_user') || '{}');
-    
-    if (!user.username) {
-        alert("Vui lòng đăng nhập trước!");
-        window.location.href = "index.html";
-        return false;
-    }
 
-    // Cho phép truy cập nếu là:
-    // 1. Username = "admin" (tài khoản cứng)
-    // 2. Level = "toi_cao" (Cấp Tối cao)
-    // 3. Position có từ "truong" (Viện trưởng, Cục trưởng, Trưởng phòng...)
-    
-    const isAdmin = 
-        user.username === "admin" || 
-        user.level === "toi_cao" ||
-        (user.position && 
-            (user.position.includes("truong") || 
-             user.position.includes("Vien truong") || 
-             user.position.includes("Cuc truong")));
-
-    if (!isAdmin) {
-        alert("Chỉ tài khoản Admin hoặc Lãnh đạo (Viện trưởng / Cục trưởng / Trưởng phòng) mới được truy cập trang này!");
-        window.location.href = "index.html";
-        return false;
-    }
-
-    console.log("Quyền Admin xác nhận:", user);
-    return true;
-}
-
-// Gọi hàm kiểm tra khi trang load
-window.onload = () => {
-    if (!checkAdminPermission()) return;
-    
-    toggleLevel();
-    loadUsers();
-};
-     
+        // ================== KHỞI ĐỘNG ==================
+        window.onload = () => {
+            if (!checkAdminPermission()) return;
+            toggleLevel();
+            loadUsers();
+        };
     </script>
 </body>
 </html>
