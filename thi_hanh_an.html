@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Quản lý Thi hành án Dân sự</title>
+    <title>Quản lý Kiểm sát Thi hành án Dân sự</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
@@ -19,12 +19,12 @@
         label { font-weight: bold; margin-bottom: 6px; color: #333; display: block; }
         input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
         
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 8px; }
-        th, td { border: 1px solid #ddd; padding: 6px; text-align: left; vertical-align: top; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 13px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; vertical-align: top; }
         th { background: #e0f2f1; color: #0408c5; }
         
         .btn-save { background: #5670e6; color: white; padding: 14px; border: none; border-radius: 8px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 15px; }
-        .btn-add { background: #4caf50; color: white; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; margin-top: 5px; }
+        .btn-add { background: #4caf50; color: white; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; }
         .btn-edit { background: #ff9800; color: white; padding: 5px 10px; border-radius: 5px; font-size: 12px; margin-right: 5px; }
         .btn-delete { background: #d32f2f; color: white; padding: 5px 10px; border-radius: 5px; font-size: 12px; }
         .btn-pdf { background: #4caf50; color: white; padding: 5px 10px; border-radius: 5px; font-size: 12px; }
@@ -91,17 +91,11 @@
                 <div class="form-group"><label>Ngày đưa ra bán đấu giá lần 1:</label><input type="date" id="ngay_dau_gia_lan1"></div>
                 <div class="form-group">
                     <label>Kết quả đấu giá lần 1:</label>
-                    <select id="ket_qua_dau_gia_lan1" onchange="toggleGiamGiaFields()">
+                    <select id="ket_qua_dau_gia_lan1">
                         <option value="Thanh cong">Bán thành công</option>
                         <option value="Chua ban duoc">Chưa bán được</option>
                     </select>
                 </div>
-                <div id="gia_ban_thanh_cong_group" class="form-group">
-                    <label>Giá bán thành công lần 1:</label>
-                    <input type="text" id="gia_ban_thanh_cong_lan1">
-                </div>
-                <div id="giam_gia_list"></div>
-                <button class="btn-add" onclick="addGiamGiaItem()">+ Thêm lần giảm giá</button>
             </div>
 
             <div class="form-group"><label>Ngày thi hành xong:</label><input type="date" id="ngay_thi_hanh_xong"></div>
@@ -125,7 +119,7 @@
                         <th>Người phải THA</th>
                         <th>Nội dung</th>
                         <th>Tình trạng</th>
-                        <th>Ngày thi hành xong</th>
+                        <th>Ngày xong</th>
                         <th>File PDF</th>
                         <th>Thao tác</th>
                     </tr>
@@ -136,6 +130,7 @@
     </div>
 
     <script>
+        // ================== FIREBASE & LOGIN ==================
         var firebaseConfig = {
             apiKey: "AIzaSyDunRDIeyBTVXTODoO22ywk1Q35cCx2sV8",
             authDomain: "dansu-vksndtpct.firebaseapp.com",
@@ -149,7 +144,19 @@
         var storage = firebase.storage();
 
         let editingKey = null;
+        let currentUser = null;
 
+        function checkLogin() {
+            currentUser = JSON.parse(localStorage.getItem('vks_user') || '{}');
+            if (!currentUser.username) {
+                alert("Vui lòng đăng nhập trước!");
+                window.location.href = "index.html";
+                return false;
+            }
+            return true;
+        }
+
+        // ================== THÊM ĐA ITEM ==================
         function addChapHanhVien() {
             const container = document.getElementById('chap_hanh_vien_list');
             const div = document.createElement('div');
@@ -166,31 +173,15 @@
             container.appendChild(div);
         }
 
-        function addGiamGiaItem() {
-            const container = document.getElementById('giam_gia_list');
-            const div = document.createElement('div');
-            div.className = 'multi-item';
-            div.innerHTML = `
-                <input type="text" placeholder="Số QĐ giảm giá" style="flex:1">
-                <input type="date" style="flex:1">
-                <input type="text" placeholder="Giá trị còn lại" style="flex:1">
-                <input type="text" placeholder="Giá bán (nếu có)" style="flex:1">
-                <button type="button" onclick="this.parentElement.remove()" style="background:#d32f2f;color:white;padding:6px 10px;border:none;border-radius:4px;">X</button>
-            `;
-            container.appendChild(div);
-        }
-
         function toggleDinhGiaFields() {
-            const tinhTrang = document.getElementById('tinh_trang_tha').value;
-            document.getElementById('dinh_gia_section').style.display = (tinhTrang === "Co dieu kien") ? "block" : "none";
+            const val = document.getElementById('tinh_trang_tha').value;
+            document.getElementById('dinh_gia_section').style.display = (val === "Co dieu kien") ? "block" : "none";
         }
 
-        function toggleGiamGiaFields() {
-            const ketQua = document.getElementById('ket_qua_dau_gia_lan1').value;
-            document.getElementById('gia_ban_thanh_cong_group').style.display = (ketQua === "Thanh cong") ? "block" : "none";
-        }
-
+        // ================== LƯU DỮ LIỆU ==================
         function saveData() {
+            if (!checkLogin()) return;
+
             const file = document.getElementById('pdf_file').files[0];
 
             const data = {
@@ -208,6 +199,9 @@
                 ket_qua_xac_minh: document.getElementById('ket_qua_xac_minh').value,
                 tinh_trang_tha: document.getElementById('tinh_trang_tha').value,
                 ngay_thi_hanh_xong: document.getElementById('ngay_thi_hanh_xong').value,
+                createdBy: currentUser.username,
+                unit: currentUser.unit || "Cần Thơ",
+                position: currentUser.position || null,
                 timestamp: Date.now()
             };
 
@@ -216,7 +210,6 @@
                 data.gia_tri_tai_san = document.getElementById('gia_tri_tai_san').value;
                 data.ngay_dau_gia_lan1 = document.getElementById('ngay_dau_gia_lan1').value;
                 data.ket_qua_dau_gia_lan1 = document.getElementById('ket_qua_dau_gia_lan1').value;
-                data.gia_ban_thanh_cong_lan1 = document.getElementById('gia_ban_thanh_cong_lan1').value;
             }
 
             if (file) {
@@ -237,55 +230,89 @@
                 db.ref('thi_hanh_an/' + editingKey).update(data).then(() => {
                     alert("Cập nhật thành công!");
                     resetForm();
+                    loadData();
                 });
             } else {
                 db.ref('thi_hanh_an').push(data).then(() => {
-                    alert("Lưu hồ sơ thi hành án thành công!");
+                    alert("Lưu hồ sơ thành công!");
                     resetForm();
+                    loadData();
                 });
             }
         }
 
-        function resetForm() {
-            document.getElementById('chap_hanh_vien_list').innerHTML = '';
-            document.getElementById('ksv_list').innerHTML = '';
-            document.getElementById('giam_gia_list').innerHTML = '';
-            document.getElementById('tinh_trang_tha').value = "Co dieu kien";
-            toggleDinhGiaFields();
-            editingKey = null;
-        }
-
+        // ================== LOAD & FILTER DỮ LIỆU ==================
         function loadData() {
+            if (!checkLogin()) return;
+
             db.ref('thi_hanh_an').on('value', (snapshot) => {
-                const datas = snapshot.val();
+                const datas = snapshot.val() || {};
                 let html = '';
                 let stt = 1;
-                if (datas) {
-                    Object.keys(datas).forEach(key => {
-                        const item = datas[key];
-                        html += `<tr>
-                            <td>${stt++}</td>
-                            <td>${item.so_qd_tha || ''}</td>
-                            <td>${item.ngay_nhan_qd || ''}</td>
-                            <td>${item.nguoi_phai_tha || ''}</td>
-                            <td>${item.noi_dung_tha || ''}</td>
-                            <td>${item.tinh_trang_tha || ''}</td>
-                            <td>${item.ngay_thi_hanh_xong || ''}</td>
-                            <td>${item.pdf_url ? '<a href="'+item.pdf_url+'" target="_blank" class="btn-pdf">PDF</a>' : 'Không có'}</td>
-                            <td>
-                                <button class="btn-edit" onclick="editRecord('${key}')">Sửa</button>
-                                <button class="btn-delete" onclick="deleteRecord('${key}')">Xóa</button>
-                            </td>
-                        </tr>`;
-                    });
-                }
-                document.getElementById('table-body').innerHTML = html || '<tr><td colspan="9" style="text-align:center;color:#999">Chưa có hồ sơ nào</td></tr>';
+
+                Object.keys(datas).forEach(key => {
+                    const item = datas[key];
+                    const canView = currentUser.level === 'toi_cao' || 
+                                   (item.unit && item.unit === currentUser.unit) ||
+                                   (item.createdBy && item.createdBy === currentUser.username);
+
+                    if (!canView) return;
+
+                    const pdfLink = item.pdf_url ? `<a href="${item.pdf_url}" target="_blank" class="btn-pdf">PDF</a>` : 'Không có';
+
+                    html += `<tr>
+                        <td>${stt++}</td>
+                        <td>${item.so_qd_tha || ''}</td>
+                        <td>${item.ngay_nhan_qd || ''}</td>
+                        <td>${item.nguoi_phai_tha || ''}</td>
+                        <td>${item.noi_dung_tha ? item.noi_dung_tha.substring(0,50)+'...' : ''}</td>
+                        <td>${item.tinh_trang_tha || ''}</td>
+                        <td>${item.ngay_thi_hanh_xong || ''}</td>
+                        <td>${pdfLink}</td>
+                        <td>
+                            <button class="btn-edit" onclick="editRecord('${key}')">Sửa</button>
+                            <button class="btn-delete" onclick="deleteRecord('${key}')">Xóa</button>
+                        </td>
+                    </tr>`;
+                });
+
+                document.getElementById('table-body').innerHTML = html || '<tr><td colspan="9" style="text-align:center;color:#999">Chưa có hồ sơ nào thuộc thẩm quyền của bạn</td></tr>';
             });
         }
 
-        window.onload = () => {
-            loadData();
+        function editRecord(key) {
+            db.ref('thi_hanh_an/' + key).once('value').then(snapshot => {
+                const item = snapshot.val();
+                // Điền dữ liệu vào form (bạn có thể mở rộng thêm nếu cần)
+                document.getElementById('so_qd_tha').value = item.so_qd_tha || '';
+                document.getElementById('ngay_nhan_qd').value = item.ngay_nhan_qd || '';
+                // ... (các trường khác tương tự)
+                editingKey = key;
+                document.getElementById('btn-save').innerText = 'CẬP NHẬT';
+            });
+        }
+
+        function deleteRecord(key) {
+            if (confirm("Xóa hồ sơ này?")) {
+                db.ref('thi_hanh_an/' + key).remove().then(() => loadData());
+            }
+        }
+
+        function resetForm() {
+            // Reset tất cả input và list động
+            document.querySelectorAll('input, textarea, select').forEach(el => el.value = '');
+            document.getElementById('chap_hanh_vien_list').innerHTML = '';
+            document.getElementById('ksv_list').innerHTML = '';
+            document.getElementById('tinh_trang_tha').value = "Co dieu kien";
             toggleDinhGiaFields();
+            editingKey = null;
+            document.getElementById('btn-save').innerText = 'LƯU HỒ SƠ THI HÀNH ÁN';
+        }
+
+        window.onload = () => {
+            if (!checkLogin()) return;
+            toggleDinhGiaFields();
+            loadData();
         };
     </script>
 </body>
