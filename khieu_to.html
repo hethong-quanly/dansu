@@ -2,78 +2,110 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Hệ thống Quản Lý công tác Khiếu tố</title>
+    <title>Quản lý Khiếu nại, Tố cáo</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
-    
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
     <style>
-        /* === GIỮ NGUYÊN CSS CỦA BẠN === */
-        body { font-family: 'Segoe UI', 'Times New Roman', sans-serif; margin: 0; padding: 0; color: #333; background: linear-gradient(135deg, #f5f7fa, #c3cfe2); }
-        header { width: 100%; padding: 10px; background-color: #0408c5; color: rgb(248, 245, 54); text-align: center; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        #login-container { display: flex; flex-direction: column; align-items: center; justify-content: center; background-color: #E6F7FF; padding: 25px; border-radius: 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); max-width: 400px; margin: 100px auto; }
-        #main-container { display: none; width: 100%; max-width: 1300px; margin: 20px auto; padding: 20px; }
-        .section-content { display: none; }
-        .sidebar, .main-panel { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
-        th { background: #e0f2f1; }
-        button { padding: 8px 12px; margin: 5px; border: none; border-radius: 5px; cursor: pointer; }
-        .btn-save { background: #5670e6; color: white; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f5f7fa; }
+        header { background: #0408c5; color: #f8f536; text-align: center; padding: 15px; position: relative; }
+        .btn-back { position: absolute; left: 20px; top: 25px; color: white; text-decoration: none; font-weight: bold; background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 6px; }
+        .container { display: flex; padding: 20px; gap: 25px; }
+        .sidebar { flex: 1.3; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .main-panel { flex: 2.5; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); overflow-y: auto; }
+        
+        .form-group { margin-bottom: 16px; }
+        label { font-weight: bold; margin-bottom: 6px; color: #333; display: block; }
+        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 13px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; vertical-align: top; }
+        th { background: #e0f2f1; color: #0408c5; }
+        
+        .btn-save { background: #5670e6; color: white; padding: 14px; border: none; border-radius: 8px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 15px; }
+        .btn-edit { background: #ff9800; color: white; padding: 5px 10px; border-radius: 5px; font-size: 12px; margin-right: 5px; }
+        .btn-delete { background: #d32f2f; color: white; padding: 5px 10px; border-radius: 5px; font-size: 12px; }
+        .btn-pdf { background: #4caf50; color: white; padding: 5px 10px; border-radius: 5px; font-size: 12px; }
+        
+        .section { background: #f0f4ff; padding: 15px; border-radius: 8px; margin: 15px 0; }
     </style>
 </head>
 <body>
     <header>
-        <h1>VIỆN KIỂM SÁT NHÂN DÂN THÀNH PHỐ CẦN THƠ</h1>
-        <h2>QUẢN LÝ CÔNG TÁC KHIẾU TỐ - KIỂM SÁT HOẠT ĐỘNG TƯ PHÁP</h2>
+        <a href="index.html" class="btn-back">← Menu chính</a>
+        <h2>QUẢN LÝ GIẢI QUYẾT KHIẾU NẠI, TỐ CÁO</h2>
     </header>
 
-    <!-- Login -->
-    <div id="login-container">
-        <img src="https://vienkiemsat.cantho.gov.vn/files/images/logo-vks.png" alt="Logo" style="width:120px; margin-bottom:20px;">
-        <h2>ĐĂNG NHẬP</h2>
-        <input type="text" id="username" placeholder="Tên đăng nhập">
-        <input type="password" id="password" placeholder="Mật khẩu">
-        <button onclick="login()" style="width:100%; padding:12px; background:#5670e6; color:white; border:none; border-radius:5px;">Đăng Nhập</button>
-    </div>
+    <div class="container">
+        <div class="sidebar">
+            <h3>Nhập đơn Khiếu tố mới</h3>
+            
+            <div class="form-group"><label>Ngày nhận đơn:</label><input type="date" id="ngay_nhan"></div>
+            <div class="form-group">
+                <label>Nguồn đơn:</label>
+                <select id="nguon_don">
+                    <option value="Bưu điện">Bưu điện</option>
+                    <option value="Tiếp công dân">Tiếp công dân</option>
+                    <option value="Cơ quan Đảng, Nhà nước">Cơ quan Đảng, Nhà nước</option>
+                    <option value="Báo chí">Báo chí</option>
+                    <option value="Khác">Khác</option>
+                </select>
+            </div>
+            <div class="form-group"><label>Họ tên / Cơ quan:</label><input type="text" id="ho_ten"></div>
+            <div class="form-group"><label>Địa chỉ:</label><input type="text" id="dia_chi"></div>
 
-    <!-- Main App -->
-    <div id="main-container">
-        <nav style="margin-bottom:15px;">
-            <button onclick="showSection('thuly')" style="background:#5670e6;color:white;">Thụ lý đơn</button>
-            <button onclick="showSection('giaiquyet')">Giải quyết</button>
-            <button onclick="showSection('kiemsat')">Kiểm sát</button>
-            <button onclick="logout()" style="float:right; background:#d32f2f;color:white;">Đăng xuất</button>
-        </nav>
-
-        <!-- THỤ LÝ ĐƠN -->
-        <div id="thuly-section" class="section-content" style="display:flex; gap:20px;">
-            <div class="sidebar" style="flex:1;">
-                <h3>Nhập đơn mới</h3>
-                <div class="form-group"><label>Ngày nhận đơn:</label><input type="date" id="ngay_nhan"></div>
-                <div class="form-group"><label>Họ tên / Cơ quan:</label><input type="text" id="ho_ten"></div>
-                <div class="form-group"><label>Phân loại:</label>
-                    <select id="phan_loai">
-                        <option value="Khiếu nại">Khiếu nại</option>
-                        <option value="Tố cáo">Tố cáo</option>
-                    </select>
-                </div>
-                <div class="form-group"><label>Nội dung đơn:</label><textarea id="noi_dung" rows="5"></textarea></div>
-                <button onclick="saveDon()" class="btn-save">Lưu đơn</button>
+            <div class="form-group">
+                <label>Nội dung đơn:</label>
+                <textarea id="noi_dung" rows="5"></textarea>
             </div>
 
-            <div class="main-panel" style="flex:2;">
-                <h3>Danh sách đơn</h3>
-                <table>
-                    <thead><tr><th>STT</th><th>Ngày nhận</th><th>Họ tên</th><th>Phân loại</th><th>Nội dung</th><th>Thao tác</th></tr></thead>
-                    <tbody id="don-body"></tbody>
-                </table>
+            <div class="form-group">
+                <label>Phân loại:</label>
+                <select id="phan_loai">
+                    <option value="Khiếu nại">Khiếu nại</option>
+                    <option value="Tố cáo">Tố cáo</option>
+                    <option value="Kiến nghị/Phản ánh">Kiến nghị/Phản ánh</option>
+                    <option value="Dan su">Dân sự</option>
+                    <option value="Thi hanh an">Thi hành án</option>
+                    <option value="Khac">Khác</option>
+                </select>
             </div>
+
+            <div class="form-group">
+                <label>Đề xuất xử lý:</label>
+                <textarea id="de_xuat_tu_dien" rows="3"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Đính kèm File PDF:</label>
+                <input type="file" id="pdf_file" accept=".pdf">
+            </div>
+
+            <button class="btn-save" onclick="saveData()" id="btn-save">LƯU ĐƠN</button>
+        </div>
+
+        <div class="main-panel">
+            <h3>DANH SÁCH ĐƠN KHIẾU NẠI, TỐ CÁO</h3>
+            <table id="data-table">
+                <thead>
+                    <tr>
+                        <th>STT</th>
+                        <th>Ngày nhận</th>
+                        <th>Nguồn đơn</th>
+                        <th>Người nộp đơn</th>
+                        <th>Phân loại</th>
+                        <th>Nội dung tóm tắt</th>
+                        <th>File PDF</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody id="table-body"></tbody>
+            </table>
         </div>
     </div>
 
     <script>
+        // ================== FIREBASE ==================
         var firebaseConfig = {
             apiKey: "AIzaSyDunRDIeyBTVXTODoO22ywk1Q35cCx2sV8",
             authDomain: "dansu-vksndtpct.firebaseapp.com",
@@ -84,9 +116,10 @@
         };
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         var db = firebase.database();
+        var storage = firebase.storage();
 
+        let editingKey = null;
         let currentUser = null;
-        let dons = [];
 
         function checkLogin() {
             currentUser = JSON.parse(localStorage.getItem('vks_user') || '{}');
@@ -98,82 +131,148 @@
             return true;
         }
 
-        function login() {
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value.trim();
-
-            db.ref('users/' + username).once('value').then(snapshot => {
-                const acc = snapshot.val();
-                if (acc && acc.password === password) {
-                    currentUser = { username, unit: acc.unit || "Cần Thơ", level: acc.level || "user" };
-                    localStorage.setItem('vks_user', JSON.stringify(currentUser));
-                    document.getElementById('login-container').style.display = 'none';
-                    document.getElementById('main-container').style.display = 'block';
-                    loadData();
-                } else {
-                    alert("Sai tài khoản hoặc mật khẩu!");
-                }
-            });
-        }
-
-        function saveDon() {
+        // ================== LƯU ĐƠN ==================
+        function saveData() {
             if (!checkLogin()) return;
+
+            const file = document.getElementById('pdf_file').files[0];
 
             const data = {
                 ngay_nhan: document.getElementById('ngay_nhan').value,
+                nguon_don: document.getElementById('nguon_don').value,
                 ho_ten: document.getElementById('ho_ten').value,
-                phan_loai: document.getElementById('phan_loai').value,
+                dia_chi: document.getElementById('dia_chi').value,
                 noi_dung: document.getElementById('noi_dung').value,
+                phan_loai: document.getElementById('phan_loai').value,
+                de_xuat_tu_dien: document.getElementById('de_xuat_tu_dien').value,
                 createdBy: currentUser.username,
-                unit: currentUser.unit,
+                unit: currentUser.unit || "Cần Thơ",
                 timestamp: Date.now()
             };
 
-            db.ref('don_khieu_to').push(data).then(() => {
-                alert("Lưu đơn thành công!");
-                loadData();
-            });
+            if (file) {
+                const storageRef = storage.ref('pdf_khieuto/' + Date.now() + '_' + file.name);
+                storageRef.put(file).then(snapshot => {
+                    snapshot.ref.getDownloadURL().then(url => {
+                        data.pdf_url = url;
+                        saveToDatabase(data);
+                    });
+                });
+            } else {
+                saveToDatabase(data);
+            }
+        }
+
+        function saveToDatabase(data) {
+            if (editingKey) {
+                db.ref('don_khieu_to/' + editingKey).update(data).then(() => {
+                    handleTransfer(data);
+                    alert("Cập nhật đơn thành công!");
+                    resetForm();
+                });
+            } else {
+                db.ref('don_khieu_to').push(data).then(() => {
+                    handleTransfer(data);
+                    alert("Lưu đơn thành công!");
+                    resetForm();
+                });
+            }
+        }
+
+        // Chuyển dữ liệu sang module khác
+        function handleTransfer(data) {
+            if (data.phan_loai === "Dan su") {
+                const danSuData = {
+                    cap_thu_ly: "So tham",
+                    ngay_thu_ly: data.ngay_nhan,
+                    noi_dung: data.noi_dung,
+                    ho_ten: data.ho_ten,
+                    createdBy: data.createdBy,
+                    unit: data.unit,
+                    timestamp: Date.now()
+                };
+                db.ref('an_dan_su').push(danSuData);
+                alert("Đã chuyển dữ liệu sang phần Án Dân sự!");
+            } 
+            else if (data.phan_loai === "Thi hanh an") {
+                const thaData = {
+                    ngay_nhan_qd: data.ngay_nhan,
+                    nguoi_phai_tha: data.ho_ten,
+                    noi_dung_tha: data.noi_dung,
+                    tinh_trang_tha: "Co dieu kien",
+                    createdBy: data.createdBy,
+                    unit: data.unit,
+                    timestamp: Date.now()
+                };
+                db.ref('thi_hanh_an').push(thaData);
+                alert("Đã chuyển dữ liệu sang phần Thi hành án dân sự!");
+            }
+        }
+
+        function resetForm() {
+            document.getElementById('ngay_nhan').value = '';
+            document.getElementById('ho_ten').value = '';
+            document.getElementById('dia_chi').value = '';
+            document.getElementById('noi_dung').value = '';
+            document.getElementById('de_xuat_tu_dien').value = '';
+            document.getElementById('pdf_file').value = '';
+            editingKey = null;
         }
 
         function loadData() {
-            db.ref('don_khieu_to').on('value', snapshot => {
-                const data = snapshot.val() || {};
-                dons = Object.keys(data).map(k => ({id: k, ...data[k]}));
-                updateTable();
+            if (!checkLogin()) return;
+
+            db.ref('don_khieu_to').on('value', (snapshot) => {
+                const datas = snapshot.val() || {};
+                let html = '';
+                let stt = 1;
+
+                Object.keys(datas).forEach(key => {
+                    const item = datas[key];
+
+                    // Filter theo đơn vị và người tạo
+                    const canView = currentUser.level === 'toi_cao' || 
+                                   (item.unit && item.unit === currentUser.unit) ||
+                                   (item.createdBy && item.createdBy === currentUser.username);
+
+                    if (!canView) return;
+
+                    const tomTat = item.noi_dung ? item.noi_dung.substring(0, 60) + '...' : '';
+                    const pdfLink = item.pdf_url ? `<a href="${item.pdf_url}" target="_blank" class="btn-pdf">PDF</a>` : 'Không có';
+
+                    html += `<tr>
+                        <td>${stt++}</td>
+                        <td>${item.ngay_nhan || ''}</td>
+                        <td>${item.nguon_don || ''}</td>
+                        <td>${item.ho_ten || ''}</td>
+                        <td>${item.phan_loai || ''}</td>
+                        <td>${tomTat}</td>
+                        <td>${pdfLink}</td>
+                        <td>
+                            <button class="btn-edit" onclick="editRecord('${key}')">Sửa</button>
+                            <button class="btn-delete" onclick="deleteRecord('${key}')">Xóa</button>
+                        </td>
+                    </tr>`;
+                });
+
+                document.getElementById('table-body').innerHTML = html || '<tr><td colspan="8" style="text-align:center;color:#999">Chưa có đơn nào thuộc thẩm quyền của bạn</td></tr>';
             });
         }
 
-        function updateTable() {
-            const tbody = document.getElementById('don-body');
-            tbody.innerHTML = '';
-
-            dons.filter(d => 
-                currentUser.level === 'toi_cao' || d.unit === currentUser.unit || d.createdBy === currentUser.username
-            ).forEach((don, i) => {
-                const row = tbody.insertRow();
-                row.innerHTML = `
-                    <td>${i+1}</td>
-                    <td>${don.ngay_nhan || ''}</td>
-                    <td>${don.ho_ten || ''}</td>
-                    <td>${don.phan_loai || ''}</td>
-                    <td>${(don.noi_dung || '').substring(0,60)}...</td>
-                    <td><button onclick="alert('Chức năng sửa/xóa đang hoàn thiện')">Thao tác</button></td>
-                `;
-            });
+        // Các hàm edit và delete (cơ bản)
+        function editRecord(key) {
+            alert("Chức năng sửa đang được hoàn thiện. Bạn có thể xóa và tạo mới tạm thời.");
         }
 
-        function logout() {
-            localStorage.clear();
-            location.reload();
+        function deleteRecord(key) {
+            if (confirm("Xóa đơn này?")) {
+                db.ref('don_khieu_to/' + key).remove();
+            }
         }
 
         window.onload = () => {
-            if (localStorage.getItem('vks_logged_in') === 'true') {
-                checkLogin();
-                document.getElementById('login-container').style.display = 'none';
-                document.getElementById('main-container').style.display = 'block';
-                loadData();
-            }
+            checkLogin();
+            loadData();
         };
     </script>
 </body>
