@@ -197,39 +197,68 @@
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         var db = firebase.database();
 
-        function login() {
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value.trim();
-            const errorMsg = document.getElementById('error-msg');
+       function login() {
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value.trim();
+    const errorMsg = document.getElementById('error-msg');
 
-            errorMsg.textContent = '';
+    errorMsg.textContent = '';
 
-            if (!username || !password) {
-                errorMsg.textContent = "Vui lòng nhập đầy đủ tài khoản và mật khẩu!";
-                return;
-            }
+    if (!username || !password) {
+        errorMsg.textContent = "Vui lòng nhập đầy đủ tài khoản và mật khẩu!";
+        return;
+    }
 
-            if (username === "admin" && (password === "123" || password === "123456")) {
-                localStorage.setItem('vks_logged_in', 'true');
-                localStorage.setItem('vks_username', 'admin');
-                showMainMenu();
-                return;
-            }
+    // Tài khoản admin cứng (dùng để test)
+    if (username === "admin" && (password === "123" || password === "123456")) {
+        const userData = {
+            username: "admin",
+            fullname: "Quản trị viên",
+            level: "toi_cao",
+            unit: "VKSND Tối cao",
+            position: "Admin"
+        };
+        localStorage.setItem('vks_user', JSON.stringify(userData));
+        localStorage.setItem('vks_logged_in', 'true');
+        showMainMenu();
+        return;
+    }
 
-            db.ref('users/' + username).once('value').then(snapshot => {
-                const user = snapshot.val();
-                if (user && user.password === password) {
-                    localStorage.setItem('vks_logged_in', 'true');
-                    localStorage.setItem('vks_username', username);
-                    showMainMenu();
-                } else {
-                    errorMsg.textContent = "Tài khoản hoặc mật khẩu không đúng!";
-                }
-            }).catch(() => {
-                errorMsg.textContent = "Lỗi kết nối. Vui lòng thử lại!";
-            });
+    // Login từ Firebase
+    db.ref('users/' + username).once('value').then(snapshot => {
+        const user = snapshot.val();
+        if (user && user.password === password) {
+            const userData = {
+                username: username,
+                fullname: user.fullname || username,
+                level: user.level || 'user',
+                unit: user.unit || '',
+                department: user.department || null,
+                position: user.position || null
+            };
+            localStorage.setItem('vks_user', JSON.stringify(userData));
+            localStorage.setItem('vks_logged_in', 'true');
+            showMainMenu();
+        } else {
+            errorMsg.textContent = "Tài khoản hoặc mật khẩu không đúng!";
         }
+    }).catch(err => {
+        errorMsg.textContent = "Lỗi kết nối Firebase!";
+        console.error(err);
+    });
+}
+function checkLogin() {
+    const savedUser = localStorage.getItem('vks_user');
+    if (!savedUser) {
+        alert("Vui lòng đăng nhập trước!");
+        window.location.href = "index.html";
+        return false;
+    }
 
+    currentUser = JSON.parse(savedUser);
+    console.log("User hiện tại:", currentUser);   // ← Dùng để debug
+    return true;
+}
         function forgotPassword() {
             alert("Vui lòng liên hệ Admin để được hỗ trợ reset mật khẩu.\nMật khẩu mặc định: 123456");
         }
