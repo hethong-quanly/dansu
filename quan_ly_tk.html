@@ -284,11 +284,47 @@
                 db.ref('users/' + username).remove().then(() => loadUsers());
             }
         }
+// ================== KIỂM TRA QUYỀN TRUY CẬP QUẢN LÝ TÀI KHOẢN ==================
+function checkAdminPermission() {
+    const user = JSON.parse(localStorage.getItem('vks_user') || '{}');
+    
+    if (!user.username) {
+        alert("Vui lòng đăng nhập trước!");
+        window.location.href = "index.html";
+        return false;
+    }
 
-        window.onload = () => {
-            toggleLevel();
-            loadUsers();
-        };
+    // Cho phép truy cập nếu là:
+    // 1. Username = "admin" (tài khoản cứng)
+    // 2. Level = "toi_cao" (Cấp Tối cao)
+    // 3. Position có từ "truong" (Viện trưởng, Cục trưởng, Trưởng phòng...)
+    
+    const isAdmin = 
+        user.username === "admin" || 
+        user.level === "toi_cao" ||
+        (user.position && 
+            (user.position.includes("truong") || 
+             user.position.includes("Vien truong") || 
+             user.position.includes("Cuc truong")));
+
+    if (!isAdmin) {
+        alert("Chỉ tài khoản Admin hoặc Lãnh đạo (Viện trưởng / Cục trưởng / Trưởng phòng) mới được truy cập trang này!");
+        window.location.href = "index.html";
+        return false;
+    }
+
+    console.log("Quyền Admin xác nhận:", user);
+    return true;
+}
+
+// Gọi hàm kiểm tra khi trang load
+window.onload = () => {
+    if (!checkAdminPermission()) return;
+    
+    toggleLevel();
+    loadUsers();
+};
+     
     </script>
 </body>
 </html>
