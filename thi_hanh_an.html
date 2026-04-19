@@ -270,8 +270,9 @@
                         <td>${item.ngay_thi_hanh_xong || ''}</td>
                         <td>${pdfLink}</td>
                         <td>
-                            <button class="btn-edit" onclick="editRecord('${key}')">Sửa</button>
-                            <button class="btn-delete" onclick="deleteRecord('${key}')">Xóa</button>
+                        <button class="btn-edit" onclick="editRecord('${key}')">Sửa</button>
+                        <button class="btn-delete" onclick="deleteRecord('${key}')">Xóa</button>
+                        <button onclick="exportToWord('${key}', 'thi_hanh_an')">Word</button>
                         </td>
                     </tr>`;
                 });
