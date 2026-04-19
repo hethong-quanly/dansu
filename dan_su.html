@@ -217,8 +217,11 @@
         }
 
         function saveData() {
+             const currentUser = checkLogin();
+                if (!currentUser) return;
+                data.createdBy = currentUser.username;
+                data.unit = currentUser.unit;
             const file = document.getElementById('pdf_file').files[0];
-
             const data = {
                 cap_thu_ly: document.getElementById('cap_thu_ly').value,
                 ngay_thu_ly: document.getElementById('ngay_thu_ly').value,
@@ -317,7 +320,14 @@
                 document.getElementById('table-body').innerHTML = html || '<tr><td colspan="10" style="text-align:center;color:#999">Chưa có hồ sơ án nào</td></tr>';
             });
         }
-
+// Trong db.ref('an_dan_su').on('value'...
+let filtered = {};
+Object.keys(datas).forEach(key => {
+    const item = datas[key];
+    if (currentUser.level === 'admin' || item.unit === currentUser.unit) {
+        // thêm vào html
+    }
+});
         function editRecord(key) {
             db.ref('an_dan_su/' + key).once('value').then(snapshot => {
                 const item = snapshot.val();
