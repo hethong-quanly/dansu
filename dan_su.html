@@ -52,6 +52,13 @@
                 </select>
             </div>
 
+            <!-- PHẦN CHUNG - Dời xuống dưới Thụ lý cấp -->
+            <div class="form-group"><label>Ngày thụ lý:</label><input type="date" id="ngay_thu_ly"></div>
+            <div class="form-group"><label>Thẩm phán:</label><input type="text" id="tham_phan"></div>
+            <div class="form-group"><label>Thư ký:</label><input type="text" id="thu_ky"></div>
+            <div class="form-group"><label>Kiểm sát viên:</label><input type="text" id="ksv"></div>
+            <div class="form-group"><label>Báo cáo án của KSV:</label><textarea id="bao_cao_ksv" rows="3"></textarea></div>
+
             <!-- === PHẦN SƠ THẨM === -->
             <div id="so_tham_section">
                 <div class="form-group">
@@ -69,26 +76,32 @@
                     <div id="lien_quan_list"></div>
                     <button class="btn-add" onclick="addLienQuan()">+ Thêm Người liên quan</button>
                 </div>
-
                 <div class="form-group"><label>Nội dung vụ kiện:</label><textarea id="noi_dung" rows="4"></textarea></div>
             </div>
 
             <!-- === PHẦN ĐÃ XÉT XỬ === -->
             <div id="da_xet_xu_section" class="section" style="display:none;">
                 <h4>ĐÃ XÉT XỬ</h4>
+                
+                <!-- Cấp Sơ thẩm (luôn hiển thị khi không phải sơ thẩm) -->
                 <div class="form-group">
-                    <label>Cấp đã xét xử:</label>
-                    <select id="cap_da_xet_xu">
-                        <option value="So tham">Sơ thẩm</option>
-                        <option value="Phuc tham">Phúc thẩm</option>
-                        <option value="Giam doc tham">Giám đốc thẩm</option>
-                    </select>
+                    <label>Đã xét xử cấp Sơ thẩm - Bản án/QĐ số:</label>
+                    <input type="text" id="so_ban_an_so_tham">
                 </div>
-                <div class="form-group"><label>Số Bản án / Quyết định:</label><input type="text" id="so_ban_an"></div>
-                <div class="form-group"><label>Ngày ban hành:</label><input type="date" id="ngay_ban_hanh"></div>
-                <div class="form-group"><label>Nội dung Bản án/Quyết định đã tuyên:</label><textarea id="noi_dung_da_tuyen" rows="3"></textarea></div>
+                <div class="form-group"><label>Ngày ban hành (Sơ thẩm):</label><input type="date" id="ngay_ban_hanh_so_tham"></div>
+                <div class="form-group"><label>Nội dung Bản án/QĐ sơ thẩm đã tuyên:</label><textarea id="noi_dung_so_tham" rows="3"></textarea></div>
 
-                <!-- === MỤC 1: VIỆN KIỂM SÁT KHÁNG NGHỊ === -->
+                <!-- Cấp Phúc thẩm (chỉ hiển thị khi chọn Giám đốc thẩm hoặc Tái thẩm) -->
+                <div id="phuc_tham_section" style="display:none;">
+                    <div class="form-group">
+                        <label>Đã xét xử cấp Phúc thẩm - Bản án/QĐ số:</label>
+                        <input type="text" id="so_ban_an_phuc_tham">
+                    </div>
+                    <div class="form-group"><label>Ngày ban hành (Phúc thẩm):</label><input type="date" id="ngay_ban_hanh_phuc_tham"></div>
+                    <div class="form-group"><label>Nội dung Bản án/QĐ phúc thẩm đã tuyên:</label><textarea id="noi_dung_phuc_tham" rows="3"></textarea></div>
+                </div>
+
+                <!-- Viện kiểm sát kháng nghị -->
                 <div class="form-group">
                     <label>1. Viện kiểm sát kháng nghị:</label>
                     <input type="text" id="qd_khang_nghi_so" placeholder="Số Quyết định kháng nghị">
@@ -96,22 +109,17 @@
                     <textarea id="noi_dung_khang_nghi" rows="3" placeholder="Nội dung kháng nghị" style="margin-top:8px;"></textarea>
                 </div>
 
-                <!-- === MỤC 2: ĐƯƠNG SỰ KHÁNG CÁO / YÊU CẦU === -->
+                <!-- Đương sự kháng cáo / yêu cầu -->
                 <div class="form-group">
                     <label>2. Đương sự kháng cáo / yêu cầu Giám đốc thẩm, Tái thẩm:</label>
                     <div id="duong_su_khang_cao_list"></div>
-                    <button class="btn-add" onclick="addDuongSuKhangCao()">+ Thêm Đương sự kháng cáo / yêu cầu</button>
+                    <button class="btn-add" onclick="addDuongSuKhangCao()">+ Thêm Đương sự</button>
                 </div>
-
-                <div class="form-group"><label>Báo cáo án của KSV:</label><textarea id="bao_cao_ksv" rows="3"></textarea></div>
-                <div class="form-group"><label>Kết quả xét xử:</label><textarea id="ket_qua_xet_xu" rows="3"></textarea></div>
             </div>
 
-            <div class="form-group"><label>Ngày thụ lý:</label><input type="date" id="ngay_thu_ly"></div>
-            <div class="form-group"><label>Thẩm phán:</label><input type="text" id="tham_phan"></div>
-            <div class="form-group"><label>Thư ký:</label><input type="text" id="thu_ky"></div>
-            <div class="form-group"><label>Kiểm sát viên:</label><input type="text" id="ksv"></div>
+            <div class="form-group"><label>Kết quả xét xử:</label><textarea id="ket_qua_xet_xu" rows="4"></textarea></div>
 
+            <!-- Đính kèm File PDF -->
             <div class="form-group">
                 <label>Đính kèm File PDF (Hồ sơ vụ án):</label>
                 <input type="file" id="pdf_file" accept=".pdf">
@@ -127,8 +135,8 @@
                     <tr>
                         <th>STT</th>
                         <th>Thụ lý cấp</th>
-                        <th>Đã xét xử cấp</th>
-                        <th>Số bản án</th>
+                        <th>Số bản án sơ thẩm</th>
+                        <th>Số bản án phúc thẩm</th>
                         <th>Ngày thụ lý</th>
                         <th>Nguyên đơn</th>
                         <th>Bị đơn</th>
@@ -162,11 +170,7 @@
             const container = document.getElementById('nguyen_don_list');
             const div = document.createElement('div');
             div.className = 'multi-item';
-            div.innerHTML = `
-                <input type="text" placeholder="Tên Nguyên đơn" style="flex:2">
-                <input type="text" placeholder="Địa chỉ" style="flex:3">
-                <button type="button" onclick="this.parentElement.remove()" style="background:#d32f2f;color:white;padding:6px 10px;border:none;border-radius:4px;">X</button>
-            `;
+            div.innerHTML = `<input type="text" placeholder="Tên Nguyên đơn" style="flex:2"><input type="text" placeholder="Địa chỉ" style="flex:3"><button type="button" onclick="this.parentElement.remove()" style="background:#d32f2f;color:white;padding:6px 10px;border:none;border-radius:4px;">X</button>`;
             container.appendChild(div);
         }
 
@@ -174,11 +178,7 @@
             const container = document.getElementById('bi_don_list');
             const div = document.createElement('div');
             div.className = 'multi-item';
-            div.innerHTML = `
-                <input type="text" placeholder="Tên Bị đơn" style="flex:2">
-                <input type="text" placeholder="Địa chỉ" style="flex:3">
-                <button type="button" onclick="this.parentElement.remove()" style="background:#d32f2f;color:white;padding:6px 10px;border:none;border-radius:4px;">X</button>
-            `;
+            div.innerHTML = `<input type="text" placeholder="Tên Bị đơn" style="flex:2"><input type="text" placeholder="Địa chỉ" style="flex:3"><button type="button" onclick="this.parentElement.remove()" style="background:#d32f2f;color:white;padding:6px 10px;border:none;border-radius:4px;">X</button>`;
             container.appendChild(div);
         }
 
@@ -186,23 +186,19 @@
             const container = document.getElementById('lien_quan_list');
             const div = document.createElement('div');
             div.className = 'multi-item';
-            div.innerHTML = `
-                <input type="text" placeholder="Tên Người liên quan" style="flex:2">
-                <input type="text" placeholder="Địa chỉ" style="flex:3">
-                <button type="button" onclick="this.parentElement.remove()" style="background:#d32f2f;color:white;padding:6px 10px;border:none;border-radius:4px;">X</button>
-            `;
+            div.innerHTML = `<input type="text" placeholder="Tên Người liên quan" style="flex:2"><input type="text" placeholder="Địa chỉ" style="flex:3"><button type="button" onclick="this.parentElement.remove()" style="background:#d32f2f;color:white;padding:6px 10px;border:none;border-radius:4px;">X</button>`;
             container.appendChild(div);
         }
 
-        // ====================== THÊM ĐƯƠNG SỰ KHÁNG CÁO / YÊU CẦU ======================
+        // Thêm Đương sự kháng cáo / yêu cầu GĐT, Tái thẩm
         function addDuongSuKhangCao() {
             const container = document.getElementById('duong_su_khang_cao_list');
             const div = document.createElement('div');
             div.className = 'multi-item';
             div.innerHTML = `
                 <input type="text" placeholder="Tên Đương sự" style="flex:2">
-                <input type="text" placeholder="Địa chỉ" style="flex:2">
-                <textarea placeholder="Nội dung kháng cáo / yêu cầu GĐT, Tái thẩm..." rows="2" style="flex:3"></textarea>
+                <input type="date" placeholder="Ngày kháng cáo/yêu cầu" style="flex:1">
+                <textarea placeholder="Nội dung kháng cáo / yêu cầu GĐT, Tái thẩm" rows="2" style="flex:3"></textarea>
                 <button type="button" onclick="this.parentElement.remove()" style="background:#d32f2f;color:white;padding:6px 10px;border:none;border-radius:4px;">X</button>
             `;
             container.appendChild(div);
@@ -210,8 +206,10 @@
 
         function toggleXetXuFields() {
             const cap = document.getElementById('cap_thu_ly').value;
+            
             document.getElementById('so_tham_section').style.display = (cap === "So tham") ? "block" : "none";
             document.getElementById('da_xet_xu_section').style.display = (cap === "So tham") ? "none" : "block";
+            document.getElementById('phuc_tham_section').style.display = (cap === "Giam doc tham" || cap === "Tai tham") ? "block" : "none";
         }
 
         function saveData() {
@@ -220,22 +218,28 @@
             const data = {
                 cap_thu_ly: document.getElementById('cap_thu_ly').value,
                 ngay_thu_ly: document.getElementById('ngay_thu_ly').value,
-                noi_dung: document.getElementById('noi_dung').value,
                 tham_phan: document.getElementById('tham_phan').value,
                 thu_ky: document.getElementById('thu_ky').value,
                 ksv: document.getElementById('ksv').value,
+                bao_cao_ksv: document.getElementById('bao_cao_ksv').value,
+                ket_qua_xet_xu: document.getElementById('ket_qua_xet_xu').value,
                 timestamp: Date.now()
             };
 
             if (document.getElementById('da_xet_xu_section').style.display !== "none") {
-                data.so_ban_an = document.getElementById('so_ban_an').value;
-                data.ngay_ban_hanh = document.getElementById('ngay_ban_hanh').value;
-                data.noi_dung_da_tuyen = document.getElementById('noi_dung_da_tuyen').value;
+                data.so_ban_an_so_tham = document.getElementById('so_ban_an_so_tham').value;
+                data.ngay_ban_hanh_so_tham = document.getElementById('ngay_ban_hanh_so_tham').value;
+                data.noi_dung_so_tham = document.getElementById('noi_dung_so_tham').value;
+
+                if (document.getElementById('phuc_tham_section').style.display !== "none") {
+                    data.so_ban_an_phuc_tham = document.getElementById('so_ban_an_phuc_tham').value;
+                    data.ngay_ban_hanh_phuc_tham = document.getElementById('ngay_ban_hanh_phuc_tham').value;
+                    data.noi_dung_phuc_tham = document.getElementById('noi_dung_phuc_tham').value;
+                }
+
                 data.qd_khang_nghi_so = document.getElementById('qd_khang_nghi_so').value;
                 data.ngay_khang_nghi = document.getElementById('ngay_khang_nghi').value;
                 data.noi_dung_khang_nghi = document.getElementById('noi_dung_khang_nghi').value;
-                data.bao_cao_ksv = document.getElementById('bao_cao_ksv').value;
-                data.ket_qua_xet_xu = document.getElementById('ket_qua_xet_xu').value;
             }
 
             if (file) {
@@ -269,20 +273,14 @@
             document.getElementById('cap_thu_ly').value = "So tham";
             toggleXetXuFields();
             document.getElementById('ngay_thu_ly').value = '';
-            document.getElementById('noi_dung').value = '';
             document.getElementById('tham_phan').value = '';
             document.getElementById('thu_ky').value = '';
             document.getElementById('ksv').value = '';
-            document.getElementById('so_ban_an').value = '';
-            document.getElementById('ngay_ban_hanh').value = '';
-            document.getElementById('noi_dung_da_tuyen').value = '';
-            document.getElementById('qd_khang_nghi_so').value = '';
-            document.getElementById('ngay_khang_nghi').value = '';
-            document.getElementById('noi_dung_khang_nghi').value = '';
             document.getElementById('bao_cao_ksv').value = '';
             document.getElementById('ket_qua_xet_xu').value = '';
             document.getElementById('pdf_file').value = '';
 
+            // Xóa các list động
             document.getElementById('nguyen_don_list').innerHTML = '';
             document.getElementById('bi_don_list').innerHTML = '';
             document.getElementById('lien_quan_list').innerHTML = '';
@@ -300,18 +298,19 @@
                 if (datas) {
                     Object.keys(datas).forEach(key => {
                         const item = datas[key];
-                        const tomTat = item.noi_dung ? item.noi_dung.substring(0, 60) + '...' : '';
+                        const tomTat = item.noi_dung || item.noi_dung_so_tham || '';
+                        const tomTatShort = tomTat.substring(0, 60) + (tomTat.length > 60 ? '...' : '');
                         const pdfLink = item.pdf_url ? `<a href="${item.pdf_url}" target="_blank" class="btn-pdf">PDF</a>` : 'Không có';
 
                         html += `<tr>
                             <td>${stt++}</td>
                             <td>${item.cap_thu_ly || ''}</td>
-                            <td>${item.cap_da_xet_xu || ''}</td>
-                            <td>${item.so_ban_an || ''}</td>
+                            <td>${item.so_ban_an_so_tham || ''}</td>
+                            <td>${item.so_ban_an_phuc_tham || ''}</td>
                             <td>${item.ngay_thu_ly || ''}</td>
                             <td>${item.nguyen_don || ''}</td>
                             <td>${item.bi_don || ''}</td>
-                            <td>${tomTat}</td>
+                            <td>${tomTatShort}</td>
                             <td>${pdfLink}</td>
                             <td>
                                 <button class="btn-edit" onclick="editRecord('${key}')">Sửa</button>
@@ -330,18 +329,19 @@
                 document.getElementById('cap_thu_ly').value = item.cap_thu_ly || "So tham";
                 toggleXetXuFields();
                 document.getElementById('ngay_thu_ly').value = item.ngay_thu_ly || '';
-                document.getElementById('noi_dung').value = item.noi_dung || '';
                 document.getElementById('tham_phan').value = item.tham_phan || '';
                 document.getElementById('thu_ky').value = item.thu_ky || '';
                 document.getElementById('ksv').value = item.ksv || '';
-                document.getElementById('so_ban_an').value = item.so_ban_an || '';
-                document.getElementById('ngay_ban_hanh').value = item.ngay_ban_hanh || '';
-                document.getElementById('noi_dung_da_tuyen').value = item.noi_dung_da_tuyen || '';
-                document.getElementById('qd_khang_nghi_so').value = item.qd_khang_nghi_so || '';
-                document.getElementById('ngay_khang_nghi').value = item.ngay_khang_nghi || '';
-                document.getElementById('noi_dung_khang_nghi').value = item.noi_dung_khang_nghi || '';
                 document.getElementById('bao_cao_ksv').value = item.bao_cao_ksv || '';
                 document.getElementById('ket_qua_xet_xu').value = item.ket_qua_xet_xu || '';
+
+                // Điền dữ liệu đã xét xử
+                document.getElementById('so_ban_an_so_tham').value = item.so_ban_an_so_tham || '';
+                document.getElementById('ngay_ban_hanh_so_tham').value = item.ngay_ban_hanh_so_tham || '';
+                document.getElementById('noi_dung_so_tham').value = item.noi_dung_so_tham || '';
+                document.getElementById('so_ban_an_phuc_tham').value = item.so_ban_an_phuc_tham || '';
+                document.getElementById('ngay_ban_hanh_phuc_tham').value = item.ngay_ban_hanh_phuc_tham || '';
+                document.getElementById('noi_dung_phuc_tham').value = item.noi_dung_phuc_tham || '';
 
                 editingKey = key;
                 document.getElementById('btn-save').innerText = 'CẬP NHẬT';
