@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Quản lý án Dân sự, HN-GĐ, KD-TM, HC,...</title>
+    <title>Quản lý Án Dân sự</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
@@ -18,16 +18,15 @@
         label { font-weight: bold; margin-bottom: 6px; color: #333; display: block; }
         input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
         
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 13px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; vertical-align: top; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 8px; }
+        th, td { border: 1px solid #ddd; padding: 6px; text-align: left; vertical-align: top; }
         th { background: #e0f2f1; color: #0408c5; }
         
         .btn-save { background: #5670e6; color: white; padding: 14px; border: none; border-radius: 8px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 15px; }
-        .btn-add { background: #4caf50; color: white; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+        .btn-add { background: #4caf50; color: white; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; margin-top: 5px; }
         .btn-edit { background: #ff9800; color: white; padding: 5px 10px; border-radius: 5px; font-size: 12px; margin-right: 5px; }
         .btn-delete { background: #d32f2f; color: white; padding: 5px 10px; border-radius: 5px; font-size: 12px; }
         .btn-pdf { background: #4caf50; color: white; padding: 5px 10px; border-radius: 5px; font-size: 12px; }
-        .btn-word { background: #9c27b0; color: white; padding: 5px 10px; border-radius: 5px; font-size: 12px; }
         
         .multi-item { display: flex; gap: 10px; margin-top: 8px; align-items: center; }
         .section { background: #f0f4ff; padding: 15px; border-radius: 8px; margin: 15px 0; }
@@ -36,11 +35,10 @@
 <body>
     <header>
         <a href="index.html" class="btn-back">← Menu chính</a>
-        <h2>HỆ THỐNG QUẢN LÝ ÁN DÂN SỰ, HN-GĐ, KD-TM, HC,...</h2>
+        <h2>HỆ THỐNG QUẢN LÝ ÁN DÂN SỰ</h2>
     </header>
     
     <div class="container">
-        <!-- Sidebar - Form nhập liệu -->
         <div class="sidebar">
             <h3>Nhập thông tin thụ lý án</h3>
             
@@ -54,6 +52,7 @@
                 </select>
             </div>
 
+            <!-- === PHẦN SƠ THẨM === -->
             <div id="so_tham_section">
                 <div class="form-group">
                     <label>Nguyên đơn & Địa chỉ:</label>
@@ -65,27 +64,55 @@
                     <div id="bi_don_list"></div>
                     <button class="btn-add" onclick="addBiDon()">+ Thêm Bị đơn</button>
                 </div>
+                <div class="form-group">
+                    <label>Người có quyền lợi nghĩa vụ liên quan & Địa chỉ:</label>
+                    <div id="lien_quan_list"></div>
+                    <button class="btn-add" onclick="addLienQuan()">+ Thêm Người liên quan</button>
+                </div>
+
                 <div class="form-group"><label>Nội dung vụ kiện:</label><textarea id="noi_dung" rows="4"></textarea></div>
             </div>
 
+            <!-- === PHẦN ĐÃ XÉT XỬ (Phúc thẩm, GĐT, Tái thẩm) === -->
             <div id="da_xet_xu_section" class="section" style="display:none;">
                 <h4>ĐÃ XÉT XỬ</h4>
-                <div class="form-group"><label>Số Bản án:</label><input type="text" id="so_ban_an"></div>
+                <div class="form-group">
+                    <label>Cấp đã xét xử:</label>
+                    <select id="cap_da_xet_xu">
+                        <option value="So tham">Sơ thẩm</option>
+                        <option value="Phuc tham">Phúc thẩm</option>
+                        <option value="Giam doc tham">Giám đốc thẩm</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Số Bản án / Quyết định:</label><input type="text" id="so_ban_an"></div>
                 <div class="form-group"><label>Ngày ban hành:</label><input type="date" id="ngay_ban_hanh"></div>
+                <div class="form-group"><label>Nội dung Bản án/Quyết định đã tuyên:</label><textarea id="noi_dung_da_tuyen" rows="3"></textarea></div>
+
+                <!-- Phần kháng cáo / yêu cầu - Đưa xuống dưới -->
+                <div class="form-group">
+                    <label>Đương sự kháng cáo/yêu cầu GĐT,TT:</label>
+                    <div id="khang_cao_list"></div>
+                    <button class="btn-add" onclick="addKhangCaoItem()">+ Thêm kháng cáo / yêu cầu GĐT,TT</button>
+                     <label>Viện kiểm sát kháng nghị:</label>
+                    <div id="khang_nghi_list"></div>
+                    <button class="btn-add" onclick="addKhangCaoItem()">+ Thêm Kháng nghị</button>
+                </div>
             </div>
 
             <div class="form-group"><label>Ngày thụ lý:</label><input type="date" id="ngay_thu_ly"></div>
+            <div class="form-group"><label>Thẩm phán:</label><input type="text" id="tham_phan"></div>
+            <div class="form-group"><label>Thư ký:</label><input type="text" id="thu_ky"></div>
             <div class="form-group"><label>Kiểm sát viên:</label><input type="text" id="ksv"></div>
 
+            <!-- Đính kèm File PDF -->
             <div class="form-group">
-                <label>Đính kèm File PDF:</label>
+                <label>Đính kèm File PDF (Hồ sơ vụ án):</label>
                 <input type="file" id="pdf_file" accept=".pdf">
             </div>
 
             <button class="btn-save" onclick="saveData()" id="btn-save">LƯU HỒ SƠ</button>
         </div>
 
-        <!-- Main Panel - Danh sách -->
         <div class="main-panel">
             <h3>DANH SÁCH ÁN DÂN SỰ</h3>
             <table id="data-table">
@@ -93,11 +120,12 @@
                     <tr>
                         <th>STT</th>
                         <th>Thụ lý cấp</th>
+                        <th>Đã xét xử cấp</th>
                         <th>Số bản án</th>
                         <th>Ngày thụ lý</th>
                         <th>Nguyên đơn</th>
                         <th>Bị đơn</th>
-                        <th>Nội dung</th>
+                        <th>Nội dung vụ kiện</th>
                         <th>File PDF</th>
                         <th>Thao tác</th>
                     </tr>
@@ -108,38 +136,32 @@
     </div>
 
     <script>
-        // === FIREBASE CONFIG ===
         var firebaseConfig = {
-            apiKey: "AIzaSyDunRDIeyBTVXTODoO22ywk1Q35cCx2sV8",
-            authDomain: "dansu-vksndtpct.firebaseapp.com",
-            databaseURL: "https://dansu-vksndtpct-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "dansu-vksndtpct",
-            storageBucket: "dansu-vksndtpct.firebasestorage.app",
-            appId: "1:843158256686:web:eb128d64c8b9bfd7aef3bf"
+  apiKey: "AIzaSyDunRDIeyBTVXTODoO22ywk1Q35cCx2sV8",
+  authDomain: "dansu-vksndtpct.firebaseapp.com",
+  databaseURL: "https://dansu-vksndtpct-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "dansu-vksndtpct",
+  storageBucket: "dansu-vksndtpct.firebasestorage.app",
+  messagingSenderId: "843158256686",
+  appId: "1:843158256686:web:eb128d64c8b9bfd7aef3bf",
+  measurementId: "G-953X2137HC"
         };
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         var db = firebase.database();
         var storage = firebase.storage();
 
         let editingKey = null;
-        let currentUser = null;
 
-        function checkLogin() {
-            currentUser = JSON.parse(localStorage.getItem('vks_user') || '{}');
-            if (!currentUser.username) {
-                alert("Vui lòng đăng nhập trước!");
-                window.location.href = "index.html";
-                return false;
-            }
-            return true;
-        }
-
-        // Các hàm addNguyenDon, addBiDon, toggleXetXuFields... (giữ nguyên như phiên bản trước)
+        // ====================== THÊM ĐA NGUYÊN ĐƠN / BỊ ĐƠN ======================
         function addNguyenDon() {
             const container = document.getElementById('nguyen_don_list');
             const div = document.createElement('div');
             div.className = 'multi-item';
-            div.innerHTML = `<input type="text" placeholder="Tên Nguyên đơn" style="flex:2"><input type="text" placeholder="Địa chỉ" style="flex:3"><button type="button" onclick="this.parentElement.remove()" style="background:#d32f2f;color:white;padding:6px 10px;border:none;border-radius:4px;">X</button>`;
+            div.innerHTML = `
+                <input type="text" placeholder="Tên Nguyên đơn" style="flex:2">
+                <input type="text" placeholder="Địa chỉ" style="flex:3">
+                <button type="button" onclick="this.parentElement.remove()" style="background:#d32f2f;color:white;padding:6px 10px;border:none;border-radius:4px;">X</button>
+            `;
             container.appendChild(div);
         }
 
@@ -147,23 +169,201 @@
             const container = document.getElementById('bi_don_list');
             const div = document.createElement('div');
             div.className = 'multi-item';
-            div.innerHTML = `<input type="text" placeholder="Tên Bị đơn" style="flex:2"><input type="text" placeholder="Địa chỉ" style="flex:3"><button type="button" onclick="this.parentElement.remove()" style="background:#d32f2f;color:white;padding:6px 10px;border:none;border-radius:4px;">X</button>`;
+            div.innerHTML = `
+                <input type="text" placeholder="Tên Bị đơn" style="flex:2">
+                <input type="text" placeholder="Địa chỉ" style="flex:3">
+                <button type="button" onclick="this.parentElement.remove()" style="background:#d32f2f;color:white;padding:6px 10px;border:none;border-radius:4px;">X</button>
+            `;
             container.appendChild(div);
         }
 
+        function addLienQuan() {
+            const container = document.getElementById('lien_quan_list');
+            const div = document.createElement('div');
+            div.className = 'multi-item';
+            div.innerHTML = `
+                <input type="text" placeholder="Tên Người liên quan" style="flex:2">
+                <input type="text" placeholder="Địa chỉ" style="flex:3">
+                <button type="button" onclick="this.parentElement.remove()" style="background:#d32f2f;color:white;padding:6px 10px;border:none;border-radius:4px;">X</button>
+            `;
+            container.appendChild(div);
+        }
+
+        // ====================== THÊM KHÁNG CÁO / YÊU CẦU ======================
+        function addKhangCaoItem() {
+            const container = document.getElementById('khang_cao_list');
+            const div = document.createElement('div');
+            div.className = 'multi-item';
+            div.innerHTML = `
+                <select style="flex:1.2">
+                    <option value="Nguyen don">Nguyên đơn</option>
+                    <option value="Bi don">Bị đơn</option>
+                    <option value="Nguoi lien quan">Người có quyền lợi nghĩa vụ liên quan</option>
+                    <option value="Vien kiem sat">Viện kiểm sát</option>
+                </select>
+                <input type="text" placeholder="Tên" style="flex:2">
+                <input type="text" placeholder="Địa chỉ" style="flex:2">
+                <textarea placeholder="Nội dung kháng cáo / kháng nghị / yêu cầu..." rows="2" style="flex:3"></textarea>
+                <button type="button" onclick="this.parentElement.remove()" style="background:#d32f2f;color:white;padding:6px 10px;border:none;border-radius:4px;">X</button>
+            `;
+            container.appendChild(div);
+        }
+function addKhangnghiItem() {
+            const container = document.getElementById('khang_nghi_list');
+            const div = document.createElement('div');
+            div.className = 'multi-item';
+            div.innerHTML = `
+                <select style="flex:1.2">
+                    <option value="Vien kiem sat">Viện kiểm sát</option>
+                </select>
+                <input type="text" placeholder="Đơn vị" style="flex:2">
+                <input type="text" placeholder="Địa chỉ" style="flex:2">
+                <textarea placeholder="Nội dung kháng nghị" rows="2" style="flex:3"></textarea>
+                <button type="button" onclick="this.parentElement.remove()" style="background:#d32f2f;color:white;padding:6px 10px;border:none;border-radius:4px;">X</button>
+            `;
+            container.appendChild(div);
+        }
         function toggleXetXuFields() {
             const cap = document.getElementById('cap_thu_ly').value;
+            
+            // Ẩn/Hiện phần Sơ thẩm
             document.getElementById('so_tham_section').style.display = (cap === "So tham") ? "block" : "none";
+            
+            // Ẩn/Hiện phần Đã xét xử
             document.getElementById('da_xet_xu_section').style.display = (cap === "So tham") ? "none" : "block";
         }
 
-        // saveData, loadData, editRecord, deleteRecord, resetForm... (giữ nguyên từ phiên bản trước mình đưa)
-        // ... (bạn có thể copy phần script từ tin nhắn trước nếu cần)
+        function saveData() {
+            const file = document.getElementById('pdf_file').files[0];
+
+            const data = {
+                cap_thu_ly: document.getElementById('cap_thu_ly').value,
+                ngay_thu_ly: document.getElementById('ngay_thu_ly').value,
+                noi_dung: document.getElementById('noi_dung').value,
+                tham_phan: document.getElementById('tham_phan').value,
+                thu_ky: document.getElementById('thu_ky').value,
+                ksv: document.getElementById('ksv').value,
+                timestamp: Date.now()
+            };
+
+            // Lưu thông tin đã xét xử nếu có
+            if (document.getElementById('da_xet_xu_section').style.display !== "none") {
+                data.so_ban_an = document.getElementById('so_ban_an').value;
+                data.ngay_ban_hanh = document.getElementById('ngay_ban_hanh').value;
+                data.noi_dung_da_tuyen = document.getElementById('noi_dung_da_tuyen').value;
+            }
+
+            if (file) {
+                const storageRef = storage.ref('pdfs_an/' + Date.now() + '_' + file.name);
+                storageRef.put(file).then(snapshot => {
+                    snapshot.ref.getDownloadURL().then(url => {
+                        data.pdf_url = url;
+                        saveToDatabase(data);
+                    });
+                });
+            } else {
+                saveToDatabase(data);
+            }
+        }
+
+        function saveToDatabase(data) {
+            if (editingKey) {
+                db.ref('an_dan_su/' + editingKey).update(data).then(() => {
+                    alert("Cập nhật thành công!");
+                    resetForm();
+                });
+            } else {
+                db.ref('an_dan_su').push(data).then(() => {
+                    alert("Lưu hồ sơ thành công!");
+                    resetForm();
+                });
+            }
+        }
+
+        function resetForm() {
+            document.getElementById('cap_thu_ly').value = "So tham";
+            toggleXetXuFields();
+            document.getElementById('ngay_thu_ly').value = '';
+            document.getElementById('noi_dung').value = '';
+            document.getElementById('tham_phan').value = '';
+            document.getElementById('thu_ky').value = '';
+            document.getElementById('ksv').value = '';
+            document.getElementById('so_ban_an').value = '';
+            document.getElementById('ngay_ban_hanh').value = '';
+            document.getElementById('noi_dung_da_tuyen').value = '';
+            document.getElementById('pdf_file').value = '';
+
+            // Xóa các trường động
+            document.getElementById('nguyen_don_list').innerHTML = '';
+            document.getElementById('bi_don_list').innerHTML = '';
+            document.getElementById('lien_quan_list').innerHTML = '';
+            document.getElementById('khang_nghi_list').innerHTML = '';
+            document.getElementById('khang_cao_list').innerHTML = '';
+
+            editingKey = null;
+            document.getElementById('btn-save').innerText = 'LƯU HỒ SƠ';
+        }
+
+        function loadData() {
+            db.ref('an_dan_su').on('value', (snapshot) => {
+                const datas = snapshot.val();
+                let html = '';
+                let stt = 1;
+                if (datas) {
+                    Object.keys(datas).forEach(key => {
+                        const item = datas[key];
+                        const tomTat = item.noi_dung ? item.noi_dung.substring(0, 60) + '...' : '';
+                        const pdfLink = item.pdf_url ? `<a href="${item.pdf_url}" target="_blank" class="btn-pdf">PDF</a>` : 'Không có';
+
+                        html += `<tr>
+                            <td>${stt++}</td>
+                            <td>${item.cap_thu_ly || ''}</td>
+                            <td>${item.cap_da_xet_xu || ''}</td>
+                            <td>${item.so_ban_an || ''}</td>
+                            <td>${item.ngay_thu_ly || ''}</td>
+                            <td>${item.nguyen_don || ''}</td>
+                            <td>${item.bi_don || ''}</td>
+                            <td>${tomTat}</td>
+                            <td>${pdfLink}</td>
+                            <td>
+                                <button class="btn-edit" onclick="editRecord('${key}')">Sửa</button>
+                                <button class="btn-delete" onclick="deleteRecord('${key}')">Xóa</button>
+                            </td>
+                        </tr>`;
+                    });
+                }
+                document.getElementById('table-body').innerHTML = html || '<tr><td colspan="10" style="text-align:center;color:#999">Chưa có hồ sơ án nào</td></tr>';
+            });
+        }
+
+        function editRecord(key) {
+            db.ref('an_dan_su/' + key).once('value').then(snapshot => {
+                const item = snapshot.val();
+                document.getElementById('cap_thu_ly').value = item.cap_thu_ly || "So tham";
+                toggleXetXuFields();
+                document.getElementById('ngay_thu_ly').value = item.ngay_thu_ly || '';
+                document.getElementById('noi_dung').value = item.noi_dung || '';
+                document.getElementById('tham_phan').value = item.tham_phan || '';
+                document.getElementById('thu_ky').value = item.thu_ky || '';
+                document.getElementById('ksv').value = item.ksv || '';
+                document.getElementById('so_ban_an').value = item.so_ban_an || '';
+                document.getElementById('ngay_ban_hanh').value = item.ngay_ban_hanh || '';
+                document.getElementById('noi_dung_da_tuyen').value = item.noi_dung_da_tuyen || '';
+
+                editingKey = key;
+                document.getElementById('btn-save').innerText = 'CẬP NHẬT';
+            });
+        }
+
+        function deleteRecord(key) {
+            if (confirm("Xóa hồ sơ này?")) {
+                db.ref('an_dan_su/' + key).remove();
+            }
+        }
 
         window.onload = () => {
-            if (!checkLogin()) return;
-            toggleXetXuFields();
             loadData();
+            toggleXetXuFields();
         };
     </script>
 </body>
