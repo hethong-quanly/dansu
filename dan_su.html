@@ -90,12 +90,9 @@
 
                 <!-- Phần kháng cáo / yêu cầu - Đưa xuống dưới -->
                 <div class="form-group">
-                    <label>Đương sự kháng cáo/yêu cầu GĐT,TT:</label>
+                    <label>Đương sự hoặc Viện kiểm sát kháng cáo / kháng nghị / yêu cầu:</label>
                     <div id="khang_cao_list"></div>
-                    <button class="btn-add" onclick="addKhangCaoItem()">+ Thêm kháng cáo / yêu cầu GĐT,TT</button>
-                     <label>Viện kiểm sát kháng nghị:</label>
-                    <div id="khang_nghi_list"></div>
-                    <button class="btn-add" onclick="addKhangCaoItem()">+ Thêm Kháng nghị</button>
+                    <button class="btn-add" onclick="addKhangCaoItem()">+ Thêm kháng cáo / yêu cầu</button>
                 </div>
             </div>
 
@@ -137,14 +134,12 @@
 
     <script>
         var firebaseConfig = {
-  apiKey: "AIzaSyDunRDIeyBTVXTODoO22ywk1Q35cCx2sV8",
-  authDomain: "dansu-vksndtpct.firebaseapp.com",
-  databaseURL: "https://dansu-vksndtpct-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "dansu-vksndtpct",
-  storageBucket: "dansu-vksndtpct.firebasestorage.app",
-  messagingSenderId: "843158256686",
-  appId: "1:843158256686:web:eb128d64c8b9bfd7aef3bf",
-  measurementId: "G-953X2137HC"
+            apiKey: "AIzaSyDunRDIeyBTVXTODoO22ywk1Q35cCx2sV8",
+            authDomain: "dansu-vksndtpct.firebaseapp.com",
+            databaseURL: "https://dansu-vksndtpct-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "dansu-vksndtpct",
+            storageBucket: "dansu-vksndtpct.firebasestorage.app",
+            appId: "1:843158256686:web:eb128d64c8b9bfd7aef3bf"
         };
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         var db = firebase.database();
@@ -208,21 +203,7 @@
             `;
             container.appendChild(div);
         }
-function addKhangnghiItem() {
-            const container = document.getElementById('khang_nghi_list');
-            const div = document.createElement('div');
-            div.className = 'multi-item';
-            div.innerHTML = `
-                <select style="flex:1.2">
-                    <option value="Vien kiem sat">Viện kiểm sát</option>
-                </select>
-                <input type="text" placeholder="Đơn vị" style="flex:2">
-                <input type="text" placeholder="Địa chỉ" style="flex:2">
-                <textarea placeholder="Nội dung kháng nghị" rows="2" style="flex:3"></textarea>
-                <button type="button" onclick="this.parentElement.remove()" style="background:#d32f2f;color:white;padding:6px 10px;border:none;border-radius:4px;">X</button>
-            `;
-            container.appendChild(div);
-        }
+
         function toggleXetXuFields() {
             const cap = document.getElementById('cap_thu_ly').value;
             
@@ -297,7 +278,6 @@ function addKhangnghiItem() {
             document.getElementById('nguyen_don_list').innerHTML = '';
             document.getElementById('bi_don_list').innerHTML = '';
             document.getElementById('lien_quan_list').innerHTML = '';
-            document.getElementById('khang_nghi_list').innerHTML = '';
             document.getElementById('khang_cao_list').innerHTML = '';
 
             editingKey = null;
