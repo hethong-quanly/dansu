@@ -73,7 +73,7 @@
                 <div class="form-group"><label>Nội dung vụ kiện:</label><textarea id="noi_dung" rows="4"></textarea></div>
             </div>
 
-            <!-- === PHẦN ĐÃ XÉT XỬ (Phúc thẩm, GĐT, Tái thẩm) === -->
+            <!-- === PHẦN ĐÃ XÉT XỬ === -->
             <div id="da_xet_xu_section" class="section" style="display:none;">
                 <h4>ĐÃ XÉT XỬ</h4>
                 <div class="form-group">
@@ -88,12 +88,23 @@
                 <div class="form-group"><label>Ngày ban hành:</label><input type="date" id="ngay_ban_hanh"></div>
                 <div class="form-group"><label>Nội dung Bản án/Quyết định đã tuyên:</label><textarea id="noi_dung_da_tuyen" rows="3"></textarea></div>
 
-                <!-- Phần kháng cáo / yêu cầu - Đưa xuống dưới -->
+                <!-- === MỤC 1: VIỆN KIỂM SÁT KHÁNG NGHỊ === -->
                 <div class="form-group">
-                    <label>Đương sự hoặc Viện kiểm sát kháng cáo / kháng nghị / yêu cầu:</label>
-                    <div id="khang_cao_list"></div>
-                    <button class="btn-add" onclick="addKhangCaoItem()">+ Thêm kháng cáo / yêu cầu</button>
+                    <label>1. Viện kiểm sát kháng nghị:</label>
+                    <input type="text" id="qd_khang_nghi_so" placeholder="Số Quyết định kháng nghị">
+                    <input type="date" id="ngay_khang_nghi" placeholder="Ngày ban hành" style="margin-top:8px;">
+                    <textarea id="noi_dung_khang_nghi" rows="3" placeholder="Nội dung kháng nghị" style="margin-top:8px;"></textarea>
                 </div>
+
+                <!-- === MỤC 2: ĐƯƠNG SỰ KHÁNG CÁO / YÊU CẦU === -->
+                <div class="form-group">
+                    <label>2. Đương sự kháng cáo / yêu cầu Giám đốc thẩm, Tái thẩm:</label>
+                    <div id="duong_su_khang_cao_list"></div>
+                    <button class="btn-add" onclick="addDuongSuKhangCao()">+ Thêm Đương sự kháng cáo / yêu cầu</button>
+                </div>
+
+                <div class="form-group"><label>Báo cáo án của KSV:</label><textarea id="bao_cao_ksv" rows="3"></textarea></div>
+                <div class="form-group"><label>Kết quả xét xử:</label><textarea id="ket_qua_xet_xu" rows="3"></textarea></div>
             </div>
 
             <div class="form-group"><label>Ngày thụ lý:</label><input type="date" id="ngay_thu_ly"></div>
@@ -101,7 +112,6 @@
             <div class="form-group"><label>Thư ký:</label><input type="text" id="thu_ky"></div>
             <div class="form-group"><label>Kiểm sát viên:</label><input type="text" id="ksv"></div>
 
-            <!-- Đính kèm File PDF -->
             <div class="form-group">
                 <label>Đính kèm File PDF (Hồ sơ vụ án):</label>
                 <input type="file" id="pdf_file" accept=".pdf">
@@ -184,21 +194,15 @@
             container.appendChild(div);
         }
 
-        // ====================== THÊM KHÁNG CÁO / YÊU CẦU ======================
-        function addKhangCaoItem() {
-            const container = document.getElementById('khang_cao_list');
+        // ====================== THÊM ĐƯƠNG SỰ KHÁNG CÁO / YÊU CẦU ======================
+        function addDuongSuKhangCao() {
+            const container = document.getElementById('duong_su_khang_cao_list');
             const div = document.createElement('div');
             div.className = 'multi-item';
             div.innerHTML = `
-                <select style="flex:1.2">
-                    <option value="Nguyen don">Nguyên đơn</option>
-                    <option value="Bi don">Bị đơn</option>
-                    <option value="Nguoi lien quan">Người có quyền lợi nghĩa vụ liên quan</option>
-                    <option value="Vien kiem sat">Viện kiểm sát</option>
-                </select>
-                <input type="text" placeholder="Tên" style="flex:2">
+                <input type="text" placeholder="Tên Đương sự" style="flex:2">
                 <input type="text" placeholder="Địa chỉ" style="flex:2">
-                <textarea placeholder="Nội dung kháng cáo / kháng nghị / yêu cầu..." rows="2" style="flex:3"></textarea>
+                <textarea placeholder="Nội dung kháng cáo / yêu cầu GĐT, Tái thẩm..." rows="2" style="flex:3"></textarea>
                 <button type="button" onclick="this.parentElement.remove()" style="background:#d32f2f;color:white;padding:6px 10px;border:none;border-radius:4px;">X</button>
             `;
             container.appendChild(div);
@@ -206,11 +210,7 @@
 
         function toggleXetXuFields() {
             const cap = document.getElementById('cap_thu_ly').value;
-            
-            // Ẩn/Hiện phần Sơ thẩm
             document.getElementById('so_tham_section').style.display = (cap === "So tham") ? "block" : "none";
-            
-            // Ẩn/Hiện phần Đã xét xử
             document.getElementById('da_xet_xu_section').style.display = (cap === "So tham") ? "none" : "block";
         }
 
@@ -227,11 +227,15 @@
                 timestamp: Date.now()
             };
 
-            // Lưu thông tin đã xét xử nếu có
             if (document.getElementById('da_xet_xu_section').style.display !== "none") {
                 data.so_ban_an = document.getElementById('so_ban_an').value;
                 data.ngay_ban_hanh = document.getElementById('ngay_ban_hanh').value;
                 data.noi_dung_da_tuyen = document.getElementById('noi_dung_da_tuyen').value;
+                data.qd_khang_nghi_so = document.getElementById('qd_khang_nghi_so').value;
+                data.ngay_khang_nghi = document.getElementById('ngay_khang_nghi').value;
+                data.noi_dung_khang_nghi = document.getElementById('noi_dung_khang_nghi').value;
+                data.bao_cao_ksv = document.getElementById('bao_cao_ksv').value;
+                data.ket_qua_xet_xu = document.getElementById('ket_qua_xet_xu').value;
             }
 
             if (file) {
@@ -272,13 +276,17 @@
             document.getElementById('so_ban_an').value = '';
             document.getElementById('ngay_ban_hanh').value = '';
             document.getElementById('noi_dung_da_tuyen').value = '';
+            document.getElementById('qd_khang_nghi_so').value = '';
+            document.getElementById('ngay_khang_nghi').value = '';
+            document.getElementById('noi_dung_khang_nghi').value = '';
+            document.getElementById('bao_cao_ksv').value = '';
+            document.getElementById('ket_qua_xet_xu').value = '';
             document.getElementById('pdf_file').value = '';
 
-            // Xóa các trường động
             document.getElementById('nguyen_don_list').innerHTML = '';
             document.getElementById('bi_don_list').innerHTML = '';
             document.getElementById('lien_quan_list').innerHTML = '';
-            document.getElementById('khang_cao_list').innerHTML = '';
+            document.getElementById('duong_su_khang_cao_list').innerHTML = '';
 
             editingKey = null;
             document.getElementById('btn-save').innerText = 'LƯU HỒ SƠ';
@@ -329,6 +337,11 @@
                 document.getElementById('so_ban_an').value = item.so_ban_an || '';
                 document.getElementById('ngay_ban_hanh').value = item.ngay_ban_hanh || '';
                 document.getElementById('noi_dung_da_tuyen').value = item.noi_dung_da_tuyen || '';
+                document.getElementById('qd_khang_nghi_so').value = item.qd_khang_nghi_so || '';
+                document.getElementById('ngay_khang_nghi').value = item.ngay_khang_nghi || '';
+                document.getElementById('noi_dung_khang_nghi').value = item.noi_dung_khang_nghi || '';
+                document.getElementById('bao_cao_ksv').value = item.bao_cao_ksv || '';
+                document.getElementById('ket_qua_xet_xu').value = item.ket_qua_xet_xu || '';
 
                 editingKey = key;
                 document.getElementById('btn-save').innerText = 'CẬP NHẬT';
