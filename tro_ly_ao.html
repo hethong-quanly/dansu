@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Trợ lý ảo VKSND</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0408c5;
+            --primary-light: #1a1fd4;
+            --accent: #f8f536;
+            --bg: #f0f2fc;
+            --white: #ffffff;
+            --text: #1a1a2e;
+            --text-muted: #6b7280;
+            --bubble-ai: #e8eaf6;
+            --bubble-user: #0408c5;
+            --border: #e2e4f0;
+            --shadow: 0 4px 24px rgba(4,8,197,0.10);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Be Vietnam Pro', sans-serif; background: var(--bg); min-height: 100vh; display: flex; flex-direction: column; }
+
+        header {
+            background: var(--primary); color: var(--accent);
+            padding: 14px 24px; display: flex; align-items: center; gap: 16px;
+            box-shadow: 0 2px 12px rgba(4,8,197,0.25); position: sticky; top: 0; z-index: 100;
+        }
+        .btn-back { color: white; text-decoration: none; font-size: 13px; font-weight: 600; background: rgba(255,255,255,0.18); padding: 7px 15px; border-radius: 6px; transition: background 0.2s; white-space: nowrap; }
+        .btn-back:hover { background: rgba(255,255,255,0.3); }
+        .header-info { flex: 1; }
+        .header-info h1 { font-size: 18px; font-weight: 700; color: var(--accent); }
+        .header-info p { font-size: 12px; color: rgba(255,255,255,0.75); margin-top: 2px; }
+        .status-dot { width: 9px; height: 9px; border-radius: 50%; background: #4ade80; box-shadow: 0 0 0 3px rgba(74,222,128,0.3); animation: pulse 2s infinite; }
+        .status-dot.offline { background: #f87171; box-shadow: 0 0 0 3px rgba(248,113,113,0.3); animation: none; }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.5} }
+
+        .layout { display: flex; flex: 1; height: calc(100vh - 62px); overflow: hidden; }
+
+        .sidebar { width: 260px; min-width: 220px; background: var(--white); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 16px 12px; gap: 8px; overflow-y: auto; }
+        .sidebar-title { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.08em; padding: 4px 8px; margin-bottom: 4px; }
+        .quick-btn { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; border: none; background: var(--bg); color: var(--text); font-family: inherit; font-size: 13px; font-weight: 500; cursor: pointer; text-align: left; transition: all 0.18s; width: 100%; }
+        .quick-btn:hover { background: #e0e4f8; color: var(--primary); }
+        .quick-btn .icon { font-size: 16px; flex-shrink: 0; }
+        .divider { height: 1px; background: var(--border); margin: 6px 0; }
+
+        .api-key-box { background: #fffbeb; border: 1.5px solid #fcd34d; border-radius: 10px; padding: 12px; margin-top: auto; flex-shrink: 0; }
+        .api-key-box label { font-size: 11px; font-weight: 700; color: #92400e; display: block; margin-bottom: 6px; }
+        .api-key-input-wrap { display: flex; gap: 5px; }
+        .api-key-box input { flex: 1; padding: 8px 10px; border: 1px solid #fcd34d; border-radius: 6px; font-size: 12px; font-family: monospace; background: white; outline: none; min-width: 0; }
+        .api-key-box input:focus { border-color: #f59e0b; }
+        .save-key-btn { padding: 8px 12px; background: #f59e0b; color: white; border: none; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; white-space: nowrap; }
+        .save-key-btn:hover { background: #d97706; }
+        .key-hint { font-size: 10px; color: #92400e; margin-top: 6px; line-height: 1.5; }
+        .key-status { font-size: 11px; margin-top: 5px; font-weight: 600; }
+        .key-status.ok { color: #15803d; }
+        .key-status.no { color: #dc2626; }
+
+        .chat-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+        .nokey-banner { background: #fef3c7; border: 1.5px solid #fbbf24; border-radius: 10px; padding: 14px 16px; margin: 16px 20px 0; font-size: 13px; color: #78350f; line-height: 1.6; display: none; }
+
+        .chat-body { flex: 1; overflow-y: auto; padding: 24px 28px; display: flex; flex-direction: column; gap: 16px; scroll-behavior: smooth; }
+        .message-row { display: flex; gap: 10px; align-items: flex-end; }
+        .message-row.user { flex-direction: row-reverse; }
+        .avatar { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; background: var(--primary); color: white; }
+        .avatar.user-av { background: #6366f1; }
+        .bubble { max-width: 72%; padding: 13px 17px; border-radius: 18px; font-size: 14px; line-height: 1.65; color: var(--text); background: var(--bubble-ai); border-bottom-left-radius: 4px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+        .message-row.user .bubble { background: var(--bubble-user); color: white; border-bottom-left-radius: 18px; border-bottom-right-radius: 4px; }
+        .bubble strong { font-weight: 700; }
+        .bubble ul { padding-left: 18px; margin: 6px 0; }
+        .bubble li { margin: 3px 0; }
+
+        .typing-indicator { display: flex; gap: 5px; align-items: center; padding: 10px 14px; background: var(--bubble-ai); border-radius: 18px; border-bottom-left-radius: 4px; width: fit-content; }
+        .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--text-muted); animation: bounce 1.2s infinite; }
+        .dot:nth-child(2) { animation-delay: 0.2s; }
+        .dot:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes bounce { 0%,80%,100%{transform:translateY(0)} 40%{transform:translateY(-7px)} }
+
+        .input-area { padding: 14px 20px 18px; background: var(--white); border-top: 1px solid var(--border); display: flex; gap: 10px; align-items: flex-end; }
+        #user-input { flex: 1; padding: 12px 16px; border: 1.5px solid var(--border); border-radius: 12px; font-family: inherit; font-size: 14px; color: var(--text); background: var(--bg); resize: none; max-height: 130px; transition: border-color 0.2s; outline: none; line-height: 1.5; }
+        #user-input:focus { border-color: var(--primary); background: white; }
+        .send-btn { background: var(--primary); color: white; border: none; width: 44px; height: 44px; border-radius: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 19px; transition: background 0.18s; flex-shrink: 0; }
+        .send-btn:hover { background: var(--primary-light); }
+        .send-btn:disabled { background: #c7c9e8; cursor: not-allowed; }
+
+        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+        .stat-card { background: white; border-radius: 10px; padding: 10px 12px; border: 1px solid var(--border); text-align: center; }
+        .stat-card .num { font-size: 24px; font-weight: 700; color: var(--primary); }
+        .stat-card .lbl { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+
+        .chat-body::-webkit-scrollbar { width: 5px; }
+        .chat-body::-webkit-scrollbar-thumb { background: #c7c9d9; border-radius: 10px; }
+    </style>
+</head>
+<body>
+<header>
+    <a href="index.html" class="btn-back">← Quay lại</a>
+    <div class="header-info">
+        <h1>🤖 Trợ lý ảo VKSND</h1>
+        <p id="header-sub">Hỗ trợ bởi Gemini AI · Vui lòng nhập API Key để bắt đầu</p>
+    </div>
+    <div class="status-dot offline" id="status-dot"></div>
+</header>
+
+<div class="layout">
+    <div class="sidebar">
+        <div class="sidebar-title">Phân tích dữ liệu</div>
+        <button class="quick-btn" onclick="quickAction('thong_ke_hom_nay')"><span class="icon">📅</span> Thống kê hôm nay</button>
+        <button class="quick-btn" onclick="quickAction('thong_ke_thang')"><span class="icon">📆</span> Thống kê tháng này</button>
+        <button class="quick-btn" onclick="quickAction('tong_quan_he_thong')"><span class="icon">📊</span> Tổng quan hệ thống</button>
+        <button class="quick-btn" onclick="quickAction('vi_pham_qua_han')"><span class="icon">⚠️</span> Hồ sơ quá hạn / vi phạm</button>
+        <button class="quick-btn" onclick="quickAction('rut_kinh_nghiem')"><span class="icon">💡</span> Rút kinh nghiệm</button>
+
+        <div class="divider"></div>
+        <div class="sidebar-title">Pháp luật & hướng dẫn</div>
+        <button class="quick-btn" onclick="quickAction('huong_dan_phan_mem')"><span class="icon">💻</span> Hướng dẫn phần mềm</button>
+        <button class="quick-btn" onclick="quickAction('thoi_han_thu_ly')"><span class="icon">⚖️</span> Thời hạn thụ lý án</button>
+        <button class="quick-btn" onclick="quickAction('thu_tuc_thi_hanh_an')"><span class="icon">📋</span> Thủ tục thi hành án</button>
+        <button class="quick-btn" onclick="quickAction('khieu_nai_to_cao')"><span class="icon">📨</span> Quy định khiếu nại, tố cáo</button>
+
+        <div class="divider"></div>
+
+        <!-- API KEY BOX -->
+        <div class="api-key-box">
+            <label>🔑 GEMINI API KEY</label>
+            <div class="api-key-input-wrap">
+                <input type="password" id="gemini-key-input" placeholder="AIza...">
+                <button class="save-key-btn" onclick="saveApiKey()">Lưu</button>
+            </div>
+            <div id="key-status" class="key-status no">⛔ Chưa có key</div>
+            <div class="key-hint">
+                Lấy key miễn phí tại:<br>
+                <a href="https://aistudio.google.com/apikey" target="_blank" style="color:#b45309;font-weight:700;">aistudio.google.com/apikey</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="chat-area">
+        <div id="nokey-banner" class="nokey-banner">
+            ⚠️ <strong>Chưa có API Key.</strong> Dán <strong>Gemini API Key</strong> vào ô bên trái → nhấn <strong>Lưu</strong> để kích hoạt.
+            Lấy key miễn phí tại: <a href="https://aistudio.google.com/apikey" target="_blank" style="color:#92400e;font-weight:700;">aistudio.google.com/apikey</a>
+        </div>
+
+        <div class="chat-body" id="chat-body">
+            <div class="message-row">
+                <div class="avatar">🤖</div>
+                <div class="bubble">
+                    Xin chào! Tôi là <strong>Trợ lý ảo VKSND</strong> — hỗ trợ bởi <strong>Gemini AI</strong>.<br><br>
+                    Tôi có thể giúp bạn:<br>
+                    <ul>
+                        <li>📊 <strong>Phân tích dữ liệu thật</strong> từ hệ thống (án DS, THA, khiếu tố)</li>
+                        <li>⚖️ <strong>Tra cứu pháp luật</strong> (BLDS, BLTTDS, Luật THADS...)</li>
+                        <li>💻 <strong>Hướng dẫn sử dụng phần mềm</strong></li>
+                        <li>💡 <strong>Rút kinh nghiệm</strong> từ dữ liệu thực tế</li>
+                    </ul>
+                    👈 Nhập <strong>Gemini API Key</strong> bên trái để bắt đầu!
+                </div>
+            </div>
+        </div>
+
+        <div class="input-area">
+            <textarea id="user-input" placeholder="Nhập câu hỏi... (cần API key)" rows="1"
+                onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
+            <button class="send-btn" id="send-btn" onclick="sendMessage()">➤</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    var firebaseConfig = {
+        apiKey: "AIzaSyDunRDIeyBTVXTODoO22ywk1Q35cCx2sV8",
+        authDomain: "dansu-vksndtpct.firebaseapp.com",
+        databaseURL: "https://dansu-vksndtpct-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "dansu-vksndtpct",
+        storageBucket: "dansu-vksndtpct.firebasestorage.app",
+        appId: "1:843158256686:web:eb128d64c8b9bfd7aef3bf"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    var db = firebase.database();
+
+    let isSending = false;
+    let GEMINI_KEY = '';
+
+    // ===== API KEY =====
+    function saveApiKey() {
+        const key = document.getElementById('gemini-key-input').value.trim();
+        if (!key || !key.startsWith('AIza')) {
+            alert('API Key không hợp lệ!\nKey Gemini phải bắt đầu bằng "AIza..."');
+            return;
+        }
+        GEMINI_KEY = key;
+        localStorage.setItem('gemini_api_key', key);
+        setKeyStatus(true);
+        addMessage('✅ <strong>API Key đã lưu!</strong> Trợ lý ảo đã sẵn sàng. Hãy đặt câu hỏi hoặc chọn gợi ý bên trái.');
+    }
+
+    function setKeyStatus(hasKey) {
+        document.getElementById('nokey-banner').style.display = hasKey ? 'none' : 'block';
+        document.getElementById('status-dot').className = 'status-dot' + (hasKey ? '' : ' offline');
+        document.getElementById('key-status').textContent = hasKey ? '✅ Đã kích hoạt' : '⛔ Chưa có key';
+        document.getElementById('key-status').className = 'key-status ' + (hasKey ? 'ok' : 'no');
+        document.getElementById('header-sub').textContent = hasKey
+            ? 'Gemini AI đang hoạt động · Kết nối dữ liệu thật'
+            : 'Hỗ trợ bởi Gemini AI · Vui lòng nhập API Key để bắt đầu';
+        document.getElementById('user-input').placeholder = hasKey ? 'Nhập câu hỏi...' : 'Cần API Key để hoạt động...';
+    }
+
+    function loadApiKey() {
+        const saved = localStorage.getItem('gemini_api_key');
+        if (saved) {
+            GEMINI_KEY = saved;
+            document.getElementById('gemini-key-input').value = saved;
+            setKeyStatus(true);
+        } else {
+            setKeyStatus(false);
+        }
+    }
+
+    // ===== UI =====
+    function addMessage(html, isUser = false) {
+        const chat = document.getElementById('chat-body');
+        const row = document.createElement('div');
+        row.className = 'message-row' + (isUser ? ' user' : '');
+        row.innerHTML = `<div class="avatar ${isUser?'user-av':''}">${isUser?'👤':'🤖'}</div><div class="bubble">${html}</div>`;
+        chat.appendChild(row);
+        chat.scrollTop = chat.scrollHeight;
+    }
+
+    function showTyping() {
+        const chat = document.getElementById('chat-body');
+        const row = document.createElement('div');
+        row.className = 'message-row'; row.id = 'typing-row';
+        row.innerHTML = `<div class="avatar">🤖</div><div class="typing-indicator"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>`;
+        chat.appendChild(row); chat.scrollTop = chat.scrollHeight;
+    }
+
+    function removeTyping() { const t = document.getElementById('typing-row'); if (t) t.remove(); }
+
+    function autoResize(el) { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight, 130) + 'px'; }
+    function handleKey(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }
+
+    // ===== GEMINI API =====
+    async function callGemini(question, context = '') {
+        if (!GEMINI_KEY) throw new Error('Chưa có API Key. Nhập Gemini API Key bên trái.');
+
+        const prompt = `Bạn là Trợ lý ảo của Viện Kiểm sát Nhân dân, chuyên nghiệp về kiểm sát dân sự.
+Trả lời bằng tiếng Việt, ngắn gọn, chính xác, có dẫn chiếu luật cụ thể khi cần (BLTTDS 2015, BLDS 2015, Luật THADS...).
+${context ? '\n===DỮ LIỆU HỆ THỐNG===\n' + context + '\n===================' : ''}
+
+Câu hỏi: ${question}`;
+
+        const res = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`,
+            {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    contents: [{ parts: [{ text: prompt }] }],
+                    generationConfig: { maxOutputTokens: 1024, temperature: 0.7 }
+                })
+            }
+        );
+
+        if (!res.ok) {
+            const err = await res.json().catch(() => ({}));
+            throw new Error(err.error?.message || `HTTP ${res.status}`);
+        }
+
+        const data = await res.json();
+        const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (!text) throw new Error('Gemini không trả về nội dung');
+        return text;
+    }
+
+    function fmt(text) {
+        return text
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\*(.*?)\*/g, '<em>$1</em>')
+            .replace(/^#{1,3}\s+(.+)$/gm, '<strong>$1</strong>')
+            .replace(/^[-•]\s+(.+)$/gm, '<li>$1</li>')
+            .replace(/(<li>.*?<\/li>\n?)+/gs, m => `<ul>${m}</ul>`)
+            .replace(/\n\n/g, '<br><br>').replace(/\n/g, '<br>');
+    }
+
+    // ===== FIREBASE =====
+    async function fetchData() {
+        const today = new Date(); today.setHours(0,0,0,0);
+        const monthStart = new Date(today.getFullYear(), today.getMonth(), 1).getTime();
+        const todayTs = today.getTime();
+
+        async function get(path) {
+            const snap = await db.ref(path).once('value');
+            return Object.values(snap.val() || {});
+        }
+
+        const [ads, tha, dkt] = await Promise.all([get('an_dan_su'), get('thi_hanh_an'), get('don_khieu_to')]);
+        const capCount = {};
+        ads.forEach(x => { const c = x.cap_thu_ly||'Khác'; capCount[c]=(capCount[c]||0)+1; });
+
+        return {
+            tong: { an: ads.length, tha: tha.length, dkt: dkt.length },
+            homNay: { an: ads.filter(x=>(x.timestamp||0)>=todayTs).length, tha: tha.filter(x=>(x.timestamp||0)>=todayTs).length, dkt: dkt.filter(x=>(x.timestamp||0)>=todayTs).length },
+            thang: { an: ads.filter(x=>(x.timestamp||0)>=monthStart).length, tha: tha.filter(x=>(x.timestamp||0)>=monthStart).length, dkt: dkt.filter(x=>(x.timestamp||0)>=monthStart).length },
+            phanLoai: Object.entries(capCount).map(([k,v])=>`${k}: ${v} vụ`).join(', ') || 'Chưa có dữ liệu'
+        };
+    }
+
+    function statsHtml(s) {
+        return `<div class="stats-grid">
+            <div class="stat-card"><div class="num">${s.n1}</div><div class="lbl">${s.l1}</div></div>
+            <div class="stat-card"><div class="num">${s.n2}</div><div class="lbl">${s.l2}</div></div>
+            <div class="stat-card"><div class="num">${s.n3}</div><div class="lbl">${s.l3}</div></div>
+            <div class="stat-card"><div class="num">${s.n4}</div><div class="lbl">${s.l4}</div></div>
+        </div><br>`;
+    }
+
+    async function withData(prompt, stats) {
+        showTyping();
+        try {
+            const data = await fetchData();
+            const ctx = `Án dân sự: ${data.tong.an} (${data.phanLoai}), THA: ${data.tong.tha}, Khiếu tố: ${data.tong.dkt}. Tháng này: án ${data.thang.an}, THA ${data.thang.tha}, KT ${data.thang.dkt}. Hôm nay: án ${data.homNay.an}, THA ${data.homNay.tha}, KT ${data.homNay.dkt}.`;
+            const reply = await callGemini(prompt(data), ctx);
+            removeTyping();
+            addMessage((stats ? statsHtml(stats(data)) : '') + fmt(reply));
+        } catch(e) { removeTyping(); addMessage('⚠️ ' + e.message); }
+    }
+
+    async function withoutData(prompt) {
+        showTyping();
+        try { const r = await callGemini(prompt); removeTyping(); addMessage(fmt(r)); }
+        catch(e) { removeTyping(); addMessage('⚠️ ' + e.message); }
+    }
+
+    const quickActions = {
+        thong_ke_hom_nay: async () => {
+            addMessage('📅 Thống kê hôm nay', true);
+            await withData(
+                d => 'Phân tích số liệu hôm nay, nhận xét và gợi ý nếu cần.',
+                d => ({ n1:d.homNay.an, l1:'Án DS hôm nay', n2:d.homNay.tha, l2:'Thi hành án', n3:d.homNay.dkt, l3:'Đơn khiếu tố', n4:d.homNay.an+d.homNay.tha+d.homNay.dkt, l4:'Tổng hôm nay' })
+            );
+        },
+        thong_ke_thang: async () => {
+            addMessage('📆 Thống kê tháng này', true);
+            await withData(
+                d => 'Tổng hợp phân tích số liệu tháng này, so sánh tổng thể và đưa nhận xét.',
+                d => ({ n1:d.thang.an, l1:'Án DS tháng này', n2:d.thang.tha, l2:'Thi hành án', n3:d.thang.dkt, l3:'Đơn khiếu tố', n4:d.tong.an+d.tong.tha+d.tong.dkt, l4:'Tổng hệ thống' })
+            );
+        },
+        tong_quan_he_thong: async () => {
+            addMessage('📊 Tổng quan hệ thống', true);
+            await withData(
+                d => 'Đánh giá tổng quan hoạt động, điểm mạnh và điểm cần cải thiện.',
+                d => ({ n1:d.tong.an, l1:'Tổng Án DS', n2:d.tong.tha, l2:'Tổng THA', n3:d.tong.dkt, l3:'Tổng Khiếu tố', n4:d.tong.an+d.tong.tha+d.tong.dkt, l4:'Tổng hồ sơ' })
+            );
+        },
+        vi_pham_qua_han: async () => {
+            addMessage('⚠️ Hồ sơ quá hạn / vi phạm', true);
+            await withData(d => 'Phân tích rủi ro vi phạm thời hạn tố tụng trong án DS, THA và khiếu tố. Khuyến nghị phòng tránh theo quy định pháp luật.');
+        },
+        rut_kinh_nghiem: async () => {
+            addMessage('💡 Rút kinh nghiệm', true);
+            await withData(d => 'Rút ra 3-5 bài học kinh nghiệm quan trọng cho công tác kiểm sát dân sự, kèm đề xuất cải thiện cụ thể.');
+        },
+        huong_dan_phan_mem: async () => {
+            addMessage('💻 Hướng dẫn phần mềm', true);
+            await withoutData('Hướng dẫn ngắn gọn sử dụng phần mềm Quản lý Kiểm sát Dân sự VKSND: đăng nhập, nhập hồ sơ án/khiếu nại/THA, xem báo cáo, đổi mật khẩu.');
+        },
+        thoi_han_thu_ly: async () => {
+            addMessage('⚖️ Thời hạn thụ lý và xét xử', true);
+            await withoutData('Liệt kê đầy đủ thời hạn trong tố tụng dân sự theo BLTTDS 2015: thụ lý, chuẩn bị xét xử, xét xử sơ thẩm, phúc thẩm, giám đốc thẩm, tái thẩm.');
+        },
+        thu_tuc_thi_hanh_an: async () => {
+            addMessage('📋 Thủ tục thi hành án', true);
+            await withoutData('Các bước thủ tục thi hành án dân sự theo Luật THADS 2008 sửa đổi 2014: yêu cầu, thụ lý, quyết định, thực hiện, thời hạn từng bước.');
+        },
+        khieu_nai_to_cao: async () => {
+            addMessage('📨 Quy định khiếu nại, tố cáo', true);
+            await withoutData('Giải quyết khiếu nại, tố cáo trong hoạt động tư pháp: thẩm quyền, thời hạn, thủ tục theo Luật Khiếu nại 2011, Luật Tố cáo 2018 và quy định VKSND.');
+        }
+    };
+
+    async function quickAction(key) {
+        if (isSending) return;
+        if (!GEMINI_KEY) { addMessage('⚠️ <strong>Chưa có API Key!</strong> Nhập Gemini API Key vào ô bên trái trước.'); return; }
+        isSending = true; document.getElementById('send-btn').disabled = true;
+        try { await quickActions[key](); }
+        finally { isSending = false; document.getElementById('send-btn').disabled = false; }
+    }
+
+    // ===== GỬI TIN =====
+    async function sendMessage() {
+        if (isSending) return;
+        const input = document.getElementById('user-input');
+        const q = input.value.trim();
+        if (!q) return;
+        if (!GEMINI_KEY) { addMessage('⚠️ <strong>Chưa có API Key!</strong> Nhập Gemini API Key vào ô bên trái trước.'); return; }
+
+        input.value = ''; input.style.height = 'auto';
+        addMessage(q, true);
+        isSending = true; document.getElementById('send-btn').disabled = true;
+        showTyping();
+
+        try {
+            let context = '';
+            const lower = q.toLowerCase();
+            if (['dữ liệu','hồ sơ','thống kê','bao nhiêu','tổng','tháng','hôm nay','phân tích'].some(k => lower.includes(k))) {
+                const data = await fetchData();
+                context = `Án dân sự: ${data.tong.an} (${data.phanLoai}), THA: ${data.tong.tha}, Khiếu tố: ${data.tong.dkt}. Tháng này: án ${data.thang.an}, THA ${data.thang.tha}, KT ${data.thang.dkt}. Hôm nay: án ${data.homNay.an}, THA ${data.homNay.tha}, KT ${data.homNay.dkt}.`;
+            }
+            const reply = await callGemini(q, context);
+            removeTyping();
+            addMessage(fmt(reply));
+        } catch(e) {
+            removeTyping();
+            addMessage(`⚠️ <strong>Lỗi:</strong> ${e.message}`);
+        }
+
+        isSending = false; document.getElementById('send-btn').disabled = false;
+    }
+
+    window.onload = loadApiKey;
+</script>
+</body>
+</html>
