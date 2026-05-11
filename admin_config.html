@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Cấu hình hệ thống - Admin</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #0408c5;
+            --accent: #f8f536;
+            --bg: #f0f2fc;
+            --white: #fff;
+            --border: #e2e4f0;
+            --green: #16a34a;
+            --red: #dc2626;
+            --orange: #ea580c;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Be Vietnam Pro', sans-serif; background: var(--bg); min-height: 100vh; }
+
+        header {
+            background: var(--primary); color: var(--accent);
+            padding: 14px 28px; display: flex; align-items: center; gap: 16px;
+            box-shadow: 0 3px 14px rgba(4,8,197,0.3);
+        }
+        .btn-back { color: white; text-decoration: none; font-size: 13px; font-weight: 600; background: rgba(255,255,255,0.18); padding: 7px 15px; border-radius: 6px; }
+        .btn-back:hover { background: rgba(255,255,255,0.3); }
+        header h1 { font-size: 18px; font-weight: 700; color: var(--accent); flex: 1; text-align: center; }
+
+        .container { max-width: 620px; margin: 50px auto; padding: 0 20px; }
+
+        /* Login gate */
+        .login-gate {
+            background: var(--white); border-radius: 16px; padding: 40px;
+            box-shadow: 0 4px 24px rgba(4,8,197,0.10); text-align: center;
+        }
+        .login-gate h2 { color: var(--primary); font-size: 20px; margin-bottom: 8px; }
+        .login-gate p { color: #6b7280; font-size: 14px; margin-bottom: 28px; }
+
+        /* Card */
+        .card {
+            background: var(--white); border-radius: 16px; padding: 36px 40px;
+            box-shadow: 0 4px 24px rgba(4,8,197,0.10); margin-bottom: 20px;
+        }
+        .card h2 { color: var(--primary); font-size: 17px; font-weight: 700; margin-bottom: 6px; }
+        .card .desc { color: #6b7280; font-size: 13px; margin-bottom: 24px; line-height: 1.6; }
+
+        label { display: block; font-size: 12px; font-weight: 700; color: #374151; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 6px; }
+
+        .input-group { position: relative; margin-bottom: 16px; }
+        .input-group input {
+            width: 100%; padding: 13px 48px 13px 14px;
+            border: 1.5px solid var(--border); border-radius: 10px;
+            font-family: inherit; font-size: 14px; font-family: monospace;
+            outline: none; transition: border-color 0.2s; background: var(--bg);
+        }
+        .input-group input:focus { border-color: var(--primary); background: white; }
+        .toggle-vis {
+            position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+            background: none; border: none; cursor: pointer; font-size: 18px; color: #9ca3af;
+        }
+
+        .current-key {
+            background: #f0fdf4; border: 1.5px solid #86efac; border-radius: 10px;
+            padding: 12px 16px; margin-bottom: 20px; font-size: 13px; color: #15803d;
+            display: none;
+        }
+        .current-key strong { font-weight: 700; }
+
+        .btn {
+            width: 100%; padding: 14px; border: none; border-radius: 10px;
+            font-family: inherit; font-size: 15px; font-weight: 700;
+            cursor: pointer; transition: all 0.18s;
+        }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: #0306a8; }
+        .btn-danger { background: var(--red); color: white; margin-top: 10px; }
+        .btn-danger:hover { background: #b91c1c; }
+        .btn-login { background: var(--primary); color: white; width: 100%; padding: 14px; border: none; border-radius: 10px; font-family: inherit; font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 10px; }
+
+        .msg { margin-top: 14px; padding: 12px 16px; border-radius: 8px; font-size: 14px; font-weight: 600; text-align: center; display: none; }
+        .msg.success { background: #dcfce7; color: #15803d; }
+        .msg.error { background: #fee2e2; color: #dc2626; }
+
+        /* Info box */
+        .info-box {
+            background: #eff6ff; border: 1.5px solid #bfdbfe; border-radius: 12px;
+            padding: 18px 20px; margin-top: 20px;
+        }
+        .info-box h3 { color: #1d4ed8; font-size: 13px; font-weight: 700; margin-bottom: 10px; }
+        .info-box ol { padding-left: 18px; color: #374151; font-size: 13px; line-height: 1.9; }
+        .info-box a { color: #1d4ed8; font-weight: 600; }
+
+        .badge-admin {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: #fef9c3; color: #854d0e; font-size: 12px; font-weight: 700;
+            padding: 4px 12px; border-radius: 20px; margin-bottom: 20px;
+        }
+
+        input[type="password"].login-input, input[type="text"].login-input {
+            width: 100%; padding: 13px 14px; border: 1.5px solid var(--border);
+            border-radius: 10px; font-family: inherit; font-size: 14px;
+            outline: none; margin-bottom: 12px; background: var(--bg);
+        }
+        input[type="password"].login-input:focus, input[type="text"].login-input:focus {
+            border-color: var(--primary); background: white;
+        }
+    </style>
+</head>
+<body>
+<header>
+    <a href="index.html" class="btn-back">← Quay lại</a>
+    <h1>⚙️ Cấu hình hệ thống</h1>
+</header>
+
+<div class="container">
+
+    <!-- BƯỚC 1: Kiểm tra đăng nhập admin -->
+    <div id="login-gate" class="login-gate">
+        <div style="font-size:48px;margin-bottom:16px;">🔐</div>
+        <h2>Khu vực Admin</h2>
+        <p>Chỉ tài khoản cấp <strong>toi_cao</strong> mới được truy cập trang này.</p>
+        <input type="text" class="login-input" id="lg-user" placeholder="Tên đăng nhập">
+        <input type="password" class="login-input" id="lg-pass" placeholder="Mật khẩu">
+        <button class="btn-login" onclick="adminLogin()">🔑 Đăng nhập Admin</button>
+        <div id="login-msg" class="msg" style="display:none;"></div>
+    </div>
+
+    <!-- BƯỚC 2: Giao diện cấu hình (ẩn cho đến khi login) -->
+    <div id="config-panel" style="display:none;">
+
+        <div class="card">
+            <div class="badge-admin">🛡️ Đang đăng nhập với quyền Admin</div>
+            <h2>🤖 Cấu hình Groq API Key</h2>
+            <div class="desc">
+                Key được lưu mã hóa trong Firebase. File HTML không chứa key — người dùng xem source code sẽ không thấy.
+            </div>
+
+            <div id="current-key-display" class="current-key"></div>
+
+            <label>Groq API Key mới</label>
+            <div class="input-group">
+                <input type="password" id="gemini-key" placeholder="AIzaSy...">
+                <button class="toggle-vis" onclick="toggleVis('gemini-key', this)">👁️</button>
+            </div>
+
+            <button class="btn btn-primary" onclick="saveKey()">💾 Lưu key vào Firebase</button>
+            <button class="btn btn-danger" onclick="deleteKey()">🗑️ Xóa key khỏi Firebase</button>
+
+            <div id="save-msg" class="msg"></div>
+        </div>
+
+        <div class="info-box">
+            <h3>📋 Hướng dẫn lấy Groq API Key miễn phí</h3>
+            <ol>
+                <li>Truy cập <a href="https://console.groq.com" target="_blank">console.groq.com</a></li>
+                <li>Đăng nhập tài khoản Google</li>
+                <li>Nhấn <strong>"Create API key"</strong></li>
+                <li>Sao chép key (bắt đầu bằng <code>gsk_...</code>)</li>
+                <li>Dán vào ô trên và nhấn <strong>Lưu</strong></li>
+            </ol>
+        </div>
+
+    </div>
+</div>
+
+<script>
+    var firebaseConfig = {
+        apiKey: "AIzaSyDunRDIeyBTVXTODoO22ywk1Q35cCx2sV8",
+        authDomain: "dansu-vksndtpct.firebaseapp.com",
+        databaseURL: "https://dansu-vksndtpct-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "dansu-vksndtpct",
+        storageBucket: "dansu-vksndtpct.firebasestorage.app",
+        appId: "1:843158256686:web:eb128d64c8b9bfd7aef3bf"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    var db = firebase.database();
+
+    let adminUser = null;
+
+    // ===== ĐĂNG NHẬP ADMIN =====
+    async function adminLogin() {
+        const username = document.getElementById('lg-user').value.trim();
+        const password = document.getElementById('lg-pass').value.trim();
+        const msg = document.getElementById('login-msg');
+
+        if (!username || !password) {
+            showMsg(msg, 'Vui lòng nhập đầy đủ thông tin!', 'error');
+            return;
+        }
+
+        // Kiểm tra tài khoản admin cứng
+        if (username === 'admin' && (password === '123' || password === '123456')) {
+            adminUser = { username: 'admin', level: 'toi_cao' };
+            showConfigPanel();
+            return;
+        }
+
+        // Kiểm tra từ Firebase
+        try {
+            const snap = await db.ref('users/' + username).once('value');
+            const user = snap.val();
+            if (user && user.password === password && user.level === 'toi_cao') {
+                adminUser = { username, level: 'toi_cao' };
+                showConfigPanel();
+            } else if (user && user.password === password) {
+                showMsg(msg, '⛔ Tài khoản này không có quyền Admin!', 'error');
+            } else {
+                showMsg(msg, '❌ Tên đăng nhập hoặc mật khẩu sai!', 'error');
+            }
+        } catch(e) {
+            showMsg(msg, '⚠️ Lỗi kết nối Firebase!', 'error');
+        }
+    }
+
+    function showConfigPanel() {
+        document.getElementById('login-gate').style.display = 'none';
+        document.getElementById('config-panel').style.display = 'block';
+        loadCurrentKey();
+    }
+
+    // ===== LOAD KEY HIỆN TẠI =====
+    async function loadCurrentKey() {
+        try {
+            const snap = await db.ref('config/groq_key').once('value');
+            const key = snap.val();
+            const box = document.getElementById('current-key-display');
+            if (key) {
+                // Chỉ hiển thị 8 ký tự đầu + ẩn phần còn lại
+                const masked = key.substring(0, 8) + '••••••••••••••••••••' + key.slice(-4);
+                box.innerHTML = `✅ <strong>Key hiện tại:</strong> <code>${masked}</code>`;
+                box.style.display = 'block';
+            } else {
+                box.innerHTML = '⚠️ Chưa có key nào được lưu.';
+                box.style.display = 'block';
+            }
+        } catch(e) {
+            console.error(e);
+        }
+    }
+
+    // ===== LƯU KEY =====
+    async function saveKey() {
+        const key = document.getElementById('gemini-key').value.trim();
+        const msg = document.getElementById('save-msg');
+
+        if (!key) { showMsg(msg, 'Vui lòng nhập API Key!', 'error'); return; }
+        if (!key.startsWith('gsk_')) { showMsg(msg, 'Key không hợp lệ! Phải bắt đầu bằng "gsk_..."', 'error'); return; }
+
+        try {
+            // Lưu key vào Firebase node config/gemini_key
+            await db.ref('config/groq_key').set(key);
+            // Ghi log thời gian cập nhật
+            await db.ref('config/groq_key_updated').set({
+                by: adminUser.username,
+                at: new Date().toISOString()
+            });
+            showMsg(msg, '✅ Đã lưu API Key vào Firebase thành công! Trợ lý ảo sẽ hoạt động ngay.', 'success');
+            document.getElementById('gemini-key').value = '';
+            loadCurrentKey();
+        } catch(e) {
+            showMsg(msg, '⚠️ Lỗi lưu key: ' + e.message, 'error');
+        }
+    }
+
+    // ===== XÓA KEY =====
+    async function deleteKey() {
+        if (!confirm('Bạn có chắc muốn xóa API Key không?\nTrợ lý ảo sẽ ngừng hoạt động cho đến khi có key mới.')) return;
+        const msg = document.getElementById('save-msg');
+        try {
+            await db.ref('config/groq_key').remove();
+            await db.ref('config/groq_key_updated').remove();
+            showMsg(msg, '🗑️ Đã xóa API Key khỏi Firebase.', 'error');
+            loadCurrentKey();
+        } catch(e) {
+            showMsg(msg, '⚠️ Lỗi xóa key: ' + e.message, 'error');
+        }
+    }
+
+    // ===== HELPERS =====
+    function showMsg(el, text, type) {
+        el.textContent = text;
+        el.className = 'msg ' + type;
+        el.style.display = 'block';
+        setTimeout(() => { el.style.display = 'none'; }, 4000);
+    }
+
+    function toggleVis(id, btn) {
+        const inp = document.getElementById(id);
+        if (inp.type === 'password') { inp.type = 'text'; btn.textContent = '🙈'; }
+        else { inp.type = 'password'; btn.textContent = '👁️'; }
+    }
+
+    // Enter để đăng nhập
+    document.addEventListener('keypress', e => {
+        if (e.key === 'Enter' && document.getElementById('login-gate').style.display !== 'none') {
+            adminLogin();
+        }
+    });
+</script>
+</body>
+</html>
