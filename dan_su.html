@@ -3,15 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quản lý Án Dân sự - QLTA Style</title>
+    <title>Quản lý Án Dân sự - VKS Cần Thơ</title>
     <script>
-        // KIỂM TRA SESSION NGAY LẬP TỨC
         const currentUser = sessionStorage.getItem('vks_logged_in') === 'true' ? localStorage.getItem('vks_user') : null;
         if (!currentUser) {
             alert("Vui lòng đăng nhập!");
             window.location.href = "login.html";
         } else {
-            const usersDB = JSON.parse(localStorage.getItem('vks_users_db')) || {};
+            const usersDB = JSON.parse(localStorage.getItem('vks_users_db') || '{}');
             const userData = usersDB[currentUser];
             if (currentUser !== 'admin' && (!userData || userData.p_dansu !== true)) {
                 alert("Tài khoản của bạn không được phân quyền vào mục Dân sự!");
@@ -57,7 +56,7 @@
         .checkbox-row { display: flex; align-items: center; gap: 6px; margin-top: 6px; }
         .checkbox-row input[type="checkbox"] { width: 16px; height: 16px; accent-color: #c41e3a; }
         .checkbox-row label { font-size: 12px; color: #c41e3a; font-weight: 600; cursor: pointer; }
-        .search-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px; padding-top: 10px; border-top: 1px solid #eee; }
+        .search-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 12px; padding-top: 10px; border-top: 1px solid #eee; flex-wrap: wrap; }
         .btn { padding: 6px 16px; border: 1px solid #ccc; border-radius: 3px; background: #f8f9fa; cursor: pointer; font-size: 12.5px; font-weight: 500; }
         .btn:hover { background: #e9ecef; }
         .btn-primary { background: #c41e3a; color: white; border-color: #c41e3a; }
@@ -104,10 +103,10 @@
     </style>
 </head>
 <body>
+    <!-- TOP NAV - Đã bỏ HÌNH SỰ vì đây là module Dân sự -->
     <div class="top-nav">
         <a href="index.html">TRANG CHỦ</a>
         <a href="#">TÌM KIẾM - BÁO CÁO</a>
-        <a href="#">HÌNH SỰ</a>
         <a href="#" class="active">DÂN SỰ</a>
         <a href="#">HN & GĐ</a>
         <a href="#">KD,TM</a>
@@ -129,12 +128,12 @@
             <div class="sidebar-title">DÂN SỰ</div>
             <ul>
                 <li class="active" onclick="showListView()"><span class="folder">📁</span> Danh sách vụ việc</li>
-                <li><span class="folder">📁</span> Phân công danh sách Thẩm phán</li>
-                <li><span class="folder">📁</span> Chuyển án</li>
-                <li><span class="folder">📁</span> Nhận án</li>
-                <li><span class="folder">📁</span> Cập nhật kháng cáo quá hạn</li>
-                <li><span class="folder">📁</span> Cập nhật thông tin sau xét xử</li>
-                <li><span class="folder">📁</span> Đăng văn bản tổng đạt lên cổng thông tin điện tử</li>
+                <li onclick="alert('Chức năng Phân công Thẩm phán đang được phát triển')"><span class="folder">📁</span> Phân công danh sách Thẩm phán</li>
+                <li onclick="alert('Chức năng Chuyển án đang được phát triển')"><span class="folder">📁</span> Chuyển án</li>
+                <li onclick="alert('Chức năng Nhận án đang được phát triển')"><span class="folder">📁</span> Nhận án</li>
+                <li onclick="alert('Chức năng Cập nhật kháng cáo quá hạn đang được phát triển')"><span class="folder">📁</span> Cập nhật kháng cáo quá hạn</li>
+                <li onclick="alert('Chức năng Cập nhật thông tin sau xét xử đang được phát triển')"><span class="folder">📁</span> Cập nhật thông tin sau xét xử</li>
+                <li onclick="alert('Chức năng Đăng văn bản tổng đạt đang được phát triển')"><span class="folder">📁</span> Đăng văn bản tổng đạt lên cổng thông tin điện tử</li>
             </ul>
         </div>
         
@@ -143,8 +142,8 @@
             
             <div class="search-panel">
                 <div class="search-header">
-                    <span>Tìm kiếm <span id="search-mode-label">[ Thu gọn ]</span></span>
-                    <a href="javascript:void(0)" onclick="toggleSearchMode()">Chuyển sang Nâng cao / Thu gọn</a>
+                    <span>Tìm kiếm <span id="search-mode-label">[ Nâng cao ]</span></span>
+                    <a href="javascript:void(0)" onclick="toggleSearchMode()">Chuyển sang Thu gọn / Nâng cao</a>
                 </div>
                 <div class="search-body">
                     <div class="search-grid" id="search-basic">
@@ -170,7 +169,7 @@
                         </div>
                     </div>
                     
-                    <div class="search-grid search-advanced" id="search-advanced">
+                    <div class="search-grid search-advanced show" id="search-advanced">
                         <div class="form-row"><label>Tình trạng thụ lý</label><select id="f_tinh_trang_thu_ly"><option value="">-- Tất cả --</option><option value="Thụ lý mới">Thụ lý mới</option></select></div>
                         <div class="form-row"><label>Từ ngày - Đến ngày (Thụ lý)</label><div class="date-range"><input type="date" id="f_tu_ngay_tl"><input type="date" id="f_den_ngay_tl"></div></div>
                         <div class="form-row"><label>Số Thụ lý</label><input type="text" id="f_so_thu_ly"></div>
@@ -229,6 +228,7 @@
     
     <div class="toast" id="toast"></div>
     
+    <!-- MODAL THÊM / SỬA -->
     <div class="modal-overlay" id="modal-add">
         <div class="modal" style="max-width:700px;">
             <div class="modal-header">
@@ -258,6 +258,7 @@
         </div>
     </div>
     
+    <!-- MODAL NHẬP ÁN -->
     <div class="modal-overlay" id="modal-nhap-an">
         <div class="modal">
             <div class="modal-header">
@@ -301,7 +302,7 @@
         let selectedGocId = null;
         let selectedNhapId = null;
         let allRecords = [];
-        let isAdvanced = false;
+        let isAdvanced = true;
         let isThaoTacMode = false;
         
         document.getElementById('display_user').innerText = currentUser || 'User';
@@ -397,6 +398,7 @@
         function showListView() {
             document.querySelectorAll('.sidebar li').forEach(li => li.classList.remove('active'));
             document.querySelector('.sidebar li').classList.add('active');
+            document.querySelector('.breadcrumb span').innerText = 'Danh sách vụ việc';
         }
         
         async function loadData() {
@@ -698,9 +700,6 @@
         }
         
         window.onload = () => {
-            isAdvanced = true;
-            document.getElementById('search-advanced').classList.add('show');
-            document.getElementById('search-mode-label').innerText = '[ Nâng cao ]';
             seedSampleData();
         };
     </script>
