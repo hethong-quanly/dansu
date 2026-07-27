@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập hệ thống - VKS Cần Thơ</title>
+    <style>
+        body { 
+            font-family: 'Segoe UI', Tahoma, sans-serif; 
+            background: linear-gradient(135deg, #0408c5, #5670e6); 
+            height: 100vh; display: flex; justify-content: center; align-items: center; margin: 0; 
+        }
+        .login-box { 
+            background: white; 
+            padding: 40px; 
+            border-radius: 15px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.25); 
+            width: 380px; 
+            text-align: center; 
+        }
+        h2 { color: #0408c5; margin-bottom: 8px; font-size: 20px; }
+        h3 { color: #555; margin-bottom: 25px; font-size: 15px; font-weight: normal; }
+        input { 
+            width: 100%; 
+            padding: 13px 15px; 
+            margin: 8px 0; 
+            border: 1px solid #ccc; 
+            border-radius: 8px; 
+            box-sizing: border-box; 
+            font-size: 14px;
+        }
+        input:focus {
+            border-color: #5670e6;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(86,112,230,0.15);
+        }
+        button { 
+            width: 100%; 
+            padding: 14px; 
+            background: #5670e6; 
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            font-size: 16px; 
+            margin-top: 12px;
+            transition: background 0.2s;
+        }
+        button:hover { background: #0408c5; }
+        .footer-text { margin-top: 22px; font-size: 12px; color: #888; }
+        .hint {
+            margin-top: 15px;
+            font-size: 12px;
+            color: #666;
+            background: #f5f7ff;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: left;
+        }
+        .error-msg {
+            color: #d32f2f;
+            font-size: 13px;
+            margin-top: 8px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-box">
+        <h2>VIỆN KIỂM SÁT NHÂN DÂN</h2>
+        <h3>Đăng nhập hệ thống quản lý Dân sự</h3>
+        
+        <input type="text" id="username" placeholder="Tên đăng nhập" autocomplete="username">
+        <input type="password" id="password" placeholder="Mật khẩu" autocomplete="current-password">
+        
+        <div class="error-msg" id="error-msg"></div>
+        
+        <button onclick="handleLogin()">ĐĂNG NHẬP</button>
+        
+        <div class="hint">
+            <b>Tài khoản mặc định:</b><br>
+            • admin / admin123<br>
+            • (hoặc tài khoản đã được tạo trong Quản lý tài khoản)
+        </div>
+        
+        <div class="footer-text">Hệ thống quản lý nghiệp vụ nội bộ - VKSND TP. Cần Thơ</div>
+    </div>
+
+    <script>
+        // Khởi tạo users mặc định nếu chưa có
+        function ensureDefaultUsers() {
+            let usersDB = JSON.parse(localStorage.getItem('vks_users_db') || '{}');
+            
+            // Tạo admin mặc định nếu chưa tồn tại
+            if (!usersDB['admin']) {
+                usersDB['admin'] = {
+                    password: 'admin123',          // plain text cho dễ dùng nội bộ
+                    p_dansu: true,
+                    p_khieuto: true,
+                    p_thihanh: true,
+                    fullname: 'Quản trị viên'
+                };
+                localStorage.setItem('vks_users_db', JSON.stringify(usersDB));
+            }
+            return usersDB;
+        }
+
+        function showError(msg) {
+            const el = document.getElementById('error-msg');
+            el.innerText = msg;
+            el.style.display = 'block';
+        }
+
+        function handleLogin() {
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+
+            if (!username || !password) {
+                showError('Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu!');
+                return;
+            }
+
+            const usersDB = ensureDefaultUsers();
+            const user = usersDB[username];
+
+            if (!user) {
+                showError('Tài khoản không tồn tại trên hệ thống!');
+                return;
+            }
+
+            if (user.password !== password) {
+                showError('Mật khẩu không chính xác!');
+                return;
+            }
+
+            // Đăng nhập thành công
+            sessionStorage.setItem('vks_logged_in', 'true');
+            localStorage.setItem('vks_user', username);
+
+            // Chuyển về trang chủ
+            window.location.href = 'index.html';
+        }
+
+        // Enter để đăng nhập
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') handleLogin();
+        });
+
+        // Nếu đã đăng nhập rồi thì chuyển thẳng vào index
+        window.onload = function() {
+            if (sessionStorage.getItem('vks_logged_in') === 'true' && localStorage.getItem('vks_user')) {
+                window.location.href = 'index.html';
+            }
+            // Focus vào ô username
+            document.getElementById('username').focus();
+        };
+    </script>
+</body>
+</html>
