@@ -2,361 +2,1328 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Quản lý Án Dân sự</title>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý Án Dân sự - QLTA Style</title>
+    <script>
+        // KIỂM TRA SESSION NGAY LẬP TỨC
+        const currentUser = sessionStorage.getItem('vks_logged_in') === 'true' ? localStorage.getItem('vks_user') : null;
+        if (!currentUser) {
+            alert("Vui lòng đăng nhập!");
+            window.location.href = "login.html";
+        } else {
+            const usersDB = JSON.parse(localStorage.getItem('vks_users_db')) || {};
+            const userData = usersDB[currentUser];
+            if (currentUser !== 'admin' && (!userData || userData.p_dansu !== true)) {
+                alert("Tài khoản của bạn không được phân quyền vào mục Dân sự!");
+                window.location.href = "index.html";
+            }
+        }
+    </script>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f5f7fa; }
-        header { background: #0408c5; color: #f8f536; text-align: center; padding: 15px; position: relative; }
-        .btn-back { position: absolute; left: 20px; top: 25px; color: white; text-decoration: none; font-weight: bold; background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 6px; }
-        .container { display: flex; padding: 20px; gap: 25px; }
-        .sidebar { flex: 1.3; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .main-panel { flex: 2.5; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); overflow-y: auto; }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; color: #333; font-size: 13px; }
         
-        .form-group { margin-bottom: 16px; }
-        label { font-weight: bold; margin-bottom: 6px; color: #333; display: block; }
-        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
+        /* TOP NAV - Red theme like official QLTA */
+        .top-nav {
+            background: #c41e3a;
+            color: white;
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            height: 42px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .top-nav a {
+            color: white;
+            text-decoration: none;
+            padding: 10px 14px;
+            font-weight: 600;
+            font-size: 13px;
+            border-right: 1px solid rgba(255,255,255,0.2);
+            white-space: nowrap;
+        }
+        .top-nav a:hover, .top-nav a.active {
+            background: #a01830;
+        }
+        .top-nav a.active { border-bottom: 3px solid #ffd700; }
+        .user-info {
+            margin-left: auto;
+            font-size: 12px;
+            padding-right: 10px;
+        }
         
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 8px; }
-        th, td { border: 1px solid #ddd; padding: 6px; text-align: left; vertical-align: top; }
-        th { background: #e0f2f1; color: #0408c5; }
+        /* SECONDARY BAR */
+        .secondary-bar {
+            background: #f8f9fa;
+            border-bottom: 1px solid #ddd;
+            padding: 6px 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .secondary-bar .btn-icon {
+            background: white;
+            border: 1px solid #ccc;
+            padding: 5px 12px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .secondary-bar .btn-icon:hover { background: #e9ecef; }
+        .secondary-bar .btn-icon.active { background: #c41e3a; color: white; border-color: #c41e3a; }
+        .status-text {
+            margin-left: auto;
+            color: #c41e3a;
+            font-weight: 500;
+            font-size: 12px;
+        }
         
-        .btn-save { background: #5670e6; color: white; padding: 14px; border: none; border-radius: 8px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 15px; }
-        .btn-add { background: #4caf50; color: white; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; margin-top: 5px; }
-        .btn-edit { background: #ff9800; color: white; padding: 5px 10px; border-radius: 5px; font-size: 12px; margin-right: 5px; }
-        .btn-delete { background: #d32f2f; color: white; padding: 5px 10px; border-radius: 5px; font-size: 12px; }
-        .btn-pdf { background: #4caf50; color: white; padding: 5px 10px; border-radius: 5px; font-size: 12px; }
+        /* MAIN LAYOUT */
+        .layout {
+            display: flex;
+            height: calc(100vh - 80px);
+        }
         
-        .multi-item { display: flex; gap: 10px; margin-top: 8px; align-items: center; }
-        .section { background: #f0f4ff; padding: 15px; border-radius: 8px; margin: 15px 0; }
+        /* LEFT SIDEBAR */
+        .sidebar {
+            width: 260px;
+            background: white;
+            border-right: 1px solid #ddd;
+            overflow-y: auto;
+            padding: 10px 0;
+        }
+        .sidebar-title {
+            background: #c41e3a;
+            color: white;
+            padding: 8px 15px;
+            font-weight: bold;
+            font-size: 13px;
+        }
+        .sidebar ul { list-style: none; }
+        .sidebar li {
+            padding: 8px 15px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12.5px;
+        }
+        .sidebar li:hover { background: #fff5f5; }
+        .sidebar li.active { background: #ffebee; color: #c41e3a; font-weight: 600; }
+        .sidebar li .folder { color: #f4a460; }
+        
+        /* MAIN CONTENT */
+        .main {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px 15px;
+            background: #f5f7fa;
+        }
+        .breadcrumb {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+        .breadcrumb span { color: #c41e3a; font-weight: 600; }
+        
+        /* SEARCH PANEL */
+        .search-panel {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            margin-bottom: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        .search-header {
+            background: #f8f9fa;
+            padding: 6px 12px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        .search-header a {
+            color: #c41e3a;
+            text-decoration: none;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        .search-body {
+            padding: 12px;
+        }
+        .search-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px 15px;
+        }
+        .form-row {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+        .form-row label {
+            font-size: 11.5px;
+            color: #555;
+            font-weight: 500;
+        }
+        .form-row input, .form-row select {
+            padding: 5px 8px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            font-size: 12px;
+            height: 28px;
+        }
+        .form-row input:focus, .form-row select:focus {
+            border-color: #c41e3a;
+            outline: none;
+        }
+        .date-range {
+            display: flex;
+            gap: 5px;
+            align-items: center;
+        }
+        .date-range input { flex: 1; }
+        
+        .checkbox-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-top: 6px;
+            grid-column: span 1;
+        }
+        .checkbox-row input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            accent-color: #c41e3a;
+        }
+        .checkbox-row label {
+            font-size: 12px;
+            color: #c41e3a;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .search-actions {
+            display: flex;
+            gap: 8px;
+            justify-content: flex-end;
+            margin-top: 12px;
+            padding-top: 10px;
+            border-top: 1px solid #eee;
+        }
+        .btn {
+            padding: 6px 16px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            background: #f8f9fa;
+            cursor: pointer;
+            font-size: 12.5px;
+            font-weight: 500;
+        }
+        .btn:hover { background: #e9ecef; }
+        .btn-primary {
+            background: #c41e3a;
+            color: white;
+            border-color: #c41e3a;
+        }
+        .btn-primary:hover { background: #a01830; }
+        .btn-success {
+            background: #28a745;
+            color: white;
+            border-color: #28a745;
+        }
+        .btn-warning {
+            background: #ff9800;
+            color: white;
+            border-color: #ff9800;
+        }
+        .btn-info {
+            background: #17a2b8;
+            color: white;
+            border-color: #17a2b8;
+        }
+        
+        /* TABLE */
+        .table-wrap {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .table-info {
+            padding: 6px 12px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #eee;
+            font-size: 12px;
+            color: #666;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+        }
+        th {
+            background: #c41e3a;
+            color: white;
+            padding: 8px 10px;
+            text-align: left;
+            font-weight: 600;
+            position: sticky;
+            top: 0;
+            white-space: nowrap;
+        }
+        td {
+            padding: 8px 10px;
+            border-bottom: 1px solid #eee;
+            vertical-align: top;
+        }
+        tr:hover { background: #fff8f8; }
+        tr.selected { background: #ffebee; }
+        .case-info {
+            line-height: 1.4;
+        }
+        .case-info b { color: #c41e3a; }
+        .status-gq {
+            font-size: 11.5px;
+            color: #555;
+        }
+        .checkbox-cell {
+            text-align: center;
+            width: 40px;
+        }
+        .action-btns button {
+            padding: 3px 8px;
+            font-size: 11px;
+            margin: 1px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            color: white;
+        }
+        .btn-edit { background: #ff9800; }
+        .btn-del { background: #d32f2f; }
+        .btn-view { background: #17a2b8; }
+        
+        /* MODAL */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.45);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-overlay.show { display: flex; }
+        .modal {
+            background: white;
+            border-radius: 6px;
+            width: 90%;
+            max-width: 1100px;
+            max-height: 90vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+        }
+        .modal-header {
+            background: #c41e3a;
+            color: white;
+            padding: 10px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+        }
+        .modal-header .close-btn {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            line-height: 1;
+        }
+        .modal-body {
+            padding: 15px;
+            overflow-y: auto;
+            flex: 1;
+        }
+        .modal-footer {
+            padding: 10px 15px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            background: #f8f9fa;
+        }
+        
+        /* Form in modal */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .form-group label {
+            font-weight: 600;
+            font-size: 12px;
+            color: #444;
+        }
+        .form-group input, .form-group select, .form-group textarea {
+            padding: 7px 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        .form-group.full { grid-column: span 2; }
+        .form-group textarea { min-height: 60px; resize: vertical; }
+        
+        /* Alert toast */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 4px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            z-index: 2000;
+            display: none;
+            font-weight: 500;
+        }
+        .toast.show { display: block; animation: fadeIn 0.3s; }
+        .toast.error { background: #d32f2f; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: none; } }
+        
+        /* Hidden by default when collapsed */
+        .search-advanced { display: none; }
+        .search-advanced.show { display: grid; }
+        
+        .merged-badge {
+            display: inline-block;
+            background: #ff9800;
+            color: white;
+            font-size: 10px;
+            padding: 1px 6px;
+            border-radius: 3px;
+            margin-left: 5px;
+        }
+        .imported-badge {
+            display: inline-block;
+            background: #17a2b8;
+            color: white;
+            font-size: 10px;
+            padding: 1px 6px;
+            border-radius: 3px;
+            margin-left: 5px;
+        }
     </style>
 </head>
 <body>
-    <header>
-        <a href="index.html" class="btn-back">← Menu chính</a>
-        <h2>HỆ THỐNG QUẢN LÝ ÁN DÂN SỰ</h2>
-    </header>
+    <!-- TOP NAVIGATION -->
+    <div class="top-nav">
+        <a href="index.html">TRANG CHỦ</a>
+        <a href="#">TÌM KIẾM - BÁO CÁO</a>
+        <a href="#">HÌNH SỰ</a>
+        <a href="#" class="active">DÂN SỰ</a>
+        <a href="#">HN & GĐ</a>
+        <a href="#">KD,TM</a>
+        <a href="#">LAO ĐỘNG</a>
+        <a href="#">HÀNH CHÍNH</a>
+        <a href="#">PHÁ SẢN</a>
+        <a href="#">BP XLHC</a>
+        <div class="user-info">Xin chào, <b id="display_user">...</b></div>
+    </div>
     
-    <div class="container">
+    <!-- SECONDARY TOOLBAR -->
+    <div class="secondary-bar">
+        <button class="btn-icon active" onclick="showListView()">
+            📋 Danh sách
+        </button>
+        <button class="btn-icon" onclick="openAddModal()">
+            ➕ Thêm mới
+        </button>
+        <div class="status-text" id="status-msg">Mã vụ việc: — &nbsp;|&nbsp; Tên vụ việc: Bạn chưa chọn vụ án để lưu thông tin !</div>
+    </div>
+    
+    <div class="layout">
+        <!-- LEFT SIDEBAR -->
         <div class="sidebar">
-            <h3>Nhập thông tin thụ lý án</h3>
-            
-            <div class="form-group">
-                <label>Thụ lý cấp:</label>
-                <select id="cap_thu_ly" onchange="toggleXetXuFields()">
-                    <option value="So tham">Sơ thẩm</option>
-                    <option value="Phuc tham">Phúc thẩm</option>
-                    <option value="Giam doc tham">Giám đốc thẩm</option>
-                    <option value="Tai tham">Tái thẩm</option>
-                </select>
-            </div>
-
-            <!-- PHẦN CHUNG - Dời xuống dưới Thụ lý cấp -->
-            <div class="form-group"><label>Ngày thụ lý:</label><input type="date" id="ngay_thu_ly"></div>
-            <div class="form-group"><label>Thẩm phán:</label><input type="text" id="tham_phan"></div>
-            <div class="form-group"><label>Thư ký:</label><input type="text" id="thu_ky"></div>
-            <div class="form-group"><label>Kiểm sát viên:</label><input type="text" id="ksv"></div>
-            <div class="form-group"><label>Báo cáo án của KSV:</label><textarea id="bao_cao_ksv" rows="3"></textarea></div>
-
-            <!-- === PHẦN SƠ THẨM === -->
-            <div id="so_tham_section">
-                <div class="form-group">
-                    <label>Nguyên đơn & Địa chỉ:</label>
-                    <div id="nguyen_don_list"></div>
-                    <button class="btn-add" onclick="addNguyenDon()">+ Thêm Nguyên đơn</button>
-                </div>
-                <div class="form-group">
-                    <label>Bị đơn & Địa chỉ:</label>
-                    <div id="bi_don_list"></div>
-                    <button class="btn-add" onclick="addBiDon()">+ Thêm Bị đơn</button>
-                </div>
-                <div class="form-group">
-                    <label>Người có quyền lợi nghĩa vụ liên quan & Địa chỉ:</label>
-                    <div id="lien_quan_list"></div>
-                    <button class="btn-add" onclick="addLienQuan()">+ Thêm Người liên quan</button>
-                </div>
-                <div class="form-group"><label>Nội dung vụ kiện:</label><textarea id="noi_dung" rows="4"></textarea></div>
-            </div>
-
-            <!-- === PHẦN ĐÃ XÉT XỬ === -->
-            <div id="da_xet_xu_section" class="section" style="display:none;">
-                <h4>ĐÃ XÉT XỬ</h4>
-                
-                <!-- Cấp Sơ thẩm (luôn hiển thị khi không phải sơ thẩm) -->
-                <div class="form-group">
-                    <label>Đã xét xử cấp Sơ thẩm - Bản án/QĐ số:</label>
-                    <input type="text" id="so_ban_an_so_tham">
-                </div>
-                <div class="form-group"><label>Ngày ban hành (Sơ thẩm):</label><input type="date" id="ngay_ban_hanh_so_tham"></div>
-                <div class="form-group"><label>Nội dung Bản án/QĐ sơ thẩm đã tuyên:</label><textarea id="noi_dung_so_tham" rows="3"></textarea></div>
-
-                <!-- Cấp Phúc thẩm (chỉ hiển thị khi chọn Giám đốc thẩm hoặc Tái thẩm) -->
-                <div id="phuc_tham_section" style="display:none;">
-                    <div class="form-group">
-                        <label>Đã xét xử cấp Phúc thẩm - Bản án/QĐ số:</label>
-                        <input type="text" id="so_ban_an_phuc_tham">
-                    </div>
-                    <div class="form-group"><label>Ngày ban hành (Phúc thẩm):</label><input type="date" id="ngay_ban_hanh_phuc_tham"></div>
-                    <div class="form-group"><label>Nội dung Bản án/QĐ phúc thẩm đã tuyên:</label><textarea id="noi_dung_phuc_tham" rows="3"></textarea></div>
-                </div>
-
-                <!-- Viện kiểm sát kháng nghị -->
-                <div class="form-group">
-                    <label>1. Viện kiểm sát kháng nghị:</label>
-                    <input type="text" id="qd_khang_nghi_so" placeholder="Số Quyết định kháng nghị">
-                    <input type="date" id="ngay_khang_nghi" placeholder="Ngày ban hành" style="margin-top:8px;">
-                    <textarea id="noi_dung_khang_nghi" rows="3" placeholder="Nội dung kháng nghị" style="margin-top:8px;"></textarea>
-                </div>
-
-                <!-- Đương sự kháng cáo / yêu cầu -->
-                <div class="form-group">
-                    <label>2. Đương sự kháng cáo / yêu cầu Giám đốc thẩm, Tái thẩm:</label>
-                    <div id="duong_su_khang_cao_list"></div>
-                    <button class="btn-add" onclick="addDuongSuKhangCao()">+ Thêm Đương sự</button>
-                </div>
-            </div>
-
-            <div class="form-group"><label>Kết quả xét xử:</label><textarea id="ket_qua_xet_xu" rows="4"></textarea></div>
-
-            <!-- Đính kèm File PDF -->
-            <div class="form-group">
-                <label>Đính kèm File PDF (Hồ sơ vụ án):</label>
-                <input type="file" id="pdf_file" accept=".pdf">
-            </div>
-
-            <button class="btn-save" onclick="saveData()" id="btn-save">LƯU HỒ SƠ</button>
+            <div class="sidebar-title">DÂN SỰ</div>
+            <ul>
+                <li class="active" onclick="showListView()"><span class="folder">📁</span> Danh sách vụ việc</li>
+                <li><span class="folder">📁</span> Phân công danh sách Thẩm phán</li>
+                <li><span class="folder">📁</span> Chuyển án</li>
+                <li><span class="folder">📁</span> Nhận án</li>
+                <li><span class="folder">📁</span> Cập nhật kháng cáo quá hạn</li>
+                <li><span class="folder">📁</span> Cập nhật thông tin sau xét xử</li>
+                <li><span class="folder">📁</span> Đăng văn bản tổng đạt lên cổng thông tin điện tử</li>
+            </ul>
         </div>
-
-        <div class="main-panel">
-            <h3>DANH SÁCH ÁN DÂN SỰ</h3>
-            <table id="data-table">
-                <thead>
-                    <tr>
-                        <th>STT</th>
-                        <th>Thụ lý cấp</th>
-                        <th>Số bản án sơ thẩm</th>
-                        <th>Số bản án phúc thẩm</th>
-                        <th>Ngày thụ lý</th>
-                        <th>Nguyên đơn</th>
-                        <th>Bị đơn</th>
-                        <th>Nội dung vụ kiện</th>
-                        <th>File PDF</th>
-                        <th>Thao tác</th>
-                    </tr>
-                </thead>
-                <tbody id="table-body"></tbody>
-            </table>
+        
+        <!-- MAIN CONTENT -->
+        <div class="main">
+            <div class="breadcrumb">Dân Sự &gt; <span>Danh sách vụ việc</span></div>
+            
+            <!-- SEARCH PANEL -->
+            <div class="search-panel">
+                <div class="search-header">
+                    <span>Tìm kiếm <span id="search-mode-label">[ Thu gọn ]</span></span>
+                    <a href="javascript:void(0)" onclick="toggleSearchMode()">Chuyển sang Nâng cao / Thu gọn</a>
+                </div>
+                <div class="search-body">
+                    <!-- BASIC SEARCH (always visible) -->
+                    <div class="search-grid" id="search-basic">
+                        <div class="form-row">
+                            <label>Tên vụ án</label>
+                            <input type="text" id="f_ten_vu_an" placeholder="">
+                        </div>
+                        <div class="form-row">
+                            <label>Quan hệ pháp luật</label>
+                            <input type="text" id="f_quan_he">
+                        </div>
+                        <div class="form-row">
+                            <label>Mã vụ án</label>
+                            <input type="text" id="f_ma_vu_an">
+                        </div>
+                        <div class="form-row">
+                            <label>Đương sự</label>
+                            <input type="text" id="f_duong_su" placeholder="Nhập tên đương sự...">
+                        </div>
+                        <div class="form-row">
+                            <label>Cấp xét xử</label>
+                            <select id="f_cap_xet_xu">
+                                <option value="">-- Tất cả --</option>
+                                <option value="Sơ thẩm">Sơ thẩm</option>
+                                <option value="Phúc thẩm">Phúc thẩm</option>
+                            </select>
+                        </div>
+                        <div class="form-row">
+                            <label>Tòa xx sơ thẩm</label>
+                            <select id="f_toa">
+                                <option value="">-- Tất cả --</option>
+                                <option value="Tòa án nhân dân thành phố Vũng Tàu">Tòa án nhân dân thành phố Vũng Tàu</option>
+                                <option value="Tòa án nhân dân TP. Cần Thơ">Tòa án nhân dân TP. Cần Thơ</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- ADVANCED SEARCH -->
+                    <div class="search-grid search-advanced" id="search-advanced">
+                        <div class="form-row">
+                            <label>Tình trạng thụ lý</label>
+                            <select id="f_tinh_trang_thu_ly">
+                                <option value="">-- Tất cả --</option>
+                                <option value="Thụ lý mới">Thụ lý mới</option>
+                                <option value="Đã thụ lý">Đã thụ lý</option>
+                            </select>
+                        </div>
+                        <div class="form-row">
+                            <label>Từ ngày - Đến ngày (Thụ lý)</label>
+                            <div class="date-range">
+                                <input type="date" id="f_tu_ngay_tl">
+                                <input type="date" id="f_den_ngay_tl">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <label>Số Thụ lý</label>
+                            <input type="text" id="f_so_thu_ly">
+                        </div>
+                        
+                        <div class="form-row">
+                            <label>Tình trạng GQ</label>
+                            <select id="f_tinh_trang_gq">
+                                <option value="">-- Tất cả --</option>
+                                <option value="Đang giải quyết">Đang giải quyết</option>
+                                <option value="Đã giải quyết">Đã giải quyết</option>
+                            </select>
+                        </div>
+                        <div class="form-row">
+                            <label>Từ ngày - Đến ngày (GQ)</label>
+                            <div class="date-range">
+                                <input type="date" id="f_tu_ngay_gq">
+                                <input type="date" id="f_den_ngay_gq">
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <label>Thẩm phán</label>
+                            <select id="f_tham_phan">
+                                <option value="">-- Tất cả --</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-row">
+                            <label>Kết quả xx PT</label>
+                            <select id="f_ket_qua_pt">
+                                <option value="">-- Tất cả --</option>
+                            </select>
+                        </div>
+                        <div class="form-row">
+                            <label>Số BA/QĐ</label>
+                            <input type="text" id="f_so_baqd">
+                        </div>
+                        <div class="form-row">
+                            <label>Ngày BA/QĐ</label>
+                            <input type="date" id="f_ngay_baqd">
+                        </div>
+                        
+                        <div class="form-row">
+                            <label>Thời hạn GQ</label>
+                            <select id="f_thoi_han_gq">
+                                <option value="">-- Tất cả --</option>
+                            </select>
+                        </div>
+                        <div class="form-row">
+                            <label>PT rút kinh nghiệm</label>
+                            <select id="f_pt_rut_kn">
+                                <option value="">-- Tất cả --</option>
+                            </select>
+                        </div>
+                        <div class="form-row">
+                            <label>Thư ký</label>
+                            <select id="f_thu_ky">
+                                <option value="">-- Chọn --</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-row">
+                            <label>Loại đơn</label>
+                            <select id="f_loai_don">
+                                <option value="">-- Tất cả --</option>
+                            </select>
+                        </div>
+                        <div class="form-row">
+                            <label>GQ đơn</label>
+                            <select id="f_gq_don">
+                                <option value="">-- Tất cả --</option>
+                            </select>
+                        </div>
+                        <div class="form-row">
+                            <label>Ủy thác tư pháp</label>
+                            <select id="f_uy_thac">
+                                <option value="">-- Tất cả --</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-row">
+                            <label>Trạng thái nhập/tách</label>
+                            <select id="f_trang_thai_nhap_tach">
+                                <option value="">-- Tất cả --</option>
+                                <option value="Đã nhập">Đã nhập</option>
+                                <option value="Đã tách">Đã tách</option>
+                                <option value="Chưa thao tác">Chưa thao tác</option>
+                            </select>
+                        </div>
+                        <div class="form-row checkbox-row" style="margin-top: 18px;">
+                            <input type="checkbox" id="f_thao_tac_nhap_tach" onchange="onThaoTacChange()">
+                            <label for="f_thao_tac_nhap_tach">Thao tác nhập tách</label>
+                        </div>
+                        <div class="form-row checkbox-row" style="margin-top: 18px;">
+                            <input type="checkbox" id="f_gq_kc_kn">
+                            <label for="f_gq_kc_kn" style="color:#555;font-weight:500;">GQ KC/KN QD tạm đình chỉ và QD khác</label>
+                        </div>
+                    </div>
+                    
+                    <div class="search-actions">
+                        <button class="btn btn-primary" onclick="doSearch()">🔍 Tìm kiếm</button>
+                        <button class="btn" onclick="resetSearch()">Làm mới</button>
+                        <button class="btn btn-success" onclick="openAddModal()">Thêm mới</button>
+                        <button class="btn btn-info" id="btn-nhap-an" style="display:none;" onclick="openNhapAnModal()">Nhập án</button>
+                        <button class="btn btn-warning" id="btn-tach-an" style="display:none;" onclick="alert('Chức năng Tách án đang được phát triển')">Tách án</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- RESULT TABLE -->
+            <div class="table-wrap">
+                <div class="table-info" id="table-info">Có 0 bản ghi trong 1 trang</div>
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="checkbox-cell" id="th-chon" style="display:none;">Chọn</th>
+                            <th style="width:40px">STT</th>
+                            <th>Thông tin vụ việc</th>
+                            <th style="width:180px">Tình trạng GQ</th>
+                            <th style="width:100px">Người tạo</th>
+                            <th style="width:90px">Mã vụ việc</th>
+                            <th style="width:110px">Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body">
+                        <!-- Dynamic -->
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
-
+    
+    <!-- TOAST -->
+    <div class="toast" id="toast"></div>
+    
+    <!-- MODAL: THÊM / SỬA HỒ SƠ -->
+    <div class="modal-overlay" id="modal-add">
+        <div class="modal" style="max-width:700px;">
+            <div class="modal-header">
+                <span id="modal-add-title">➕ Thêm mới vụ việc</span>
+                <button class="close-btn" onclick="closeModal('modal-add')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Cấp xét xử *</label>
+                        <select id="m_cap_xet_xu">
+                            <option value="Sơ thẩm">Sơ thẩm</option>
+                            <option value="Phúc thẩm">Phúc thẩm</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Số Thụ lý</label>
+                        <input type="text" id="m_so_thu_ly" placeholder="VD: 07">
+                    </div>
+                    <div class="form-group">
+                        <label>Số Bản án / Quyết định *</label>
+                        <input type="text" id="m_so_ban_an" placeholder="VD: 02104011">
+                    </div>
+                    <div class="form-group">
+                        <label>Ngày thụ lý / ban hành</label>
+                        <input type="date" id="m_ngay_ban_hanh">
+                    </div>
+                    <div class="form-group full">
+                        <label>Tên vụ việc / Đương sự chính</label>
+                        <input type="text" id="m_ten_vu_an" placeholder="VD: Nguyễn Thị Bích Trâm - ...">
+                    </div>
+                    <div class="form-group full">
+                        <label>Nguyên đơn</label>
+                        <textarea id="m_nguyen_don" placeholder="Họ tên nguyên đơn..."></textarea>
+                    </div>
+                    <div class="form-group full">
+                        <label>Bị đơn</label>
+                        <textarea id="m_bi_don" placeholder="Họ tên bị đơn..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Thẩm phán</label>
+                        <input type="text" id="m_tham_phan">
+                    </div>
+                    <div class="form-group">
+                        <label>KSV thụ lý</label>
+                        <input type="text" id="m_ksv">
+                    </div>
+                    <div class="form-group">
+                        <label>Tòa án</label>
+                        <select id="m_toa">
+                            <option value="Tòa án nhân dân thành phố Vũng Tàu">Tòa án nhân dân thành phố Vũng Tàu</option>
+                            <option value="Tòa án nhân dân TP. Cần Thơ">Tòa án nhân dân TP. Cần Thơ</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Mã vụ việc</label>
+                        <input type="text" id="m_ma_vu_viec" placeholder="Tự sinh nếu để trống">
+                    </div>
+                    <div class="form-group full">
+                        <label>Đính kèm PDF Bản án/Quyết định</label>
+                        <input type="file" id="m_pdf_file" accept=".pdf">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeModal('modal-add')">Hủy</button>
+                <button class="btn btn-primary" id="btn-save-modal" onclick="saveData()">💾 Lưu hồ sơ</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- MODAL: NHẬP ÁN (theo hướng dẫn QLTA) -->
+    <div class="modal-overlay" id="modal-nhap-an">
+        <div class="modal">
+            <div class="modal-header">
+                <span>📥 Nhập án - Chọn vụ án cần nhập vào vụ gốc</span>
+                <button class="close-btn" onclick="closeModal('modal-nhap-an')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div style="background:#fff3cd;border:1px solid #ffc107;padding:8px 12px;border-radius:4px;margin-bottom:12px;font-size:12.5px;">
+                    <b>Vụ gốc đang chọn:</b> <span id="nhap-vu-goc-info">—</span>
+                </div>
+                
+                <div class="search-panel" style="margin-bottom:12px;">
+                    <div class="search-header">
+                        <span>Tìm kiếm vụ án cần nhập</span>
+                    </div>
+                    <div class="search-body">
+                        <div class="search-grid" style="grid-template-columns: 1fr 1fr 1fr auto;">
+                            <div class="form-row">
+                                <label>Đương sự / Tên vụ án</label>
+                                <input type="text" id="nhap_f_duong_su" placeholder="Nhập tên để tìm...">
+                            </div>
+                            <div class="form-row">
+                                <label>Cấp xét xử</label>
+                                <select id="nhap_f_cap">
+                                    <option value="">-- Tất cả --</option>
+                                    <option value="Sơ thẩm">Sơ thẩm</option>
+                                    <option value="Phúc thẩm">Phúc thẩm</option>
+                                </select>
+                            </div>
+                            <div class="form-row">
+                                <label>Số Thụ lý / Số BA</label>
+                                <input type="text" id="nhap_f_so">
+                            </div>
+                            <div class="form-row" style="justify-content:flex-end;">
+                                <label>&nbsp;</label>
+                                <button class="btn btn-primary" onclick="searchForNhap()">🔍 Tìm kiếm</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="table-wrap">
+                    <div class="table-info" id="nhap-table-info">Chọn 1 vụ án bên dưới để nhập vào vụ gốc</div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th class="checkbox-cell">Chọn</th>
+                                <th style="width:40px">STT</th>
+                                <th>Thông tin vụ việc</th>
+                                <th style="width:160px">Tình trạng GQ</th>
+                                <th style="width:90px">Mã vụ việc</th>
+                            </tr>
+                        </thead>
+                        <tbody id="nhap-table-body"></tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="closeModal('modal-nhap-an')">Đóng</button>
+                <button class="btn btn-primary" onclick="confirmNhapAn()">✅ Nhập án</button>
+            </div>
+        </div>
+    </div>
+    
     <script>
-        var firebaseConfig = {
-            apiKey: "AIzaSyDunRDIeyBTVXTODoO22ywk1Q35cCx2sV8",
-            authDomain: "dansu-vksndtpct.firebaseapp.com",
-            databaseURL: "https://dansu-vksndtpct-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "dansu-vksndtpct",
-            storageBucket: "dansu-vksndtpct.firebasestorage.app",
-            appId: "1:843158256686:web:eb128d64c8b9bfd7aef3bf"
-        };
-        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-        var db = firebase.database();
-        var storage = firebase.storage();
-
-        let editingKey = null;
-
-        // ====================== THÊM ĐA NGUYÊN ĐƠN / BỊ ĐƠN ======================
-        function addNguyenDon() {
-            const container = document.getElementById('nguyen_don_list');
-            const div = document.createElement('div');
-            div.className = 'multi-item';
-            div.innerHTML = `<input type="text" placeholder="Tên Nguyên đơn" style="flex:2"><input type="text" placeholder="Địa chỉ" style="flex:3"><button type="button" onclick="this.parentElement.remove()" style="background:#d32f2f;color:white;padding:6px 10px;border:none;border-radius:4px;">X</button>`;
-            container.appendChild(div);
+        // ==================== GLOBAL STATE ====================
+        const DB_NAME = 'VKS_AN_DAN_SU';
+        const DB_VERSION = 2;
+        let editingId = null;
+        let selectedGocId = null;      // ID vụ gốc khi nhập tách
+        let selectedNhapId = null;     // ID vụ sẽ nhập vào gốc
+        let allRecords = [];
+        let isAdvanced = false;
+        let isThaoTacMode = false;
+        
+        document.getElementById('display_user').innerText = currentUser || 'User';
+        
+        // ==================== INDEXEDDB ====================
+        function openDB() {
+            return new Promise((resolve, reject) => {
+                const request = indexedDB.open(DB_NAME, DB_VERSION);
+                request.onupgradeneeded = (e) => {
+                    const db = e.target.result;
+                    if (!db.objectStoreNames.contains('records')) {
+                        db.createObjectStore('records', { keyPath: 'id', autoIncrement: true });
+                    }
+                };
+                request.onsuccess = (e) => resolve(e.target.result);
+                request.onerror = (e) => reject(e.target.error);
+            });
         }
-
-        function addBiDon() {
-            const container = document.getElementById('bi_don_list');
-            const div = document.createElement('div');
-            div.className = 'multi-item';
-            div.innerHTML = `<input type="text" placeholder="Tên Bị đơn" style="flex:2"><input type="text" placeholder="Địa chỉ" style="flex:3"><button type="button" onclick="this.parentElement.remove()" style="background:#d32f2f;color:white;padding:6px 10px;border:none;border-radius:4px;">X</button>`;
-            container.appendChild(div);
-        }
-
-        function addLienQuan() {
-            const container = document.getElementById('lien_quan_list');
-            const div = document.createElement('div');
-            div.className = 'multi-item';
-            div.innerHTML = `<input type="text" placeholder="Tên Người liên quan" style="flex:2"><input type="text" placeholder="Địa chỉ" style="flex:3"><button type="button" onclick="this.parentElement.remove()" style="background:#d32f2f;color:white;padding:6px 10px;border:none;border-radius:4px;">X</button>`;
-            container.appendChild(div);
-        }
-
-        // Thêm Đương sự kháng cáo / yêu cầu GĐT, Tái thẩm
-        function addDuongSuKhangCao() {
-            const container = document.getElementById('duong_su_khang_cao_list');
-            const div = document.createElement('div');
-            div.className = 'multi-item';
-            div.innerHTML = `
-                <input type="text" placeholder="Tên Đương sự" style="flex:2">
-                <input type="date" placeholder="Ngày kháng cáo/yêu cầu" style="flex:1">
-                <textarea placeholder="Nội dung kháng cáo / yêu cầu GĐT, Tái thẩm" rows="2" style="flex:3"></textarea>
-                <button type="button" onclick="this.parentElement.remove()" style="background:#d32f2f;color:white;padding:6px 10px;border:none;border-radius:4px;">X</button>
-            `;
-            container.appendChild(div);
-        }
-
-        function toggleXetXuFields() {
-            const cap = document.getElementById('cap_thu_ly').value;
-            
-            document.getElementById('so_tham_section').style.display = (cap === "So tham") ? "block" : "none";
-            document.getElementById('da_xet_xu_section').style.display = (cap === "So tham") ? "none" : "block";
-            document.getElementById('phuc_tham_section').style.display = (cap === "Giam doc tham" || cap === "Tai tham") ? "block" : "none";
-        }
-
-        function saveData() {
-            const file = document.getElementById('pdf_file').files[0];
-
-            const data = {
-                cap_thu_ly: document.getElementById('cap_thu_ly').value,
-                ngay_thu_ly: document.getElementById('ngay_thu_ly').value,
-                tham_phan: document.getElementById('tham_phan').value,
-                thu_ky: document.getElementById('thu_ky').value,
-                ksv: document.getElementById('ksv').value,
-                bao_cao_ksv: document.getElementById('bao_cao_ksv').value,
-                ket_qua_xet_xu: document.getElementById('ket_qua_xet_xu').value,
-                timestamp: Date.now()
+        
+        // Seed sample data (dựa trên ảnh hướng dẫn)
+        async function seedSampleData() {
+            const db = await openDB();
+            const tx = db.transaction('records', 'readonly');
+            const countReq = tx.objectStore('records').count();
+            countReq.onsuccess = async () => {
+                if (countReq.result === 0) {
+                    const samples = [
+                        {
+                            cap_xet_xu: 'Sơ thẩm',
+                            so_ban_an: '02104011',
+                            so_thu_ly: '07',
+                            ngay_ban_hanh: '2023-01-06',
+                            ten_vu_an: 'Nguyễn Thị Bích Trâm - Huỳnh Ngọc Hưng - Chủ DNTN Sơn Thịnh - Tranh chấp hợp đồng mua bán căn hộ',
+                            nguyen_don: 'Nguyễn Thị Bích Trâm',
+                            bi_don: 'Huỳnh Ngọc Hưng - Chủ DNTN Sơn Thịnh',
+                            tham_phan: 'Trần Văn A',
+                            ksv: 'Nguyễn Thị B',
+                            toa: 'Tòa án nhân dân thành phố Vũng Tàu',
+                            ma_vu_viec: '02104011',
+                            nguoi_tao: 'trangmt.brvt',
+                            tinh_trang_gq: '- Thụ lý số: 07 ngày 06/01/2023',
+                            timestamp: Date.now() - 86400000 * 30,
+                            merged_into: null,
+                            imported_ids: []
+                        },
+                        {
+                            cap_xet_xu: 'Sơ thẩm',
+                            so_ban_an: '01165',
+                            so_thu_ly: '5',
+                            ngay_ban_hanh: '2023-01-03',
+                            ten_vu_an: 'Thoa - Tranh chấp đất đai',
+                            nguyen_don: 'Nguyễn Thị Thoa',
+                            bi_don: 'Trần Văn X',
+                            tham_phan: 'Lê Thị C',
+                            ksv: 'Phạm Văn D',
+                            toa: 'Tòa án nhân dân thành phố Vũng Tàu',
+                            ma_vu_viec: '01165',
+                            nguoi_tao: 'trangmt.brvt',
+                            tinh_trang_gq: '- Thụ lý số: 5 ngày 03/01/2023',
+                            timestamp: Date.now() - 86400000 * 40,
+                            merged_into: null,
+                            imported_ids: []
+                        },
+                        {
+                            cap_xet_xu: 'Sơ thẩm',
+                            so_ban_an: 'BA-2024-088',
+                            so_thu_ly: '12',
+                            ngay_ban_hanh: '2024-03-15',
+                            ten_vu_an: 'Trần Văn Minh - Tranh chấp hợp đồng vay',
+                            nguyen_don: 'Trần Văn Minh',
+                            bi_don: 'Công ty TNHH ABC',
+                            tham_phan: 'Nguyễn Văn E',
+                            ksv: 'Lê Thị F',
+                            toa: 'Tòa án nhân dân TP. Cần Thơ',
+                            ma_vu_viec: 'CT-2024-088',
+                            nguoi_tao: currentUser,
+                            tinh_trang_gq: '- Thụ lý số: 12 ngày 15/03/2024',
+                            timestamp: Date.now() - 86400000 * 10,
+                            merged_into: null,
+                            imported_ids: []
+                        }
+                    ];
+                    const wtx = db.transaction('records', 'readwrite');
+                    const store = wtx.objectStore('records');
+                    samples.forEach(s => store.add(s));
+                    wtx.oncomplete = () => loadData();
+                } else {
+                    loadData();
+                }
             };
-
-            if (document.getElementById('da_xet_xu_section').style.display !== "none") {
-                data.so_ban_an_so_tham = document.getElementById('so_ban_an_so_tham').value;
-                data.ngay_ban_hanh_so_tham = document.getElementById('ngay_ban_hanh_so_tham').value;
-                data.noi_dung_so_tham = document.getElementById('noi_dung_so_tham').value;
-
-                if (document.getElementById('phuc_tham_section').style.display !== "none") {
-                    data.so_ban_an_phuc_tham = document.getElementById('so_ban_an_phuc_tham').value;
-                    data.ngay_ban_hanh_phuc_tham = document.getElementById('ngay_ban_hanh_phuc_tham').value;
-                    data.noi_dung_phuc_tham = document.getElementById('noi_dung_phuc_tham').value;
-                }
-
-                data.qd_khang_nghi_so = document.getElementById('qd_khang_nghi_so').value;
-                data.ngay_khang_nghi = document.getElementById('ngay_khang_nghi').value;
-                data.noi_dung_khang_nghi = document.getElementById('noi_dung_khang_nghi').value;
-            }
-
-            if (file) {
-                const storageRef = storage.ref('pdfs_an/' + Date.now() + '_' + file.name);
-                storageRef.put(file).then(snapshot => {
-                    snapshot.ref.getDownloadURL().then(url => {
-                        data.pdf_url = url;
-                        saveToDatabase(data);
-                    });
-                });
+        }
+        
+        // ==================== UI HELPERS ====================
+        function showToast(msg, isError = false) {
+            const t = document.getElementById('toast');
+            t.innerText = msg;
+            t.className = 'toast show' + (isError ? ' error' : '');
+            setTimeout(() => t.className = 'toast', 3000);
+        }
+        
+        function toggleSearchMode() {
+            isAdvanced = !isAdvanced;
+            const adv = document.getElementById('search-advanced');
+            const label = document.getElementById('search-mode-label');
+            if (isAdvanced) {
+                adv.classList.add('show');
+                label.innerText = '[ Nâng cao ]';
             } else {
-                saveToDatabase(data);
+                adv.classList.remove('show');
+                label.innerText = '[ Thu gọn ]';
             }
         }
-
-        function saveToDatabase(data) {
-            if (editingKey) {
-                db.ref('an_dan_su/' + editingKey).update(data).then(() => {
-                    alert("Cập nhật thành công!");
-                    resetForm();
-                });
-            } else {
-                db.ref('an_dan_su').push(data).then(() => {
-                    alert("Lưu hồ sơ thành công!");
-                    resetForm();
-                });
+        
+        function onThaoTacChange() {
+            isThaoTacMode = document.getElementById('f_thao_tac_nhap_tach').checked;
+            document.getElementById('btn-nhap-an').style.display = isThaoTacMode ? 'inline-block' : 'none';
+            document.getElementById('btn-tach-an').style.display = isThaoTacMode ? 'inline-block' : 'none';
+            document.getElementById('th-chon').style.display = isThaoTacMode ? 'table-cell' : 'none';
+            // Clear selection
+            selectedGocId = null;
+            loadData(); // re-render to show/hide checkboxes
+        }
+        
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('show');
+            if (id === 'modal-nhap-an') {
+                selectedNhapId = null;
             }
         }
-
-        function resetForm() {
-            document.getElementById('cap_thu_ly').value = "So tham";
-            toggleXetXuFields();
-            document.getElementById('ngay_thu_ly').value = '';
-            document.getElementById('tham_phan').value = '';
-            document.getElementById('thu_ky').value = '';
-            document.getElementById('ksv').value = '';
-            document.getElementById('bao_cao_ksv').value = '';
-            document.getElementById('ket_qua_xet_xu').value = '';
-            document.getElementById('pdf_file').value = '';
-
-            // Xóa các list động
-            document.getElementById('nguyen_don_list').innerHTML = '';
-            document.getElementById('bi_don_list').innerHTML = '';
-            document.getElementById('lien_quan_list').innerHTML = '';
-            document.getElementById('duong_su_khang_cao_list').innerHTML = '';
-
-            editingKey = null;
-            document.getElementById('btn-save').innerText = 'LƯU HỒ SƠ';
+        
+        function showListView() {
+            // already on list
+            document.querySelectorAll('.sidebar li').forEach(li => li.classList.remove('active'));
+            document.querySelector('.sidebar li').classList.add('active');
         }
-
-        function loadData() {
-            db.ref('an_dan_su').on('value', (snapshot) => {
-                const datas = snapshot.val();
-                let html = '';
-                let stt = 1;
-                if (datas) {
-                    Object.keys(datas).forEach(key => {
-                        const item = datas[key];
-                        const tomTat = item.noi_dung || item.noi_dung_so_tham || '';
-                        const tomTatShort = tomTat.substring(0, 60) + (tomTat.length > 60 ? '...' : '');
-                        const pdfLink = item.pdf_url ? `<a href="${item.pdf_url}" target="_blank" class="btn-pdf">PDF</a>` : 'Không có';
-
-                        html += `<tr>
-                            <td>${stt++}</td>
-                            <td>${item.cap_thu_ly || ''}</td>
-                            <td>${item.so_ban_an_so_tham || ''}</td>
-                            <td>${item.so_ban_an_phuc_tham || ''}</td>
-                            <td>${item.ngay_thu_ly || ''}</td>
-                            <td>${item.nguyen_don || ''}</td>
-                            <td>${item.bi_don || ''}</td>
-                            <td>${tomTatShort}</td>
-                            <td>${pdfLink}</td>
-                            <td>
-                                <button class="btn-edit" onclick="editRecord('${key}')">Sửa</button>
-                                <button class="btn-delete" onclick="deleteRecord('${key}')">Xóa</button>
-                            </td>
-                        </tr>`;
-                    });
-                }
-                document.getElementById('table-body').innerHTML = html || '<tr><td colspan="10" style="text-align:center;color:#999">Chưa có hồ sơ án nào</td></tr>';
+        
+        // ==================== SEARCH & LOAD ====================
+        async function loadData() {
+            const db = await openDB();
+            const request = db.transaction('records', 'readonly').objectStore('records').getAll();
+            
+            request.onsuccess = () => {
+                allRecords = request.result || [];
+                // Filter out records that have been merged into another (optional: hide them)
+                // For now show all, but mark them
+                renderTable(allRecords);
+            };
+        }
+        
+        function doSearch() {
+            const ten = (document.getElementById('f_ten_vu_an').value || '').toLowerCase();
+            const duongSu = (document.getElementById('f_duong_su').value || '').toLowerCase();
+            const cap = document.getElementById('f_cap_xet_xu').value;
+            const soThuLy = (document.getElementById('f_so_thu_ly').value || '').toLowerCase();
+            const soBa = (document.getElementById('f_so_baqd').value || '').toLowerCase();
+            const ma = (document.getElementById('f_ma_vu_an').value || '').toLowerCase();
+            const trangThai = document.getElementById('f_trang_thai_nhap_tach').value;
+            
+            let filtered = allRecords.filter(r => {
+                if (r.merged_into) return false; // ẩn vụ đã bị nhập vào vụ khác
+                const matchTen = !ten || (r.ten_vu_an || '').toLowerCase().includes(ten) || (r.so_ban_an || '').toLowerCase().includes(ten);
+                const matchDS = !duongSu || (r.nguyen_don || '').toLowerCase().includes(duongSu) || (r.bi_don || '').toLowerCase().includes(duongSu) || (r.ten_vu_an || '').toLowerCase().includes(duongSu);
+                const matchCap = !cap || r.cap_xet_xu === cap;
+                const matchSoTL = !soThuLy || (r.so_thu_ly || '').toLowerCase().includes(soThuLy);
+                const matchSoBA = !soBa || (r.so_ban_an || '').toLowerCase().includes(soBa);
+                const matchMa = !ma || (r.ma_vu_viec || '').toLowerCase().includes(ma);
+                
+                let matchTT = true;
+                if (trangThai === 'Đã nhập') matchTT = (r.imported_ids && r.imported_ids.length > 0);
+                else if (trangThai === 'Đã tách') matchTT = false; // chưa implement
+                else if (trangThai === 'Chưa thao tác') matchTT = !(r.imported_ids && r.imported_ids.length > 0) && !r.merged_into;
+                
+                return matchTen && matchDS && matchCap && matchSoTL && matchSoBA && matchMa && matchTT;
             });
+            
+            renderTable(filtered);
         }
-
-        function editRecord(key) {
-            db.ref('an_dan_su/' + key).once('value').then(snapshot => {
-                const item = snapshot.val();
-                document.getElementById('cap_thu_ly').value = item.cap_thu_ly || "So tham";
-                toggleXetXuFields();
-                document.getElementById('ngay_thu_ly').value = item.ngay_thu_ly || '';
-                document.getElementById('tham_phan').value = item.tham_phan || '';
-                document.getElementById('thu_ky').value = item.thu_ky || '';
-                document.getElementById('ksv').value = item.ksv || '';
-                document.getElementById('bao_cao_ksv').value = item.bao_cao_ksv || '';
-                document.getElementById('ket_qua_xet_xu').value = item.ket_qua_xet_xu || '';
-
-                // Điền dữ liệu đã xét xử
-                document.getElementById('so_ban_an_so_tham').value = item.so_ban_an_so_tham || '';
-                document.getElementById('ngay_ban_hanh_so_tham').value = item.ngay_ban_hanh_so_tham || '';
-                document.getElementById('noi_dung_so_tham').value = item.noi_dung_so_tham || '';
-                document.getElementById('so_ban_an_phuc_tham').value = item.so_ban_an_phuc_tham || '';
-                document.getElementById('ngay_ban_hanh_phuc_tham').value = item.ngay_ban_hanh_phuc_tham || '';
-                document.getElementById('noi_dung_phuc_tham').value = item.noi_dung_phuc_tham || '';
-
-                editingKey = key;
-                document.getElementById('btn-save').innerText = 'CẬP NHẬT';
+        
+        function resetSearch() {
+            document.querySelectorAll('#search-basic input, #search-basic select, #search-advanced input, #search-advanced select').forEach(el => {
+                if (el.type === 'checkbox') el.checked = false;
+                else el.value = '';
             });
-        }
-
-        function deleteRecord(key) {
-            if (confirm("Xóa hồ sơ này?")) {
-                db.ref('an_dan_su/' + key).remove();
-            }
-        }
-
-        window.onload = () => {
+            document.getElementById('f_thao_tac_nhap_tach').checked = false;
+            onThaoTacChange();
             loadData();
-            toggleXetXuFields();
+        }
+        
+        function renderTable(list) {
+            const tbody = document.getElementById('table-body');
+            document.getElementById('table-info').innerText = `Có ${list.length} bản ghi trong 1 trang`;
+            
+            if (list.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:30px;color:#999;">Không có dữ liệu. Hãy bấm "Thêm mới" hoặc "Tìm kiếm".</td></tr>`;
+                return;
+            }
+            
+            // Sort newest first
+            list.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+            
+            let html = '';
+            list.forEach((r, idx) => {
+                const isSelected = selectedGocId === r.id;
+                const hasImported = r.imported_ids && r.imported_ids.length > 0;
+                const isMerged = !!r.merged_into;
+                
+                html += `<tr class="${isSelected ? 'selected' : ''}" data-id="${r.id}">
+                    ${isThaoTacMode ? `<td class="checkbox-cell">
+                        <input type="checkbox" ${isSelected ? 'checked' : ''} onchange="selectGoc(${r.id}, this.checked)" ${isMerged ? 'disabled' : ''}>
+                    </td>` : ''}
+                    <td>${idx + 1}</td>
+                    <td class="case-info">
+                        <b>Vụ việc:</b> ${r.ten_vu_an || r.so_ban_an || '—'}
+                        ${hasImported ? '<span class="imported-badge">Đã nhập ' + r.imported_ids.length + ' vụ</span>' : ''}
+                        ${isMerged ? '<span class="merged-badge">Đã nhập vào vụ khác</span>' : ''}
+                        <br>
+                        <b>Cấp xét xử:</b> ${r.cap_xet_xu || '—'}
+                        <br>
+                        <b>TH giao nhận:</b> Thụ lý mới
+                        ${r.nguyen_don ? `<br><small>NĐ: ${r.nguyen_don}</small>` : ''}
+                        ${r.bi_don ? `<br><small>BĐ: ${r.bi_don}</small>` : ''}
+                    </td>
+                    <td class="status-gq">${r.tinh_trang_gq || '—'}</td>
+                    <td>${r.nguoi_tao || 'Hệ thống'}</td>
+                    <td>${r.ma_vu_viec || r.id}</td>
+                    <td class="action-btns">
+                        <button class="btn-view" onclick="viewPDF(${r.id})" title="Xem PDF">📄</button>
+                        <button class="btn-edit" onclick="editRecord(${r.id})">Sửa</button>
+                        <button class="btn-del" onclick="deleteRecord(${r.id})">Xóa</button>
+                    </td>
+                </tr>`;
+            });
+            tbody.innerHTML = html;
+        }
+        
+        function selectGoc(id, checked) {
+            if (checked) {
+                selectedGocId = id;
+                // Uncheck others
+                document.querySelectorAll('#table-body input[type=checkbox]').forEach(cb => {
+                    if (parseInt(cb.closest('tr').dataset.id) !== id) cb.checked = false;
+                });
+                // Update status bar
+                const rec = allRecords.find(r => r.id === id);
+                if (rec) {
+                    document.getElementById('status-msg').innerHTML = `Mã vụ việc: <b>${rec.ma_vu_viec || rec.id}</b> &nbsp;|&nbsp; Tên vụ việc: <b>${rec.ten_vu_an || rec.so_ban_an}</b>`;
+                }
+            } else {
+                selectedGocId = null;
+                document.getElementById('status-msg').innerText = 'Mã vụ việc: — &nbsp;|&nbsp; Tên vụ việc: Bạn chưa chọn vụ án để lưu thông tin !';
+            }
+            // Re-render to apply selected class
+            doSearch(); // or loadData if no filter
+        }
+        
+        // ==================== CRUD ====================
+        function openAddModal() {
+            editingId = null;
+            document.getElementById('modal-add-title').innerText = '➕ Thêm mới vụ việc';
+            document.getElementById('btn-save-modal').innerText = '💾 Lưu hồ sơ';
+            // Clear form
+            ['m_cap_xet_xu','m_so_thu_ly','m_so_ban_an','m_ngay_ban_hanh','m_ten_vu_an','m_nguyen_don','m_bi_don','m_tham_phan','m_ksv','m_toa','m_ma_vu_viec'].forEach(id => {
+                const el = document.getElementById(id);
+                if (el.tagName === 'SELECT') el.selectedIndex = 0;
+                else el.value = '';
+            });
+            document.getElementById('m_pdf_file').value = '';
+            document.getElementById('modal-add').classList.add('show');
+        }
+        
+        async function editRecord(id) {
+            const db = await openDB();
+            const req = db.transaction('records').objectStore('records').get(id);
+            req.onsuccess = () => {
+                const r = req.result;
+                if (!r) return;
+                editingId = id;
+                document.getElementById('modal-add-title').innerText = '✏️ Cập nhật vụ việc';
+                document.getElementById('btn-save-modal').innerText = '💾 Cập nhật';
+                
+                document.getElementById('m_cap_xet_xu').value = r.cap_xet_xu || 'Sơ thẩm';
+                document.getElementById('m_so_thu_ly').value = r.so_thu_ly || '';
+                document.getElementById('m_so_ban_an').value = r.so_ban_an || '';
+                document.getElementById('m_ngay_ban_hanh').value = r.ngay_ban_hanh || '';
+                document.getElementById('m_ten_vu_an').value = r.ten_vu_an || '';
+                document.getElementById('m_nguyen_don').value = r.nguyen_don || '';
+                document.getElementById('m_bi_don').value = r.bi_don || '';
+                document.getElementById('m_tham_phan').value = r.tham_phan || '';
+                document.getElementById('m_ksv').value = r.ksv || '';
+                document.getElementById('m_toa').value = r.toa || 'Tòa án nhân dân thành phố Vũng Tàu';
+                document.getElementById('m_ma_vu_viec').value = r.ma_vu_viec || '';
+                
+                document.getElementById('modal-add').classList.add('show');
+            };
+        }
+        
+        async function saveData() {
+            const soBA = document.getElementById('m_so_ban_an').value.trim();
+            if (!soBA) {
+                showToast('Vui lòng nhập Số Bản án / Quyết định!', true);
+                return;
+            }
+            
+            const pdfFile = document.getElementById('m_pdf_file').files[0] || null;
+            const data = {
+                cap_xet_xu: document.getElementById('m_cap_xet_xu').value,
+                so_thu_ly: document.getElementById('m_so_thu_ly').value.trim(),
+                so_ban_an: soBA,
+                ngay_ban_hanh: document.getElementById('m_ngay_ban_hanh').value,
+                ten_vu_an: document.getElementById('m_ten_vu_an').value.trim() || soBA,
+                nguyen_don: document.getElementById('m_nguyen_don').value.trim(),
+                bi_don: document.getElementById('m_bi_don').value.trim(),
+                tham_phan: document.getElementById('m_tham_phan').value.trim(),
+                ksv: document.getElementById('m_ksv').value.trim(),
+                toa: document.getElementById('m_toa').value,
+                ma_vu_viec: document.getElementById('m_ma_vu_viec').value.trim() || soBA,
+                nguoi_tao: currentUser,
+                tinh_trang_gq: document.getElementById('m_so_thu_ly').value ? 
+                    `- Thụ lý số: ${document.getElementById('m_so_thu_ly').value} ngày ${document.getElementById('m_ngay_ban_hanh').value || '...'}` : 
+                    '- Thụ lý mới',
+                timestamp: Date.now(),
+                merged_into: null,
+                imported_ids: []
+            };
+            
+            const db = await openDB();
+            const tx = db.transaction('records', 'readwrite');
+            const store = tx.objectStore('records');
+            
+            if (editingId) {
+                // Keep old pdf if no new one, keep imported_ids & merged_into
+                const old = await new Promise(r => {
+                    const req = store.get(editingId);
+                    req.onsuccess = () => r(req.result);
+                });
+                data.id = editingId;
+                data.pdf = pdfFile || (old ? old.pdf : null);
+                data.nguoi_tao = old ? old.nguoi_tao : currentUser;
+                data.imported_ids = old ? (old.imported_ids || []) : [];
+                data.merged_into = old ? old.merged_into : null;
+                data.timestamp = old ? old.timestamp : Date.now();
+                store.put(data);
+            } else {
+                data.pdf = pdfFile;
+                store.add(data);
+            }
+            
+            tx.oncomplete = () => {
+                showToast(editingId ? 'Cập nhật hồ sơ thành công!' : 'Đã lưu hồ sơ thành công!');
+                closeModal('modal-add');
+                loadData();
+            };
+        }
+        
+        async function deleteRecord(id) {
+            if (!confirm('Bạn chắc chắn muốn xóa hồ sơ này?')) return;
+            const db = await openDB();
+            db.transaction('records', 'readwrite').objectStore('records').delete(id).onsuccess = () => {
+                showToast('Đã xóa hồ sơ.');
+                if (selectedGocId === id) selectedGocId = null;
+                loadData();
+            };
+        }
+        
+        async function viewPDF(id) {
+            const db = await openDB();
+            const req = db.transaction('records').objectStore('records').get(id);
+            req.onsuccess = () => {
+                if (req.result && req.result.pdf) {
+                    const url = URL.createObjectURL(req.result.pdf);
+                    window.open(url, '_blank');
+                } else {
+                    showToast('Hồ sơ này chưa đính kèm PDF.', true);
+                }
+            };
+        }
+        
+        // ==================== NHẬP ÁN (theo đúng hướng dẫn) ====================
+        function openNhapAnModal() {
+            if (!selectedGocId) {
+                showToast('Vui lòng tick chọn 1 vụ án gốc trước khi bấm Nhập án!', true);
+                return;
+            }
+            const goc = allRecords.find(r => r.id === selectedGocId);
+            if (!goc) return;
+            
+            document.getElementById('nhap-vu-goc-info').innerHTML = 
+                `<b>${goc.ten_vu_an || goc.so_ban_an}</b> (Mã: ${goc.ma_vu_viec || goc.id}) - ${goc.cap_xet_xu}`;
+            
+            // Clear previous search
+            document.getElementById('nhap_f_duong_su').value = '';
+            document.getElementById('nhap_f_cap').value = '';
+            document.getElementById('nhap_f_so').value = '';
+            selectedNhapId = null;
+            
+            // Show all other records initially (exclude goc and already merged)
+            renderNhapTable(allRecords.filter(r => r.id !== selectedGocId && !r.merged_into));
+            
+            document.getElementById('modal-nhap-an').classList.add('show');
+        }
+        
+        function searchForNhap() {
+            const ds = (document.getElementById('nhap_f_duong_su').value || '').toLowerCase();
+            const cap = document.getElementById('nhap_f_cap').value;
+            const so = (document.getElementById('nhap_f_so').value || '').toLowerCase();
+            
+            const filtered = allRecords.filter(r => {
+                if (r.id === selectedGocId || r.merged_into) return false;
+                const matchDS = !ds || (r.ten_vu_an || '').toLowerCase().includes(ds) || 
+                                (r.nguyen_don || '').toLowerCase().includes(ds) || 
+                                (r.bi_don || '').toLowerCase().includes(ds);
+                const matchCap = !cap || r.cap_xet_xu === cap;
+                const matchSo = !so || (r.so_ban_an || '').toLowerCase().includes(so) || 
+                                (r.so_thu_ly || '').toLowerCase().includes(so) ||
+                                (r.ma_vu_viec || '').toLowerCase().includes(so);
+                return matchDS && matchCap && matchSo;
+            });
+            renderNhapTable(filtered);
+        }
+        
+        function renderNhapTable(list) {
+            const tbody = document.getElementById('nhap-table-body');
+            document.getElementById('nhap-table-info').innerText = `Có ${list.length} bản ghi — Chọn 1 vụ án để nhập vào vụ gốc`;
+            
+            if (list.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:20px;color:#999;">Không tìm thấy vụ án phù hợp</td></tr>`;
+                return;
+            }
+            
+            let html = '';
+            list.forEach((r, idx) => {
+                html += `<tr data-id="${r.id}">
+                    <td class="checkbox-cell">
+                        <input type="radio" name="nhap_select" value="${r.id}" onchange="selectedNhapId=${r.id}">
+                    </td>
+                    <td>${idx + 1}</td>
+                    <td class="case-info">
+                        <b>Vụ việc:</b> ${r.ten_vu_an || r.so_ban_an}<br>
+                        <b>Cấp xét xử:</b> ${r.cap_xet_xu}<br>
+                        <small>NĐ: ${r.nguyen_don || '—'} | BĐ: ${r.bi_don || '—'}</small>
+                    </td>
+                    <td class="status-gq">${r.tinh_trang_gq || '—'}</td>
+                    <td>${r.ma_vu_viec || r.id}</td>
+                </tr>`;
+            });
+            tbody.innerHTML = html;
+        }
+        
+        async function confirmNhapAn() {
+            if (!selectedNhapId) {
+                showToast('Vui lòng chọn 1 vụ án cần nhập!', true);
+                return;
+            }
+            if (!selectedGocId) {
+                showToast('Không xác định được vụ gốc!', true);
+                return;
+            }
+            
+            const db = await openDB();
+            const tx = db.transaction('records', 'readwrite');
+            const store = tx.objectStore('records');
+            
+            // Lấy cả 2 record
+            const goc = await new Promise(r => { const req = store.get(selectedGocId); req.onsuccess = () => r(req.result); });
+            const nhap = await new Promise(r => { const req = store.get(selectedNhapId); req.onsuccess = () => r(req.result); });
+            
+            if (!goc || !nhap) {
+                showToast('Không tìm thấy dữ liệu vụ án!', true);
+                return;
+            }
+            
+            // Cập nhật vụ gốc: thêm id vào imported_ids
+            goc.imported_ids = goc.imported_ids || [];
+            if (!goc.imported_ids.includes(selectedNhapId)) {
+                goc.imported_ids.push(selectedNhapId);
+            }
+            // Cập nhật tình trạng
+            goc.tinh_trang_gq = (goc.tinh_trang_gq || '') + ` | Đã nhập vụ ${nhap.ma_vu_viec || nhap.id}`;
+            
+            // Cập nhật vụ bị nhập: đánh dấu merged_into
+            nhap.merged_into = selectedGocId;
+            nhap.tinh_trang_gq = (nhap.tinh_trang_gq || '') + ` | Đã nhập vào vụ ${goc.ma_vu_viec || goc.id}`;
+            
+            store.put(goc);
+            store.put(nhap);
+            
+            tx.oncomplete = () => {
+                // Hiển thị thông báo giống official
+                alert('Nhập vụ việc thành công!');
+                showToast('Nhập vụ việc thành công!');
+                closeModal('modal-nhap-an');
+                selectedGocId = null;
+                selectedNhapId = null;
+                document.getElementById('f_thao_tac_nhap_tach').checked = false;
+                onThaoTacChange();
+                loadData();
+            };
+        }
+        
+        // ==================== INIT ====================
+        window.onload = () => {
+            // Mặc định mở chế độ Nâng cao để giống ảnh hướng dẫn
+            isAdvanced = true;
+            document.getElementById('search-advanced').classList.add('show');
+            document.getElementById('search-mode-label').innerText = '[ Nâng cao ]';
+            
+            seedSampleData();
         };
     </script>
 </body>
