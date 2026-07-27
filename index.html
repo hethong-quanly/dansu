@@ -2,336 +2,190 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Hệ thống Quản lý Kiểm sát Phần Dân Sự</title>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ thống Quản lý Phần Dân sự - VKS Cần Thơ</title>
     <style>
         body { 
-            font-family: 'Segoe UI', sans-serif; 
-            margin: 0; 
-            background: #0a1f5c url('https://vienkiemsat.cantho.gov.vn/files/images/logo-vks.png') center/cover no-repeat fixed; 
-            color: #333;
+            font-family: 'Segoe UI', Tahoma, sans-serif; 
+            background: linear-gradient(135deg, #e0eafc, #cfdef3); 
+            margin: 0; padding: 30px; 
+            min-height: 100vh; 
+        }
+        .dashboard-container { 
+            background: white; 
+            padding: 40px; 
+            border-radius: 20px; 
+            box-shadow: 0 15px 40px rgba(0,0,0,0.18); 
+            max-width: 1200px; 
+            margin: 0 auto; 
         }
         header { 
-            background: rgba(4, 8, 197, 0.95); 
-            color: rgb(248, 244, 7); 
-            padding: 12px 20px; 
-            position: relative; 
-            display: flex; 
-            align-items: center; 
-            justify-content: space-between;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-        }
-        .logo-left {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        .logo-left img {
-            height: 65px;
-        }
-        .header-title {
-            text-align: center;
-            flex: 1;
-        }
-        .header-title h1 {
-            margin: 0;
-            font-size: 26px;
-            font-weight: bold;
-        }
-        .header-title h3 {
-            margin: 5px 0 0 0;
-            font-size: 18px;
-            color: #f8f536;
-        }
-        .btn-logout { 
-            color: white; 
-            text-decoration: none; 
-            font-weight: bold; 
-            background: rgba(255,255,255,0.2); 
-            padding: 8px 18px; 
-            border-radius: 6px; 
-        }
-
-        /* Login Form */
-        #login-section {
-            max-width: 460px; 
-            margin: 80px auto; 
-            background: rgba(255,255,255,0.95); 
-            padding: 45px 40px; 
-            border-radius: 16px; 
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-        }
-        input {
-            width: 100%; 
-            padding: 14px; 
-            margin: 12px 0; 
-            border: 1px solid #ccc; 
-            border-radius: 8px; 
-            font-size: 16px;
-        }
-        button {
-            width: 100%; 
-            padding: 16px; 
-            background: #173de7; 
-            color: white; 
-            border: none; 
-            border-radius: 8px; 
-            font-size: 17px; 
-            font-weight: bold; 
-            cursor: pointer;
-            margin-top: 10px;
-        }
-        .forgot-link {
-            text-align: right;
-            margin: 8px 0 15px 0;
-            color: #173de7;
-            cursor: pointer;
-            font-size: 14px;
-        }
-        .forgot-link:hover { text-decoration: underline; }
-        .error-msg {
-            color: #d32f2f; 
             text-align: center; 
-            margin-top: 15px; 
-            font-weight: bold;
+            margin-bottom: 40px; 
         }
-
-        /* Menu chính */
-        .main-content { 
-            display: flex; 
-            max-width: 1250px; 
-            margin: 40px auto; 
-            gap: 30px; 
-            padding: 0 20px; 
-        }
-        .column { 
-            flex: 1; 
-            background: rgba(255,255,255,0.95); 
-            padding: 35px; 
-            border-radius: 16px; 
-            box-shadow: 0 8px 30px rgba(0,0,0,0.15); 
-        }
-        h2 { 
+        header img { width: 95px; margin-bottom: 12px; }
+        header h1 { 
             color: #0408c5; 
-            margin-bottom: 30px; 
-            text-align: center; 
+            font-size: 24px; 
+            text-transform: uppercase; 
+            line-height: 1.5; 
         }
-        .menu-btn, .report-btn {
-            display: block; 
-            width: 100%; 
-            padding: 16px; 
-            margin: 12px 0;
+
+        .main-content {
+            display: flex;
+            gap: 40px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .column {
+            flex: 1;
+            max-width: 520px;
+            min-width: 280px;
+        }
+
+        .column h2 {
+            color: #0408c5;
+            font-size: 19px;
+            margin-bottom: 20px;
             text-align: center;
-            text-decoration: none; 
-            border-radius: 10px; 
+            padding-bottom: 10px;
+            border-bottom: 3px solid #5670e6;
+        }
+
+        .menu-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .menu-item {
+            padding: 18px 22px;
+            background: #5670e6;
+            color: white;
+            border-radius: 12px;
+            text-decoration: none;
             font-weight: bold;
             font-size: 15.5px;
-        }
-        .menu-btn { background: #5670e6; color: white; }
-        .menu-btn:hover { background: #0408c5; }
-        .report-btn { background: #4caf50; color: white; }
-        .report-btn:hover { background: #388e3c; }
-        .btn-admin {
-            display: none; /* Ẩn mặc định, chỉ hiện với toi_cao */
-            width: 100%;
-            padding: 14px;
-            margin: 8px 0;
             text-align: center;
-            text-decoration: none;
-            border-radius: 10px;
-            font-weight: bold;
-            font-size: 15px;
-            background: #dc2626;
-            color: white;
-            border: none;
-            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(86,112,230,0.3);
+            display: block;
         }
-        .btn-admin:hover { background: #b91c1c; }
-        .divider-admin { display: none; border-top: 2px dashed #dc2626; margin: 20px 0 10px; }
-        .admin-label { display: none; font-size: 11px; font-weight: 700; color: #dc2626; text-transform: uppercase; letter-spacing: 0.06em; text-align: center; margin-bottom: 4px; }
+        .menu-item:hover {
+            background: #0408c5;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(4,8,197,0.4);
+        }
+
+        .report-item {
+            background: #f0f4ff;
+            border-left: 6px solid #5670e6;
+            color: #333;
+        }
+        .report-item:hover {
+            background: #e0e9ff;
+            color: #0408c5;
+        }
+
+        .logout-btn {
+            background: #d32f2f;
+            color: white;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            width: 100%;
+            margin-top: 40px;
+            transition: background 0.2s;
+        }
+        .logout-btn:hover {
+            background: #b71c1c;
+        }
+
+        .user-bar {
+            text-align: right;
+            margin-bottom: 15px;
+            font-size: 14px;
+            color: #555;
+        }
+        .user-bar b {
+            color: #0408c5;
+        }
     </style>
 </head>
 <body>
-    <header>
-        <div class="logo-left">
-            <img src="https://vienkiemsat.cantho.gov.vn/files/images/logo-vks.png" alt="Logo VKS">
-        </div>
-        <div class="header-title">
-            <h1>VIỆN KIỂM SÁT NHÂN DÂN TỐI CAO</h1>
-            <h3>HỆ THỐNG QUẢN LÝ KIỂM SÁT PHẦN DÂN SỰ</h3>
-        </div>
-        <a href="#" onclick="logout()" class="btn-logout" id="logout-btn" style="display:none;">Đăng xuất</a>
-    </header>
+    <div class="dashboard-container">
+        <header>
+            <img src="https://vienkiemsat.cantho.gov.vn/files/images/logo-vks.png" alt="Logo VKS" onerror="this.style.display='none'">
+            <h1>VIỆN KIỂM SÁT NHÂN DÂN TỐI CAO<br>
+                HỆ THỐNG QUẢN LÝ PHẦN DÂN SỰ</h1>
+        </header>
 
-    <!-- Phần Đăng nhập -->
-    <div id="login-section">
-        <h2>ĐĂNG NHẬP VÀO HỆ THỐNG</h2>
-        <input type="text" id="username" placeholder="Nhập username">
-        <input type="password" id="password" placeholder="Nhập mật khẩu">
-        
-        <div class="forgot-link" onclick="forgotPassword()">Quên mật khẩu?</div>
-        
-        <button onclick="login()">ĐĂNG NHẬP</button>
-        <p id="error-msg" class="error-msg"></p>
-    </div>
+        <div class="user-bar">
+            Xin chào, <b id="display_user">...</b>
+        </div>
 
-    <!-- Menu chính -->
-    <div id="main-menu" style="display:none;">
         <div class="main-content">
+            
+            <!-- CỘT TRÁI: CHỨC NĂNG CHÍNH -->
             <div class="column">
-                <h2>NHẬP DỮ LIỆU NGHIỆP VỤ</h2>
-                <a href="dan_su.html" class="menu-btn">I. Quản lý Án Dân sự, HN-GĐ, KD-TM, Hành chính, Lao động</a>
-                <a href="khieu_to.html" class="menu-btn">II. Giải quyết, Kiểm sát việc giải quyết Khiếu nại, Tố cáo</a>
-                <a href="thi_hanh_an.html" class="menu-btn">III. Kiểm sát công tác Thi hành án Dân sự</a>
-                <a href="quan_ly_tk.html" class="menu-btn">Quản lý Tài khoản</a>
-                <a href="doi_mk.html" class="menu-btn">Đổi mật khẩu</a>
+                <h2>CHỨC NĂNG CHÍNH</h2>
+                <div class="menu-grid">
+                    <a href="dan_su.html" class="menu-item">I. QUẢN LÝ ÁN DÂN SỰ, HC, KD-TM, HN-GĐ, LĐ</a>
+                    <a href="khieu_to.html" class="menu-item">II. KIỂM SÁT, GIẢI QUYẾT KHIẾU NẠI, TỐ CÁO</a>
+                    <a href="thi_hanh_an.html" class="menu-item">III. KIỂM SÁT THI HÀNH ÁN DÂN SỰ</a>
+                    <a href="quan_ly_tk.html" class="menu-item">QUẢN LÝ TÀI KHOẢN</a>
+                    <a href="doi_mk.html" class="menu-item">ĐỔI MẬT KHẨU</a>
+                </div>
             </div>
 
+            <!-- CỘT PHẢI: BÁO CÁO THỐNG KÊ -->
             <div class="column">
-                <h2>📊 BÁO CÁO THỐNG KÊ</h2>
-                <button class="menu-btn" style="background:#1e88e5;" onclick="window.location='bao_cao_thong_ke.html'">📈 Báo cáo thống kê tổng hợp</button>
-                <a href="tro_ly_ao.html" class="menu-btn" style="background:#ff9800; margin-top:10px;">🤖 Trợ lý ảo</a>
-
-                <!-- Khu vực Admin — chỉ hiện với toi_cao -->
-                <div class="divider-admin" id="admin-divider"></div>
-                <div class="admin-label" id="admin-label">⚙️ Quản trị hệ thống</div>
-                <a href="admin_config.html" class="btn-admin" id="btn-admin-config">⚙️ Cấu hình hệ thống</a>
+                <h2>BÁO CÁO THỐNG KÊ</h2>
+                <div class="menu-grid">
+                    <a href="bao_cao_tong_hop.html" class="menu-item report-item">
+                        📊 BÁO CÁO SỐ LIỆU THỐNG KÊ TỔNG HỢP
+                    </a>
+                    <a href="bao_cao_dan_su.html" class="menu-item report-item">
+                        📋 BÁO CÁO SỐ LIỆU ÁN DÂN SỰ
+                    </a>
+                    <a href="bao_cao_thi_hanh_an.html" class="menu-item report-item">
+                        📋 BÁO CÁO SỐ LIỆU THI HÀNH ÁN DÂN SỰ
+                    </a>
+                    <a href="bao_cao_khieu_to.html" class="menu-item report-item">
+                        📋 BÁO CÁO SỐ LIỆU KHIẾU NẠI, TỐ CÁO
+                    </a>
+                </div>
             </div>
         </div>
+
+        <button onclick="logout()" class="logout-btn">🚪 ĐĂNG XUẤT</button>
     </div>
 
     <script>
-        var firebaseConfig = {
-            apiKey: "AIzaSyDunRDIeyBTVXTODoO22ywk1Q35cCx2sV8",
-            authDomain: "dansu-vksndtpct.firebaseapp.com",
-            databaseURL: "https://dansu-vksndtpct-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "dansu-vksndtpct",
-            storageBucket: "dansu-vksndtpct.firebasestorage.app",
-            appId: "1:843158256686:web:eb128d64c8b9bfd7aef3bf"
-        };
-
-        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-        var db = firebase.database();
-
-       function login() {
-    const username = document.getElementById('username').value.trim();
-    const password = document.getElementById('password').value.trim();
-    const errorMsg = document.getElementById('error-msg');
-
-    errorMsg.textContent = '';
-
-    if (!username || !password) {
-        errorMsg.textContent = "Vui lòng nhập đầy đủ tài khoản và mật khẩu!";
-        return;
-    }
-
-    // Tài khoản admin cứng (dùng để test)
-    if (username === "admin" && (password === "123" || password === "123456")) {
-        const userData = {
-            username: "admin",
-            fullname: "Quản trị viên",
-            level: "toi_cao",
-            unit: "VKSND Tối cao",
-            position: "Admin"
-        };
-        localStorage.setItem('vks_user', JSON.stringify(userData));
-        localStorage.setItem('vks_logged_in', 'true');
-        showMainMenu();
-        return;
-    }
-
-    // Login từ Firebase
-    db.ref('users/' + username).once('value').then(snapshot => {
-        const user = snapshot.val();
-        if (user && user.password === password) {
-            const userData = {
-                username: username,
-                fullname: user.fullname || username,
-                level: user.level || 'user',
-                unit: user.unit || '',
-                department: user.department || null,
-                position: user.position || null
-            };
-            localStorage.setItem('vks_user', JSON.stringify(userData));
-            localStorage.setItem('vks_logged_in', 'true');
-            showMainMenu();
-        } else {
-            errorMsg.textContent = "Tài khoản hoặc mật khẩu không đúng!";
-        }
-    }).catch(err => {
-        errorMsg.textContent = "Lỗi kết nối Firebase!";
-        console.error(err);
-    });
-}
-function checkLogin() {
-    const savedUser = localStorage.getItem('vks_user');
-    if (!savedUser) {
-        alert("Vui lòng đăng nhập trước!");
-        window.location.href = "index.html";
-        return false;
-    }
-
-    currentUser = JSON.parse(savedUser);
-    console.log("User hiện tại:", currentUser);   // ← Dùng để debug
-    return true;
-}
-        function forgotPassword() {
-            alert("Vui lòng liên hệ Admin để được hỗ trợ reset mật khẩu.\nMật khẩu mặc định: 123456");
-        }
-
-        function showMainMenu() {
-            document.getElementById('login-section').style.display = 'none';
-            document.getElementById('main-menu').style.display = 'block';
-            document.getElementById('logout-btn').style.display = 'block';
-
-            // Hiện nút admin nếu là toi_cao
-            const u = JSON.parse(localStorage.getItem('vks_user') || '{}');
-            if (u.level === 'toi_cao') {
-                document.getElementById('admin-divider').style.display = 'block';
-                document.getElementById('admin-label').style.display = 'block';
-                document.getElementById('btn-admin-config').style.display = 'block';
+        // Kiểm tra đăng nhập ngay lập tức
+        (function() {
+            const isLoggedIn = sessionStorage.getItem('vks_logged_in') === 'true';
+            const user = localStorage.getItem('vks_user');
+            
+            if (!isLoggedIn || !user) {
+                alert("Vui lòng đăng nhập trước!");
+                window.location.href = "login.html";
+                return;
             }
-        }
+            
+            // Hiển thị tên user
+            document.getElementById('display_user').innerText = user;
+        })();
 
         function logout() {
-            if (confirm("Bạn có chắc muốn đăng xuất?")) {
-                localStorage.removeItem('vks_logged_in');
-                localStorage.removeItem('vks_username');
-                location.reload();
-            }
-        }
-
-        // Các hàm báo cáo (giữ nguyên như bạn đã có)
-        function xuatBaoCaoDanSu() { /* ... code cũ của bạn ... */ alert("Đang phát triển báo cáo chi tiết..."); }
-        function xuatBaoCaoKhieuTo() { /* ... */ alert("Đang phát triển báo cáo chi tiết..."); }
-        function xuatBaoCaoThiHanhAn() { /* ... */ alert("Đang phát triển báo cáo chi tiết..."); }
-
-        window.onload = () => {
-            if (localStorage.getItem('vks_logged_in') === 'true') {
-                showMainMenu();
-            } else {
-                document.getElementById('login-section').style.display = 'block';
-                document.getElementById('main-menu').style.display = 'none';
-                document.getElementById('logout-btn').style.display = 'none';
-            }
-        };
-
-        document.addEventListener('keypress', (e) => {
-            if (e.key === "Enter") login();
-        });
-        function clearLoginCache() {
-            localStorage.removeItem('vks_logged_in');
-            localStorage.removeItem('vks_username');
-            alert("Đã xóa trạng thái đăng nhập cũ.\nHãy tải lại trang bằng Ctrl + F5");
-            document.getElementById('login-screen').style.display = 'block';
-            document.getElementById('main-menu').style.display = 'none';
-        }
-        window.onload = () => {
-            if (localStorage.getItem('vks_logged_in') === 'true') {
-                showMainMenu();
+            if (confirm("Bạn có chắc chắn muốn đăng xuất không?")) {
+                localStorage.removeItem('vks_user');
+                sessionStorage.removeItem('vks_logged_in');
+                window.location.href = "login.html";
             }
         }
     </script>
