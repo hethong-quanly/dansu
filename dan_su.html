@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản lý Án Dân sự - VKS Cần Thơ</title>
-    <link rel="stylesheet" href="static/theme.css">
+    <link rel="stylesheet" href="static/theme.css?v=20260916c">
     <script src="static/rbac.js"></script>
     <script src="static/pwa.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -26,24 +26,42 @@
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #e8f2fc; color: #0c3b8c; font-size: 13px; }
-        .top-nav { background: #00275a; color: #0c3b8c; display: flex; align-items: center; padding: 0 10px; height: 42px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-        .top-nav a { color: #0c3b8c; text-decoration: none; padding: 10px 14px; font-weight: 600; font-size: 13px; border-right: 1px solid rgba(238,28,37,0.25); white-space: nowrap; }
-        .top-nav a:hover, .top-nav a.active { background: #1248ad; }
-        .top-nav a.active { border-bottom: 3px solid #0c3b8c; }
-        .user-info { margin-left: auto; font-size: 12px; padding-right: 10px; }
+        .top-nav { background: #071a4a; color: #ffffff; display: flex; align-items: center; padding: 0 10px; height: 42px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); overflow-x: auto; }
+        .top-nav a { color: #ffffff; text-decoration: none; padding: 10px 14px; font-weight: 600; font-size: 13px; border-right: 1px solid rgba(255,255,255,0.18); white-space: nowrap; }
+        .top-nav a:hover, .top-nav a.active { background: #1248ad; color: #ffffff; }
+        .top-nav a.active { border-bottom: 3px solid #ffe566; }
+        .user-info { margin-left: auto; font-size: 12px; padding-right: 10px; color: #ffffff; white-space: nowrap; }
+        .user-info b { color: #ffe566; }
         .secondary-bar { background: #f8f9fa; border-bottom: 1px solid #ddd; padding: 6px 15px; display: flex; align-items: center; gap: 8px; }
         .secondary-bar .btn-icon { background: white; border: 1px solid #ccc; padding: 5px 12px; border-radius: 3px; cursor: pointer; font-size: 12px; display: inline-flex; align-items: center; gap: 4px; }
         .secondary-bar .btn-icon:hover { background: #e9ecef; }
         .secondary-bar .btn-icon.active { background: #0c3b8c; color: white; border-color: #0c3b8c; }
         .status-text { margin-left: auto; color: #0c3b8c; font-weight: 500; font-size: 12px; }
         .layout { display: flex; height: calc(100vh - 80px); }
-        .sidebar { width: 260px; background: white; border-right: 1px solid #ddd; overflow-y: auto; padding: 10px 0; }
-        .sidebar-title { background: #00275a; color: #0c3b8c; padding: 8px 15px; font-weight: bold; font-size: 13px; }
+        .sidebar { width: 280px; min-width: 240px; background: white; border-right: 1px solid #ddd; overflow-y: auto; padding: 10px 0; }
+        .sidebar-title { background: #071a4a; color: #ffffff; padding: 8px 15px; font-weight: bold; font-size: 13px; }
         .sidebar ul { list-style: none; }
-        .sidebar li { padding: 8px 15px; cursor: pointer; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; gap: 8px; font-size: 12.5px; }
-        .sidebar li:hover { background: #fff5f5; }
-        .sidebar li.active { background: #ffebee; color: #0c3b8c; font-weight: 600; }
-        .sidebar li .folder { color: #f4a460; }
+        .sidebar li { padding: 9px 15px; cursor: pointer; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: #122033; }
+        .sidebar li:hover { background: #eef3fb; }
+        .sidebar li.active { background: #e8eef8; color: #0c3b8c; font-weight: 600; }
+        .sidebar li .folder { color: #c9a227; }
+        .work-help { background: #eef3fb; border: 1px solid #d5deee; padding: 10px 12px; border-radius: 4px; margin-bottom: 12px; font-size: 12.5px; color: #122033; line-height: 1.5; }
+        .work-form { background: white; border: 1px solid #ddd; border-radius: 4px; padding: 14px; margin-bottom: 12px; }
+        .work-form h3 { margin: 0 0 10px; color: #0c3b8c; font-size: 14px; }
+        .roster { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+        @media (max-width: 900px) { .roster { grid-template-columns: 1fr; } .layout { flex-direction: column; height: auto; } .sidebar { width: 100%; min-width: 0; max-height: 220px; } }
+        .roster-card { background: #fff; border: 1px solid #d5deee; border-radius: 6px; padding: 10px 12px; }
+        .roster-card h4 { margin: 0 0 6px; color: #0c3b8c; font-size: 13px; }
+        .roster-card h4 small { color: #5c6b80; font-weight: 500; }
+        .roster-card ul { list-style: none; max-height: 140px; overflow: auto; }
+        .roster-card li { padding: 4px 0; cursor: pointer; border-bottom: 1px solid #f0f0f0; font-size: 12px; color: #122033; }
+        .roster-card li:hover { color: #0c3b8c; }
+        .pill { display: inline-block; padding: 1px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; }
+        .pill-ok { background: #e7f3ec; color: #2c6a4a; }
+        .pill-warn { background: #fef3c7; color: #b45309; }
+        .pill-info { background: #d6e8fa; color: #0a54b0; }
+        .pill-muted { background: #eef3fb; color: #5c6b80; }
+        .pill-bad { background: #ffe4e6; color: #b0000c; }
         .main { flex: 1; overflow-y: auto; padding: 12px 15px; background: #f5f7fa; }
         .breadcrumb { font-size: 12px; color: #666; margin-bottom: 10px; }
         .breadcrumb span { color: #0c3b8c; font-weight: 600; }
@@ -72,10 +90,10 @@
         .table-wrap { background: white; border: 1px solid #ddd; border-radius: 4px; overflow: hidden; }
         .table-info { padding: 6px 12px; background: #f8f9fa; border-bottom: 1px solid #eee; font-size: 12px; color: #666; }
         table { width: 100%; border-collapse: collapse; font-size: 12px; }
-        th { background: #0c3b8c; color: white; padding: 8px 10px; text-align: left; font-weight: 600; position: sticky; top: 0; white-space: nowrap; }
-        td { padding: 8px 10px; border-bottom: 1px solid #eee; vertical-align: top; }
-        tr:hover { background: #fff8f8; }
-        tr.selected { background: #ffebee; }
+        th { background: #071a4a; color: #ffffff; padding: 8px 10px; text-align: left; font-weight: 600; position: sticky; top: 0; white-space: nowrap; }
+        td { padding: 8px 10px; border-bottom: 1px solid #eee; vertical-align: top; color: #122033; }
+        tr:hover { background: #f4f7fb; }
+        tr.selected, tr.work-sel { background: #e8eef8; }
         .case-info { line-height: 1.4; }
         .case-info b { color: #0c3b8c; }
         .status-gq { font-size: 11.5px; color: #555; }
@@ -87,7 +105,7 @@
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.45); z-index: 1000; justify-content: center; align-items: center; }
         .modal-overlay.show { display: flex; }
         .modal { background: white; border-radius: 6px; width: 90%; max-width: 1100px; max-height: 90vh; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 10px 40px rgba(0,0,0,0.3); }
-        .modal-header { background: #00275a; color: #0c3b8c; padding: 10px 16px; display: flex; justify-content: space-between; align-items: center; font-weight: 600; }
+        .modal-header { background: #071a4a; color: #ffffff; padding: 10px 16px; display: flex; justify-content: space-between; align-items: center; font-weight: 600; }
         .modal-header .close-btn { background: transparent; border: none; color: white; font-size: 20px; cursor: pointer; line-height: 1; }
         .modal-body { padding: 15px; overflow-y: auto; flex: 1; }
         .modal-footer { padding: 10px 15px; border-top: 1px solid #eee; display: flex; justify-content: flex-end; gap: 8px; background: #f8f9fa; }
@@ -108,43 +126,44 @@
     </style>
 </head>
 <body class="vks-page">
-    <!-- TOP NAV - Đã bỏ HÌNH SỰ vì đây là module Dân sự -->
     <div class="top-nav">
         <a href="index.html">TRANG CHỦ</a>
-        <a href="#">TÌM KIẾM - BÁO CÁO</a>
-        <a href="#" class="active">DÂN SỰ</a>
-        <a href="#">HN & GĐ</a>
-        <a href="#">KD,TM</a>
-        <a href="#">LAO ĐỘNG</a>
-        <a href="#">HÀNH CHÍNH</a>
-        <a href="#">PHÁ SẢN</a>
-        <a href="#">BP XLHC</a>
+        <a href="bao_cao_dan_su.html">TÌM KIẾM - BÁO CÁO</a>
+        <a href="javascript:void(0)" data-lv="DS" class="active" onclick="filterLinhVuc('DS', this)">DÂN SỰ</a>
+        <a href="javascript:void(0)" data-lv="HNGD" onclick="filterLinhVuc('HNGD', this)">HN & GĐ</a>
+        <a href="javascript:void(0)" data-lv="KDTM" onclick="filterLinhVuc('KDTM', this)">KD,TM</a>
+        <a href="javascript:void(0)" data-lv="LD" onclick="filterLinhVuc('LD', this)">LAO ĐỘNG</a>
+        <a href="javascript:void(0)" data-lv="HC" onclick="filterLinhVuc('HC', this)">HÀNH CHÍNH</a>
+        <a href="javascript:void(0)" data-lv="PS" onclick="filterLinhVuc('PS', this)">PHÁ SẢN</a>
+        <a href="javascript:void(0)" data-lv="BPXLHC" onclick="filterLinhVuc('BPXLHC', this)">BP XLHC</a>
         <div class="user-info">Xin chào, <b id="display_user">...</b></div>
     </div>
-    
+
     <div class="secondary-bar">
         <button class="btn-icon active" onclick="showListView()">📋 Danh sách</button>
         <button class="btn-icon" onclick="openAddModal()">➕ Thêm mới</button>
         <div class="status-text" id="status-msg">Mã vụ việc: — &nbsp;|&nbsp; Tên vụ việc: Bạn chưa chọn vụ án để lưu thông tin !</div>
     </div>
-    
+
     <div class="layout">
         <div class="sidebar">
-            <div class="sidebar-title">DÂN SỰ</div>
+            <div class="sidebar-title" id="sidebar-title">DÂN SỰ</div>
             <ul>
-                <li class="active" onclick="showListView()"><span class="folder">📁</span> Danh sách vụ việc</li>
-                <li onclick="alert('Chức năng Phân công Thẩm phán đang được phát triển')"><span class="folder">📁</span> Phân công danh sách Thẩm phán</li>
-                <li onclick="alert('Chức năng Chuyển án đang được phát triển')"><span class="folder">📁</span> Chuyển án</li>
-                <li onclick="alert('Chức năng Nhận án đang được phát triển')"><span class="folder">📁</span> Nhận án</li>
-                <li onclick="alert('Chức năng Cập nhật kháng cáo quá hạn đang được phát triển')"><span class="folder">📁</span> Cập nhật kháng cáo quá hạn</li>
-                <li onclick="alert('Chức năng Cập nhật thông tin sau xét xử đang được phát triển')"><span class="folder">📁</span> Cập nhật thông tin sau xét xử</li>
-                <li onclick="alert('Chức năng Đăng văn bản tổng đạt đang được phát triển')"><span class="folder">📁</span> Đăng văn bản tổng đạt lên cổng thông tin điện tử</li>
+                <li class="active" data-mod="list" onclick="openModule('list', this)"><span class="folder">📁</span> Danh sách vụ việc</li>
+                <li data-mod="thamphan" onclick="openModule('thamphan', this)"><span class="folder">📁</span> Phân công danh sách Thẩm phán</li>
+                <li data-mod="ksv" onclick="openModule('ksv', this)"><span class="folder">📁</span> Danh sách phân công Kiểm sát viên</li>
+                <li data-mod="chuyen" onclick="openModule('chuyen', this)"><span class="folder">📁</span> Chuyển án</li>
+                <li data-mod="nhan" onclick="openModule('nhan', this)"><span class="folder">📁</span> Nhận án</li>
+                <li data-mod="kc" onclick="openModule('kc', this)"><span class="folder">📁</span> Cập nhật kháng cáo quá hạn</li>
+                <li data-mod="sauxx" onclick="openModule('sauxx', this)"><span class="folder">📁</span> Cập nhật thông tin sau xét xử</li>
+                <li data-mod="tongdat" onclick="openModule('tongdat', this)"><span class="folder">📁</span> Đăng văn bản tổng đạt lên cổng thông tin điện tử</li>
             </ul>
         </div>
-        
+
         <div class="main">
-            <div class="breadcrumb">Dân Sự &gt; <span>Danh sách vụ việc</span></div>
-            
+            <div class="breadcrumb">Dân Sự > <span id="crumb">Danh sách vụ việc</span></div>
+
+            <div id="view-list">
             <div class="search-panel">
                 <div class="search-header">
                     <span>Tìm kiếm <span id="search-mode-label">[ Nâng cao ]</span></span>
@@ -173,7 +192,7 @@
                             </select>
                         </div>
                     </div>
-                    
+
                     <div class="search-grid search-advanced show" id="search-advanced">
                         <div class="form-row"><label>Tình trạng thụ lý</label><select id="f_tinh_trang_thu_ly"><option value="">-- Tất cả --</option><option value="Thụ lý mới">Thụ lý mới</option></select></div>
                         <div class="form-row"><label>Từ ngày - Đến ngày (Thụ lý)</label><div class="date-range"><input type="date" id="f_tu_ngay_tl"><input type="date" id="f_den_ngay_tl"></div></div>
@@ -200,18 +219,18 @@
                             <label for="f_gq_kc_kn" style="color:#555;font-weight:500;">GQ KC/KN QD tạm đình chỉ và QD khác</label>
                         </div>
                     </div>
-                    
+
                     <div class="search-actions">
                         <button class="btn btn-primary" onclick="doSearch()">🔍 Tìm kiếm</button>
                         <button class="btn" onclick="resetSearch()">Làm mới</button>
                         <button class="btn btn-success" onclick="openAddModal()">Thêm mới</button>
                         <button class="btn btn-info" onclick="exportExcelList()">Xuất Excel</button>
                         <button class="btn btn-info" id="btn-nhap-an" style="display:none;" onclick="openNhapAnModal()">Nhập án</button>
-                        <button class="btn btn-warning" id="btn-tach-an" style="display:none;" onclick="alert('Chức năng Tách án đang được phát triển')">Tách án</button>
+                        <button class="btn btn-warning" id="btn-tach-an" style="display:none;" onclick="tachAn()">Tách án</button>
                     </div>
                 </div>
             </div>
-            
+
             <div class="table-wrap">
                 <div class="table-info" id="table-info">Có 0 bản ghi trong 1 trang</div>
                 <table>
@@ -229,12 +248,25 @@
                     <tbody id="table-body"></tbody>
                 </table>
             </div>
+            </div>
+
+            <div id="view-work" style="display:none;">
+                <div class="work-help" id="work-help"></div>
+                <div id="work-roster"></div>
+                <div class="work-form" id="work-form"></div>
+                <div class="table-wrap">
+                    <div class="table-info" id="work-table-info">Chọn một vụ việc để thao tác</div>
+                    <table>
+                        <thead id="work-thead"></thead>
+                        <tbody id="work-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
-    
+
     <div class="toast" id="toast"></div>
-    
-    <!-- MODAL THÊM / SỬA -->
+
     <div class="modal-overlay" id="modal-add">
         <div class="modal" style="max-width:700px;">
             <div class="modal-header">
@@ -243,6 +275,17 @@
             </div>
             <div class="modal-body">
                 <div class="form-grid">
+                    <div class="form-group"><label>Lĩnh vực *</label>
+                        <select id="m_linh_vuc">
+                            <option value="DS">Dân sự</option>
+                            <option value="HNGD">Hôn nhân và gia đình</option>
+                            <option value="KDTM">Kinh doanh, thương mại</option>
+                            <option value="LD">Lao động</option>
+                            <option value="HC">Hành chính</option>
+                            <option value="PS">Phá sản</option>
+                            <option value="BPXLHC">Biện pháp xử lý hành chính</option>
+                        </select>
+                    </div>
                     <div class="form-group"><label>Cấp xét xử *</label><select id="m_cap_xet_xu"><option value="Sơ thẩm">Sơ thẩm</option><option value="Phúc thẩm">Phúc thẩm</option></select></div>
                     <div class="form-group"><label>Số Thụ lý</label><input type="text" id="m_so_thu_ly" placeholder="VD: 07"></div>
                     <div class="form-group"><label>Số Bản án / Quyết định *</label><input type="text" id="m_so_ban_an" placeholder="VD: 02104011"></div>
@@ -265,8 +308,7 @@
             </div>
         </div>
     </div>
-    
-    <!-- MODAL NHẬP ÁN -->
+
     <div class="modal-overlay" id="modal-nhap-an">
         <div class="modal">
             <div class="modal-header">
@@ -302,20 +344,68 @@
             </div>
         </div>
     </div>
-    
+
     <script>
         const DB_NAME = 'VKS_AN_DAN_SU';
         const DB_VERSION = 2;
         let editingId = null;
         let selectedGocId = null;
         let selectedNhapId = null;
+        let selectedWorkId = null;
         let allRecords = [];
         let lastExportList = [];
         let isAdvanced = true;
         let isThaoTacMode = false;
-        
+        let currentLinhVuc = 'DS';
+        let currentModule = 'list';
+
+        const LINH_VUC = {
+            DS: 'Dân sự', HNGD: 'Hôn nhân và gia đình', KDTM: 'Kinh doanh, thương mại',
+            LD: 'Lao động', HC: 'Hành chính', PS: 'Phá sản', BPXLHC: 'Biện pháp xử lý hành chính'
+        };
+        const MODULES = {
+            list: { title: 'Danh sách vụ việc' },
+            thamphan: { title: 'Phân công danh sách Thẩm phán', help: 'Chọn vụ việc và ghi tên Thẩm phán được phân công xét xử. Lãnh đạo / cán bộ theo dõi được phân công; Kiểm sát viên chỉ xem vụ việc của mình.' },
+            ksv: { title: 'Danh sách phân công Kiểm sát viên', help: 'Phân công Kiểm sát viên thụ lý. Mỗi KSV chỉ xem, theo dõi, quản lý và trích xuất vụ việc được phân công cho mình — không xem dữ liệu của tài khoản khác.' },
+            chuyen: { title: 'Chuyển án', help: 'Chuyển hồ sơ sang Viện kiểm sát khác (cấp tỉnh hoặc khu vực). Vụ đã chuyển sẽ xuất hiện ở mục Nhận án để đơn vị nhận xác nhận thụ lý.' },
+            nhan: { title: 'Nhận án', help: 'Tiếp nhận các vụ việc đã được chuyển đến. Bấm “Nhận án” để xác nhận thụ lý tại đơn vị.' },
+            kc: { title: 'Cập nhật kháng cáo quá hạn', help: 'Ghi nhận kháng cáo / kháng nghị quá hạn theo thời hạn Bộ luật Tố tụng dân sự, phục vụ thống kê và theo dõi.' },
+            sauxx: { title: 'Cập nhật thông tin sau xét xử', help: 'Cập nhật kết quả xét xử (giữ nguyên, sửa án, hủy án, đình chỉ, công nhận thỏa thuận…) sau khi có bản án / quyết định.' },
+            tongdat: { title: 'Đăng văn bản tổng đạt lên cổng thông tin điện tử', help: 'Ghi số, ngày và đường dẫn văn bản đã đăng trên cổng thông tin điện tử của ngành (hoặc liên thông TADT).' }
+        };
+        const VKS_UNITS = [
+            'VKSND tối cao', 'VKSND TP. Cần Thơ',
+            'VKSND khu vực 1 – Ninh Kiều', 'VKSND khu vực 2 – Bình Thủy', 'VKSND khu vực 3 – Ô Môn',
+            'VKSND khu vực 4 – Cái Răng', 'VKSND khu vực 5 – Thốt Nốt', 'VKSND khu vực 6 – Phong Điền',
+            'VKSND khu vực 7 – Vị Thanh', 'VKSND khu vực 8 – Ngã Bảy', 'VKSND khu vực 9 – Sóc Trăng',
+            'VKSND khu vực 10 – Vĩnh Châu', 'VKSND tỉnh/thành khác'
+        ];
+        const SAU_XX = [
+            'Giữ nguyên bản án/QĐ sơ thẩm', 'Sửa án', 'Hủy án, chuyển xét xử lại',
+            'Hủy án, đình chỉ', 'Đình chỉ xét xử phúc thẩm', 'Công nhận sự thỏa thuận',
+            'Tuyên bố phá sản', 'Khác'
+        ];
+
         document.getElementById('display_user').innerText = currentUser || 'User';
-        
+
+        function esc(s) {
+            return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&','<':'<','>':'>','"':'"',"'":'&#39;'}[c]));
+        }
+        function today() { return new Date().toISOString().slice(0, 10); }
+        function linhOf(r) { return r.linh_vuc || 'DS'; }
+        function canAssignNow() {
+            if (!window.VksRbac) return true;
+            const p = window.__vksProfile || VksRbac.parseProfile();
+            if (VksRbac.isAdmin(p) || VksRbac.isLeader(p) || VksRbac.isUnitWide(p)) return true;
+            return !VksRbac.isKsv(p);
+        }
+        function visibleCases() {
+            return allRecords.filter(r => {
+                if (r.merged_into) return false;
+                if (currentLinhVuc && linhOf(r) !== currentLinhVuc) return false;
+                return true;
+            });
+        }
         function openDB() {
             return new Promise((resolve, reject) => {
                 const request = indexedDB.open(DB_NAME, DB_VERSION);
@@ -329,7 +419,7 @@
                 request.onerror = (e) => reject(e.target.error);
             });
         }
-        
+
         async function seedSampleData() {
             const db = await openDB();
             const tx = db.transaction('records', 'readonly');
@@ -338,7 +428,7 @@
                 if (countReq.result === 0) {
                     const samples = [
                         {
-                            cap_xet_xu: 'Sơ thẩm', so_ban_an: '02104011', so_thu_ly: '07', ngay_ban_hanh: '2023-01-06',
+                            linh_vuc: 'DS', cap_xet_xu: 'Sơ thẩm', so_ban_an: '02104011', so_thu_ly: '07', ngay_ban_hanh: '2023-01-06',
                             ten_vu_an: 'Nguyễn Thị Bích Trâm - Huỳnh Ngọc Hưng - Chủ DNTN Sơn Thịnh - Tranh chấp hợp đồng mua bán căn hộ',
                             nguyen_don: 'Nguyễn Thị Bích Trâm', bi_don: 'Huỳnh Ngọc Hưng - Chủ DNTN Sơn Thịnh',
                             tham_phan: 'Trần Văn A', ksv: 'Nguyễn Thị B', toa: 'Tòa án nhân dân thành phố Vũng Tàu',
@@ -346,14 +436,14 @@
                             timestamp: Date.now() - 86400000 * 30, merged_into: null, imported_ids: []
                         },
                         {
-                            cap_xet_xu: 'Sơ thẩm', so_ban_an: '01165', so_thu_ly: '5', ngay_ban_hanh: '2023-01-03',
-                            ten_vu_an: 'Thoa - Tranh chấp đất đai', nguyen_don: 'Nguyễn Thị Thoa', bi_don: 'Trần Văn X',
+                            linh_vuc: 'HNGD', cap_xet_xu: 'Sơ thẩm', so_ban_an: '01165', so_thu_ly: '5', ngay_ban_hanh: '2023-01-03',
+                            ten_vu_an: 'Thoa - Tranh chấp đất đai / ly hôn', nguyen_don: 'Nguyễn Thị Thoa', bi_don: 'Trần Văn X',
                             tham_phan: 'Lê Thị C', ksv: 'Phạm Văn D', toa: 'Tòa án nhân dân thành phố Vũng Tàu',
                             ma_vu_viec: '01165', nguoi_tao: 'trangmt.brvt', tinh_trang_gq: '- Thụ lý số: 5 ngày 03/01/2023',
                             timestamp: Date.now() - 86400000 * 40, merged_into: null, imported_ids: []
                         },
                         {
-                            cap_xet_xu: 'Sơ thẩm', so_ban_an: 'BA-2024-088', so_thu_ly: '12', ngay_ban_hanh: '2024-03-15',
+                            linh_vuc: 'KDTM', cap_xet_xu: 'Sơ thẩm', so_ban_an: 'BA-2024-088', so_thu_ly: '12', ngay_ban_hanh: '2024-03-15',
                             ten_vu_an: 'Trần Văn Minh - Tranh chấp hợp đồng vay', nguyen_don: 'Trần Văn Minh', bi_don: 'Công ty TNHH ABC',
                             tham_phan: 'Nguyễn Văn E', ksv: 'Lê Thị F', toa: 'Tòa án nhân dân TP. Cần Thơ',
                             ma_vu_viec: 'CT-2024-088', nguoi_tao: currentUser, tinh_trang_gq: '- Thụ lý số: 12 ngày 15/03/2024',
@@ -369,27 +459,22 @@
                 }
             };
         }
-        
+
         function showToast(msg, isError = false) {
             const t = document.getElementById('toast');
             t.innerText = msg;
             t.className = 'toast show' + (isError ? ' error' : '');
             setTimeout(() => t.className = 'toast', 3000);
         }
-        
+
         function toggleSearchMode() {
             isAdvanced = !isAdvanced;
             const adv = document.getElementById('search-advanced');
             const label = document.getElementById('search-mode-label');
-            if (isAdvanced) {
-                adv.classList.add('show');
-                label.innerText = '[ Nâng cao ]';
-            } else {
-                adv.classList.remove('show');
-                label.innerText = '[ Thu gọn ]';
-            }
+            if (isAdvanced) { adv.classList.add('show'); label.innerText = '[ Nâng cao ]'; }
+            else { adv.classList.remove('show'); label.innerText = '[ Thu gọn ]'; }
         }
-        
+
         function onThaoTacChange() {
             isThaoTacMode = document.getElementById('f_thao_tac_nhap_tach').checked;
             document.getElementById('btn-nhap-an').style.display = isThaoTacMode ? 'inline-block' : 'none';
@@ -398,28 +483,75 @@
             selectedGocId = null;
             loadData();
         }
-        
+
         function closeModal(id) {
             document.getElementById(id).classList.remove('show');
             if (id === 'modal-nhap-an') selectedNhapId = null;
         }
-        
-        function showListView() {
-            document.querySelectorAll('.sidebar li').forEach(li => li.classList.remove('active'));
-            document.querySelector('.sidebar li').classList.add('active');
-            document.querySelector('.breadcrumb span').innerText = 'Danh sách vụ việc';
+
+        function filterLinhVuc(lv, a) {
+            currentLinhVuc = lv;
+            document.querySelectorAll('.top-nav a[data-lv]').forEach(el => el.classList.remove('active'));
+            if (a) a.classList.add('active');
+            document.getElementById('sidebar-title').innerText = (LINH_VUC[lv] || 'Dân sự').toUpperCase();
+            document.querySelector('.breadcrumb').innerHTML = `${esc(LINH_VUC[lv] || 'Dân sự')} > <span id="crumb">${esc(MODULES[currentModule].title)}</span>`;
+            if (currentModule === 'list') renderTable(visibleCases());
+            else renderWork();
         }
-        
+
+        function openModule(key, li) {
+            currentModule = key;
+            selectedWorkId = null;
+            document.querySelectorAll('.sidebar li').forEach(el => el.classList.remove('active'));
+            if (li) li.classList.add('active');
+            const crumb = document.getElementById('crumb');
+            if (crumb) crumb.innerText = MODULES[key].title;
+            const list = document.getElementById('view-list');
+            const work = document.getElementById('view-work');
+            document.querySelectorAll('.secondary-bar .btn-icon').forEach(b => b.classList.remove('active'));
+            if (key === 'list') {
+                list.style.display = '';
+                work.style.display = 'none';
+                document.querySelector('.secondary-bar .btn-icon').classList.add('active');
+                renderTable(visibleCases());
+            } else {
+                list.style.display = 'none';
+                work.style.display = '';
+                renderWork();
+            }
+        }
+
+        function showListView() {
+            openModule('list', document.querySelector('.sidebar li[data-mod="list"]'));
+        }
+
         async function loadData() {
             const db = await openDB();
             const request = db.transaction('records', 'readonly').objectStore('records').getAll();
-            request.onsuccess = () => {
-                const raw = request.result || [];
-                allRecords = window.VksRbac ? raw.filter(r => VksRbac.canSeeRecord(VksRbac.parseProfile(), r)) : raw;
-                renderTable(allRecords);
-            };
+            return new Promise(resolve => {
+                request.onsuccess = () => {
+                    const raw = request.result || [];
+                    allRecords = window.VksRbac ? raw.filter(r => VksRbac.canSeeRecord(VksRbac.parseProfile(), r)) : raw;
+                    if (currentModule === 'list') renderTable(visibleCases());
+                    else renderWork();
+                    resolve();
+                };
+            });
         }
-        
+
+        async function patchRecord(id, fields) {
+            const db = await openDB();
+            const tx = db.transaction('records', 'readwrite');
+            const store = tx.objectStore('records');
+            const old = await new Promise(r => { const req = store.get(id); req.onsuccess = () => r(req.result); });
+            if (!old) { showToast('Không tìm thấy hồ sơ.', true); return; }
+            Object.assign(old, fields, { updatedAt: Date.now() });
+            store.put(old);
+            await new Promise(r => { tx.oncomplete = r; });
+            showToast('Đã lưu.');
+            await loadData();
+        }
+
         function doSearch() {
             const ten = (document.getElementById('f_ten_vu_an').value || '').toLowerCase();
             const duongSu = (document.getElementById('f_duong_su').value || '').toLowerCase();
@@ -428,9 +560,7 @@
             const soBa = (document.getElementById('f_so_baqd').value || '').toLowerCase();
             const ma = (document.getElementById('f_ma_vu_an').value || '').toLowerCase();
             const trangThai = document.getElementById('f_trang_thai_nhap_tach').value;
-            
-            let filtered = allRecords.filter(r => {
-                if (r.merged_into) return false;
+            let filtered = visibleCases().filter(r => {
                 const matchTen = !ten || (r.ten_vu_an || '').toLowerCase().includes(ten) || (r.so_ban_an || '').toLowerCase().includes(ten);
                 const matchDS = !duongSu || (r.nguyen_don || '').toLowerCase().includes(duongSu) || (r.bi_don || '').toLowerCase().includes(duongSu) || (r.ten_vu_an || '').toLowerCase().includes(duongSu);
                 const matchCap = !cap || r.cap_xet_xu === cap;
@@ -444,7 +574,7 @@
             });
             renderTable(filtered);
         }
-        
+
         function resetSearch() {
             document.querySelectorAll('#search-basic input, #search-basic select, #search-advanced input, #search-advanced select').forEach(el => {
                 if (el.type === 'checkbox') el.checked = false;
@@ -452,15 +582,14 @@
             });
             document.getElementById('f_thao_tac_nhap_tach').checked = false;
             onThaoTacChange();
-            loadData();
         }
-        
+
         function renderTable(list) {
             lastExportList = list;
             const tbody = document.getElementById('table-body');
             document.getElementById('table-info').innerText = `Có ${list.length} bản ghi trong 1 trang`;
             if (list.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:30px;color:#999;">Không có dữ liệu. Hãy bấm "Thêm mới" hoặc "Tìm kiếm".</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:30px;color:#999;">Không có dữ liệu. Hãy bấm "Thêm mới" hoặc chọn lĩnh vực khác trên thanh menu.</td></tr>`;
                 return;
             }
             list.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
@@ -473,17 +602,19 @@
                     ${isThaoTacMode ? `<td class="checkbox-cell"><input type="checkbox" ${isSelected ? 'checked' : ''} onchange="selectGoc(${r.id}, this.checked)" ${isMerged ? 'disabled' : ''}></td>` : ''}
                     <td>${idx + 1}</td>
                     <td class="case-info">
-                        <b>Vụ việc:</b> ${r.ten_vu_an || r.so_ban_an || '—'}
+                        <b>Vụ việc:</b> ${esc(r.ten_vu_an || r.so_ban_an || '—')}
                         ${hasImported ? '<span class="imported-badge">Đã nhập ' + r.imported_ids.length + ' vụ</span>' : ''}
                         ${isMerged ? '<span class="merged-badge">Đã nhập vào vụ khác</span>' : ''}
-                        <br><b>Cấp xét xử:</b> ${r.cap_xet_xu || '—'}
+                        ${r.split_from ? '<span class="imported-badge">Tách án</span>' : ''}
+                        <br><b>Cấp xét xử:</b> ${esc(r.cap_xet_xu || '—')} · <b>Lĩnh vực:</b> ${esc(LINH_VUC[linhOf(r)] || linhOf(r))}
                         <br><b>TH giao nhận:</b> Thụ lý mới
-                        ${r.nguyen_don ? `<br><small>NĐ: ${r.nguyen_don}</small>` : ''}
-                        ${r.bi_don ? `<br><small>BĐ: ${r.bi_don}</small>` : ''}
+                        ${r.nguyen_don ? `<br><small>NĐ: ${esc(r.nguyen_don)}</small>` : ''}
+                        ${r.bi_don ? `<br><small>BĐ: ${esc(r.bi_don)}</small>` : ''}
+                        ${r.ksv ? `<br><small>KSV: ${esc(r.ksv)}</small>` : ''}
                     </td>
-                    <td class="status-gq">${r.tinh_trang_gq || '—'}</td>
-                    <td>${r.nguoi_tao || 'Hệ thống'}</td>
-                    <td>${r.ma_vu_viec || r.id}</td>
+                    <td class="status-gq">${esc(r.tinh_trang_gq || '—')}</td>
+                    <td>${esc(r.nguoi_tao || 'Hệ thống')}</td>
+                    <td>${esc(r.ma_vu_viec || r.id)}</td>
                     <td class="action-btns">
                         <button class="btn-view" onclick="viewPDF(${r.id})" title="Xem PDF">📄</button>
                         <button class="btn-edit" onclick="editRecord(${r.id})">Sửa</button>
@@ -495,10 +626,11 @@
         }
 
         function exportExcelList() {
-            const list = lastExportList && lastExportList.length ? lastExportList : allRecords;
+            const list = lastExportList && lastExportList.length ? lastExportList : visibleCases();
             if (!list || !list.length) { alert('Không có dữ liệu để xuất.'); return; }
             const rows = list.map((r, i) => ({
                 STT: i + 1,
+                'Lĩnh vực': LINH_VUC[linhOf(r)] || linhOf(r),
                 'Mã vụ việc': r.ma_vu_viec || r.id || '',
                 'Tên vụ việc': r.ten_vu_an || '',
                 'Cấp xét xử': r.cap_xet_xu || '',
@@ -511,13 +643,18 @@
                 'Kiểm sát viên': r.ksv || '',
                 'Tòa án': r.toa || '',
                 'Tình trạng': r.tinh_trang_gq || '',
+                'Chuyển đến': r.chuyen_den || '',
+                'Trạng thái chuyển': r.chuyen_trang_thai || '',
+                'KC quá hạn': r.khang_cao_qua_han ? 'Có' : '',
+                'Sau xét xử': r.sau_xx_ket_qua || '',
+                'Tổng đạt': r.tong_dat_trang_thai || '',
                 'Người tạo': r.nguoi_tao || ''
             }));
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(rows), 'An dan su');
             XLSX.writeFile(wb, 'DanhSach_AnDanSu_' + new Date().toISOString().slice(0,10) + '.xlsx');
         }
-        
+
         function selectGoc(id, checked) {
             if (checked) {
                 selectedGocId = id;
@@ -526,24 +663,26 @@
                 });
                 const rec = allRecords.find(r => r.id === id);
                 if (rec) {
-                    document.getElementById('status-msg').innerHTML = `Mã vụ việc: <b>${rec.ma_vu_viec || rec.id}</b> &nbsp;|&nbsp; Tên vụ việc: <b>${rec.ten_vu_an || rec.so_ban_an}</b>`;
+                    document.getElementById('status-msg').innerHTML = `Mã vụ việc: <b>${esc(rec.ma_vu_viec || rec.id)}</b> &nbsp;|&nbsp; Tên vụ việc: <b>${esc(rec.ten_vu_an || rec.so_ban_an)}</b>`;
                 }
             } else {
                 selectedGocId = null;
-                document.getElementById('status-msg').innerText = 'Mã vụ việc: — &nbsp;|&nbsp; Tên vụ việc: Bạn chưa chọn vụ án để lưu thông tin !';
+                document.getElementById('status-msg').innerText = 'Mã vụ việc: —  |  Tên vụ việc: Bạn chưa chọn vụ án để lưu thông tin !';
             }
             doSearch();
         }
-        
+
         function openAddModal() {
             editingId = null;
             document.getElementById('modal-add-title').innerText = '➕ Thêm mới vụ việc';
             document.getElementById('btn-save-modal').innerText = '💾 Lưu hồ sơ';
-            ['m_cap_xet_xu','m_so_thu_ly','m_so_ban_an','m_ngay_ban_hanh','m_ten_vu_an','m_nguyen_don','m_bi_don','m_tham_phan','m_ksv','m_toa','m_ma_vu_viec'].forEach(id => {
+            ['m_cap_xet_xu','m_so_thu_ly','m_so_ban_an','m_ngay_ban_hanh','m_ten_vu_an','m_nguyen_don','m_bi_don','m_tham_phan','m_ksv','m_toa','m_ma_vu_viec','m_ma_tadt','m_link_tadt'].forEach(id => {
                 const el = document.getElementById(id);
+                if (!el) return;
                 if (el.tagName === 'SELECT') el.selectedIndex = 0;
                 else el.value = '';
             });
+            document.getElementById('m_linh_vuc').value = currentLinhVuc || 'DS';
             document.getElementById('m_pdf_file').value = '';
             if (window.VksRbac && VksRbac.isKsv(window.__vksProfile || VksRbac.parseProfile())) {
                 const p = window.__vksProfile || VksRbac.parseProfile();
@@ -554,7 +693,7 @@
             }
             document.getElementById('modal-add').classList.add('show');
         }
-        
+
         async function editRecord(id) {
             const db = await openDB();
             const req = db.transaction('records').objectStore('records').get(id);
@@ -564,6 +703,7 @@
                 editingId = id;
                 document.getElementById('modal-add-title').innerText = '✏️ Cập nhật vụ việc';
                 document.getElementById('btn-save-modal').innerText = '💾 Cập nhật';
+                document.getElementById('m_linh_vuc').value = r.linh_vuc || 'DS';
                 document.getElementById('m_cap_xet_xu').value = r.cap_xet_xu || 'Sơ thẩm';
                 document.getElementById('m_so_thu_ly').value = r.so_thu_ly || '';
                 document.getElementById('m_so_ban_an').value = r.so_ban_an || '';
@@ -587,15 +727,13 @@
                 document.getElementById('modal-add').classList.add('show');
             };
         }
-        
+
         async function saveData() {
             const soBA = document.getElementById('m_so_ban_an').value.trim();
-            if (!soBA) {
-                showToast('Vui lòng nhập Số Bản án / Quyết định!', true);
-                return;
-            }
+            if (!soBA) { showToast('Vui lòng nhập Số Bản án / Quyết định!', true); return; }
             const pdfFile = document.getElementById('m_pdf_file').files[0] || null;
             const data = {
+                linh_vuc: document.getElementById('m_linh_vuc').value || currentLinhVuc || 'DS',
                 cap_xet_xu: document.getElementById('m_cap_xet_xu').value,
                 so_thu_ly: document.getElementById('m_so_thu_ly').value.trim(),
                 so_ban_an: soBA,
@@ -611,30 +749,28 @@
                 link_tadt: document.getElementById('m_link_tadt').value.trim(),
                 nguoi_tao: currentUser,
                 createdBy: currentUser,
-                tinh_trang_gq: document.getElementById('m_so_thu_ly').value ? 
+                tinh_trang_gq: document.getElementById('m_so_thu_ly').value ?
                     `- Thụ lý số: ${document.getElementById('m_so_thu_ly').value} ngày ${document.getElementById('m_ngay_ban_hanh').value || '...'}` : '- Thụ lý mới',
-                timestamp: Date.now(),
-                merged_into: null,
-                imported_ids: []
+                timestamp: Date.now()
             };
             if (window.VksRbac) VksRbac.stampMeta(data, window.__vksProfile || VksRbac.parseProfile());
             const db = await openDB();
             const tx = db.transaction('records', 'readwrite');
             const store = tx.objectStore('records');
             if (editingId) {
-                const old = await new Promise(r => {
-                    const req = store.get(editingId);
-                    req.onsuccess = () => r(req.result);
-                });
-                data.id = editingId;
-                data.pdf = pdfFile || (old ? old.pdf : null);
-                data.nguoi_tao = old ? old.nguoi_tao : currentUser;
-                data.imported_ids = old ? (old.imported_ids || []) : [];
-                data.merged_into = old ? old.merged_into : null;
-                data.timestamp = old ? old.timestamp : Date.now();
-                store.put(data);
+                const old = await new Promise(r => { const req = store.get(editingId); req.onsuccess = () => r(req.result); });
+                const merged = Object.assign({}, old || {}, data);
+                merged.id = editingId;
+                merged.pdf = pdfFile || (old ? old.pdf : null);
+                merged.nguoi_tao = old ? old.nguoi_tao : currentUser;
+                merged.imported_ids = old ? (old.imported_ids || []) : [];
+                merged.merged_into = old ? old.merged_into : null;
+                merged.timestamp = old ? old.timestamp : Date.now();
+                store.put(merged);
             } else {
                 data.pdf = pdfFile;
+                data.merged_into = null;
+                data.imported_ids = [];
                 store.add(data);
             }
             tx.oncomplete = () => {
@@ -643,7 +779,7 @@
                 loadData();
             };
         }
-        
+
         async function deleteRecord(id) {
             if (!confirm('Bạn chắc chắn muốn xóa hồ sơ này?')) return;
             const db = await openDB();
@@ -653,7 +789,7 @@
                 loadData();
             };
         }
-        
+
         async function viewPDF(id) {
             const db = await openDB();
             const req = db.transaction('records').objectStore('records').get(id);
@@ -666,15 +802,12 @@
                 }
             };
         }
-        
+
         function openNhapAnModal() {
-            if (!selectedGocId) {
-                showToast('Vui lòng tick chọn 1 vụ án gốc trước khi bấm Nhập án!', true);
-                return;
-            }
+            if (!selectedGocId) { showToast('Vui lòng tick chọn 1 vụ án gốc trước khi bấm Nhập án!', true); return; }
             const goc = allRecords.find(r => r.id === selectedGocId);
             if (!goc) return;
-            document.getElementById('nhap-vu-goc-info').innerHTML = `<b>${goc.ten_vu_an || goc.so_ban_an}</b> (Mã: ${goc.ma_vu_viec || goc.id}) - ${goc.cap_xet_xu}`;
+            document.getElementById('nhap-vu-goc-info').innerHTML = `<b>${esc(goc.ten_vu_an || goc.so_ban_an)}</b> (Mã: ${esc(goc.ma_vu_viec || goc.id)}) - ${esc(goc.cap_xet_xu)}`;
             document.getElementById('nhap_f_duong_su').value = '';
             document.getElementById('nhap_f_cap').value = '';
             document.getElementById('nhap_f_so').value = '';
@@ -682,7 +815,7 @@
             renderNhapTable(allRecords.filter(r => r.id !== selectedGocId && !r.merged_into));
             document.getElementById('modal-nhap-an').classList.add('show');
         }
-        
+
         function searchForNhap() {
             const ds = (document.getElementById('nhap_f_duong_su').value || '').toLowerCase();
             const cap = document.getElementById('nhap_f_cap').value;
@@ -696,7 +829,7 @@
             });
             renderNhapTable(filtered);
         }
-        
+
         function renderNhapTable(list) {
             const tbody = document.getElementById('nhap-table-body');
             document.getElementById('nhap-table-info').innerText = `Có ${list.length} bản ghi — Chọn 1 vụ án để nhập vào vụ gốc`;
@@ -709,32 +842,23 @@
                 html += `<tr data-id="${r.id}">
                     <td class="checkbox-cell"><input type="radio" name="nhap_select" value="${r.id}" onchange="selectedNhapId=${r.id}"></td>
                     <td>${idx + 1}</td>
-                    <td class="case-info"><b>Vụ việc:</b> ${r.ten_vu_an || r.so_ban_an}<br><b>Cấp xét xử:</b> ${r.cap_xet_xu}<br><small>NĐ: ${r.nguyen_don || '—'} | BĐ: ${r.bi_don || '—'}</small></td>
-                    <td class="status-gq">${r.tinh_trang_gq || '—'}</td>
-                    <td>${r.ma_vu_viec || r.id}</td>
+                    <td class="case-info"><b>Vụ việc:</b> ${esc(r.ten_vu_an || r.so_ban_an)}<br><b>Cấp xét xử:</b> ${esc(r.cap_xet_xu)}<br><small>NĐ: ${esc(r.nguyen_don || '—')} | BĐ: ${esc(r.bi_don || '—')}</small></td>
+                    <td class="status-gq">${esc(r.tinh_trang_gq || '—')}</td>
+                    <td>${esc(r.ma_vu_viec || r.id)}</td>
                 </tr>`;
             });
             tbody.innerHTML = html;
         }
-        
+
         async function confirmNhapAn() {
-            if (!selectedNhapId) {
-                showToast('Vui lòng chọn 1 vụ án cần nhập!', true);
-                return;
-            }
-            if (!selectedGocId) {
-                showToast('Không xác định được vụ gốc!', true);
-                return;
-            }
+            if (!selectedNhapId) { showToast('Vui lòng chọn 1 vụ án cần nhập!', true); return; }
+            if (!selectedGocId) { showToast('Không xác định được vụ gốc!', true); return; }
             const db = await openDB();
             const tx = db.transaction('records', 'readwrite');
             const store = tx.objectStore('records');
             const goc = await new Promise(r => { const req = store.get(selectedGocId); req.onsuccess = () => r(req.result); });
             const nhap = await new Promise(r => { const req = store.get(selectedNhapId); req.onsuccess = () => r(req.result); });
-            if (!goc || !nhap) {
-                showToast('Không tìm thấy dữ liệu vụ án!', true);
-                return;
-            }
+            if (!goc || !nhap) { showToast('Không tìm thấy dữ liệu vụ án!', true); return; }
             goc.imported_ids = goc.imported_ids || [];
             if (!goc.imported_ids.includes(selectedNhapId)) goc.imported_ids.push(selectedNhapId);
             goc.tinh_trang_gq = (goc.tinh_trang_gq || '') + ` | Đã nhập vụ ${nhap.ma_vu_viec || nhap.id}`;
@@ -750,13 +874,350 @@
                 selectedNhapId = null;
                 document.getElementById('f_thao_tac_nhap_tach').checked = false;
                 onThaoTacChange();
-                loadData();
             };
         }
-        
-        window.onload = () => {
-            seedSampleData();
-        };
+
+        async function tachAn() {
+            if (!selectedGocId) { showToast('Vui lòng tick chọn 1 vụ án gốc trước khi bấm Tách án!', true); return; }
+            const goc = allRecords.find(r => r.id === selectedGocId);
+            if (!goc) return;
+            if (!confirm('Tách một bản sao hồ sơ từ vụ gốc "' + (goc.ma_vu_viec || goc.id) + '"?')) return;
+            const db = await openDB();
+            const tx = db.transaction('records', 'readwrite');
+            const store = tx.objectStore('records');
+            const gocFull = await new Promise(r => { const req = store.get(selectedGocId); req.onsuccess = () => r(req.result); });
+            const copy = Object.assign({}, gocFull || goc);
+            delete copy.id;
+            delete copy.pdf;
+            copy.split_from = selectedGocId;
+            copy.ma_vu_viec = (copy.ma_vu_viec || copy.so_ban_an || 'VV') + '-TACH';
+            copy.ten_vu_an = (copy.ten_vu_an || '') + ' (tách)';
+            copy.merged_into = null;
+            copy.imported_ids = [];
+            copy.timestamp = Date.now();
+            copy.nguoi_tao = currentUser;
+            copy.createdBy = currentUser;
+            copy.tinh_trang_gq = (copy.tinh_trang_gq || '') + ' | Tách từ vụ ' + (goc.ma_vu_viec || goc.id);
+            if (window.VksRbac) VksRbac.stampMeta(copy, window.__vksProfile || VksRbac.parseProfile());
+            store.add(copy);
+            if (gocFull) {
+                gocFull.tinh_trang_gq = (gocFull.tinh_trang_gq || '') + ' | Đã tách án';
+                store.put(gocFull);
+            }
+            tx.oncomplete = () => {
+                showToast('Đã tách án thành công.');
+                selectedGocId = null;
+                document.getElementById('f_thao_tac_nhap_tach').checked = false;
+                onThaoTacChange();
+            };
+        }
+
+        function ksvNames() {
+            const set = new Set();
+            try {
+                const db = JSON.parse(localStorage.getItem('vks_users_db') || '{}');
+                Object.values(db).forEach(u => {
+                    const p = String(u.position || u.rank || '').toLowerCase();
+                    if (p.indexOf('kiểm sát viên') >= 0 || p.indexOf('kiem sat vien') >= 0 || p === 'kiem_sat_vien') {
+                        if (u.fullname) set.add(u.fullname);
+                    }
+                });
+            } catch (e) {}
+            allRecords.forEach(r => { if (r.ksv) set.add(r.ksv); });
+            return [...set].sort((a, b) => a.localeCompare(b, 'vi'));
+        }
+        function judgeNames() {
+            const set = new Set();
+            allRecords.forEach(r => { if (r.tham_phan) set.add(r.tham_phan); });
+            return [...set].sort((a, b) => a.localeCompare(b, 'vi'));
+        }
+        function caseOptions(selectedId) {
+            return visibleCases().map(r =>
+                `<option value="${r.id}" ${String(r.id) === String(selectedId) ? 'selected' : ''}>${esc(r.ma_vu_viec || r.id)} — ${esc((r.ten_vu_an || '').slice(0, 72))}</option>`
+            ).join('');
+        }
+        function nameOptions(list, selected, extra) {
+            const all = [...new Set([...(list || []), extra].filter(Boolean))];
+            return `<option value="">-- Chọn --</option>` + all.map(n =>
+                `<option value="${esc(n)}" ${n === selected ? 'selected' : ''}>${esc(n)}</option>`
+            ).join('') + `<option value="__other__">Khác (nhập tay)</option>`;
+        }
+        function renderRoster(field) {
+            const map = {};
+            visibleCases().forEach(r => {
+                const k = (r[field] || '').trim() || '(Chưa phân công)';
+                (map[k] = map[k] || []).push(r);
+            });
+            const keys = Object.keys(map).sort((a, b) => {
+                if (a.startsWith('(Chưa')) return -1;
+                if (b.startsWith('(Chưa')) return 1;
+                return a.localeCompare(b, 'vi');
+            });
+            if (!keys.length) return '';
+            return `<div class="roster">${keys.map(k => `<div class="roster-card"><h4>${esc(k)} <small>${map[k].length} vụ</small></h4><ul>${map[k].map(r => `<li onclick="selectWork(${r.id})">${esc(r.ma_vu_viec || r.id)} · ${esc((r.ten_vu_an || '').slice(0, 48))}</li>`).join('')}</ul></div>`).join('')}</div>`;
+        }
+
+        function selectWork(id) {
+            selectedWorkId = id;
+            const rec = allRecords.find(r => r.id === id);
+            if (rec) {
+                document.getElementById('status-msg').innerHTML = `Mã vụ việc: <b>${esc(rec.ma_vu_viec || rec.id)}</b> &nbsp;|&nbsp; Tên vụ việc: <b>${esc(rec.ten_vu_an || rec.so_ban_an)}</b>`;
+            }
+            renderWork();
+        }
+
+        function workList() {
+            if (currentModule === 'nhan') {
+                return visibleCases().filter(r => r.chuyen_trang_thai === 'da_chuyen' || r.chuyen_trang_thai === 'da_nhan');
+            }
+            return visibleCases();
+        }
+
+        function pillChuyen(r) {
+            if (r.chuyen_trang_thai === 'da_nhan') return `<span class="pill pill-ok">Đã nhận</span>`;
+            if (r.chuyen_trang_thai === 'da_chuyen') return `<span class="pill pill-warn">Đã chuyển</span>`;
+            return `<span class="pill pill-muted">Chưa chuyển</span>`;
+        }
+
+        function renderWork() {
+            const rec = allRecords.find(r => r.id === selectedWorkId) || null;
+            const lock = !canAssignNow();
+            document.getElementById('work-help').innerText = MODULES[currentModule].help || '';
+            const list = workList();
+            let form = '';
+            let roster = '';
+            let thead = '';
+            const disabled = lock ? 'disabled' : '';
+
+            if (currentModule === 'thamphan') {
+                roster = renderRoster('tham_phan');
+                form = `<h3>Phân công Thẩm phán</h3>
+                    <div class="form-grid">
+                        <div class="form-group full"><label>Vụ việc</label><select id="w_case" onchange="selectWork(parseInt(this.value,10))">${caseOptions(selectedWorkId)}</select></div>
+                        <div class="form-group"><label>Thẩm phán hiện tại</label><input value="${esc(rec ? rec.tham_phan : '')}" disabled></div>
+                        <div class="form-group"><label>Phân công Thẩm phán</label>
+                            <select id="w_tham_phan_sel" ${disabled} onchange="if(this.value==='__other__'){document.getElementById('w_tham_phan').style.display='block'}else{document.getElementById('w_tham_phan').style.display='none';document.getElementById('w_tham_phan').value=this.value}">
+                                ${nameOptions(judgeNames(), rec ? rec.tham_phan : '')}
+                            </select>
+                            <input id="w_tham_phan" placeholder="Nhập tên Thẩm phán" style="margin-top:6px;display:none" ${disabled}>
+                        </div>
+                    </div>
+                    <div style="margin-top:12px;text-align:right"><button class="btn btn-primary" ${disabled} onclick="saveThamPhan()">💾 Lưu phân công</button></div>
+                    ${lock ? '<p style="margin:8px 0 0;color:#b45309;font-size:12px;">Tài khoản Kiểm sát viên không được phân công Thẩm phán.</p>' : ''}`;
+                thead = `<tr><th>STT</th><th>Vụ việc</th><th>Thẩm phán</th><th>KSV</th><th></th></tr>`;
+            } else if (currentModule === 'ksv') {
+                roster = renderRoster('ksv');
+                form = `<h3>Phân công Kiểm sát viên</h3>
+                    <div class="form-grid">
+                        <div class="form-group full"><label>Vụ việc</label><select id="w_case" onchange="selectWork(parseInt(this.value,10))">${caseOptions(selectedWorkId)}</select></div>
+                        <div class="form-group"><label>KSV hiện tại</label><input value="${esc(rec ? rec.ksv : '')}" disabled></div>
+                        <div class="form-group"><label>Phân công KSV</label>
+                            <select id="w_ksv_sel" ${disabled} onchange="if(this.value==='__other__'){document.getElementById('w_ksv').style.display='block'}else{document.getElementById('w_ksv').style.display='none';document.getElementById('w_ksv').value=this.value}">
+                                ${nameOptions(ksvNames(), rec ? rec.ksv : '')}
+                            </select>
+                            <input id="w_ksv" placeholder="Nhập tên Kiểm sát viên" style="margin-top:6px;display:none" ${disabled}>
+                        </div>
+                    </div>
+                    <div style="margin-top:12px;text-align:right"><button class="btn btn-primary" ${disabled} onclick="saveKsv()">💾 Lưu phân công</button></div>
+                    ${lock ? '<p style="margin:8px 0 0;color:#b45309;font-size:12px;">Kiểm sát viên chỉ xem vụ việc được phân công, không phân công lại.</p>' : ''}`;
+                thead = `<tr><th>STT</th><th>Vụ việc</th><th>Kiểm sát viên</th><th>Thẩm phán</th><th></th></tr>`;
+            } else if (currentModule === 'chuyen') {
+                form = `<h3>Chuyển án</h3>
+                    <div class="form-grid">
+                        <div class="form-group full"><label>Vụ việc</label><select id="w_case" onchange="selectWork(parseInt(this.value,10))">${caseOptions(selectedWorkId)}</select></div>
+                        <div class="form-group"><label>Chuyển đến</label>
+                            <select id="w_chuyen_den" ${disabled}>${VKS_UNITS.map(u => `<option ${rec && rec.chuyen_den===u?'selected':''}>${esc(u)}</option>`).join('')}</select>
+                        </div>
+                        <div class="form-group"><label>Ngày chuyển</label><input type="date" id="w_chuyen_ngay" value="${esc((rec && rec.chuyen_ngay) || today())}" ${disabled}></div>
+                        <div class="form-group full"><label>Lý do / ghi chú</label><textarea id="w_chuyen_ly_do" ${disabled}>${esc(rec ? rec.chuyen_ly_do : '')}</textarea></div>
+                    </div>
+                    <div style="margin-top:12px;text-align:right"><button class="btn btn-primary" ${disabled} onclick="saveChuyen()">📤 Chuyển án</button></div>`;
+                thead = `<tr><th>STT</th><th>Vụ việc</th><th>Chuyển đến</th><th>Ngày</th><th>Trạng thái</th><th></th></tr>`;
+            } else if (currentModule === 'nhan') {
+                form = `<h3>Nhận án</h3>
+                    <p style="font-size:12.5px;color:#122033;margin:0 0 10px;">Chọn vụ đã chuyển (màu vàng) rồi bấm nhận. Vụ đã nhận hiển thị màu xanh.</p>
+                    <div class="form-grid">
+                        <div class="form-group full"><label>Vụ việc</label>
+                            <select id="w_case" onchange="selectWork(parseInt(this.value,10))">${
+                                list.map(r => `<option value="${r.id}" ${String(r.id)===String(selectedWorkId)?'selected':''}>${esc(r.ma_vu_viec||r.id)} — ${esc((r.ten_vu_an||'').slice(0,72))}</option>`).join('')
+                            }</select>
+                        </div>
+                        <div class="form-group"><label>Ngày nhận</label><input type="date" id="w_nhan_ngay" value="${esc((rec && rec.nhan_ngay) || today())}"></div>
+                        <div class="form-group"><label>Trạng thái</label><input value="${esc(rec ? (rec.chuyen_trang_thai === 'da_nhan' ? 'Đã nhận' : rec.chuyen_trang_thai === 'da_chuyen' ? 'Chờ nhận' : '—') : '')}" disabled></div>
+                    </div>
+                    <div style="margin-top:12px;text-align:right"><button class="btn btn-success" onclick="saveNhan()">✅ Nhận án</button></div>`;
+                thead = `<tr><th>STT</th><th>Vụ việc</th><th>Từ / đến</th><th>Ngày chuyển</th><th>Trạng thái</th><th></th></tr>`;
+            } else if (currentModule === 'kc') {
+                form = `<h3>Kháng cáo / kháng nghị quá hạn</h3>
+                    <div class="form-grid">
+                        <div class="form-group full"><label>Vụ việc</label><select id="w_case" onchange="selectWork(parseInt(this.value,10))">${caseOptions(selectedWorkId)}</select></div>
+                        <div class="form-group"><label>Kháng cáo quá hạn</label>
+                            <select id="w_kc_qh"><option value="0" ${rec && rec.khang_cao_qua_han ? '' : 'selected'}>Không</option><option value="1" ${rec && rec.khang_cao_qua_han ? 'selected' : ''}>Có</option></select>
+                        </div>
+                        <div class="form-group"><label>Ngày ghi nhận</label><input type="date" id="w_kc_ngay" value="${esc((rec && rec.kc_ngay) || today())}"></div>
+                        <div class="form-group full"><label>Ghi chú</label><textarea id="w_kc_ghi_chu">${esc(rec ? rec.kc_ghi_chu : '')}</textarea></div>
+                    </div>
+                    <div style="margin-top:12px;text-align:right"><button class="btn btn-primary" onclick="saveKc()">💾 Cập nhật</button></div>`;
+                thead = `<tr><th>STT</th><th>Vụ việc</th><th>KC quá hạn</th><th>Ngày</th><th>Ghi chú</th><th></th></tr>`;
+            } else if (currentModule === 'sauxx') {
+                form = `<h3>Thông tin sau xét xử</h3>
+                    <div class="form-grid">
+                        <div class="form-group full"><label>Vụ việc</label><select id="w_case" onchange="selectWork(parseInt(this.value,10))">${caseOptions(selectedWorkId)}</select></div>
+                        <div class="form-group"><label>Kết quả xét xử</label>
+                            <select id="w_sau_xx">${SAU_XX.map(x => `<option ${rec && rec.sau_xx_ket_qua===x?'selected':''}>${esc(x)}</option>`).join('')}</select>
+                        </div>
+                        <div class="form-group"><label>Ngày cập nhật</label><input type="date" id="w_sau_xx_ngay" value="${esc((rec && rec.sau_xx_ngay) || today())}"></div>
+                        <div class="form-group full"><label>Ghi chú / tóm tắt bản án</label><textarea id="w_sau_xx_ghi_chu">${esc(rec ? rec.sau_xx_ghi_chu : '')}</textarea></div>
+                    </div>
+                    <div style="margin-top:12px;text-align:right"><button class="btn btn-primary" onclick="saveSauXx()">💾 Cập nhật</button></div>`;
+                thead = `<tr><th>STT</th><th>Vụ việc</th><th>Kết quả XX</th><th>Ngày</th><th>Ghi chú</th><th></th></tr>`;
+            } else if (currentModule === 'tongdat') {
+                form = `<h3>Đăng văn bản tổng đạt</h3>
+                    <div class="form-grid">
+                        <div class="form-group full"><label>Vụ việc</label><select id="w_case" onchange="selectWork(parseInt(this.value,10))">${caseOptions(selectedWorkId)}</select></div>
+                        <div class="form-group"><label>Số văn bản</label><input id="w_td_so" value="${esc(rec ? rec.tong_dat_so : '')}"></div>
+                        <div class="form-group"><label>Ngày đăng</label><input type="date" id="w_td_ngay" value="${esc((rec && rec.tong_dat_ngay) || today())}"></div>
+                        <div class="form-group full"><label>Đường dẫn cổng thông tin / TADT</label><input id="w_td_link" placeholder="https://..." value="${esc(rec ? rec.tong_dat_link : '')}"></div>
+                        <div class="form-group"><label>Trạng thái</label>
+                            <select id="w_td_tt">
+                                <option value="chua_dang" ${!rec || rec.tong_dat_trang_thai!=='da_dang'?'selected':''}>Chưa đăng</option>
+                                <option value="da_dang" ${rec && rec.tong_dat_trang_thai==='da_dang'?'selected':''}>Đã đăng</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="margin-top:12px;text-align:right"><button class="btn btn-primary" onclick="saveTongDat()">💾 Lưu & đánh dấu đã đăng</button></div>`;
+                thead = `<tr><th>STT</th><th>Vụ việc</th><th>Số VB</th><th>Ngày</th><th>Trạng thái</th><th></th></tr>`;
+            }
+
+            document.getElementById('work-roster').innerHTML = roster;
+            document.getElementById('work-form').innerHTML = form;
+            document.getElementById('work-thead').innerHTML = thead;
+            document.getElementById('work-table-info').innerText = `Có ${list.length} bản ghi — bấm vào dòng hoặc “Chọn” để thao tác`;
+
+            const tbody = document.getElementById('work-tbody');
+            if (!list.length) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:28px;color:#999;">Không có vụ việc phù hợp. Hãy thêm mới ở Danh sách vụ việc hoặc chọn lĩnh vực khác.</td></tr>`;
+                return;
+            }
+            list.sort((a, b) => (b.timestamp || 0) - (a.timestamp || 0));
+            tbody.innerHTML = list.map((r, idx) => {
+                const sel = String(r.id) === String(selectedWorkId) ? 'work-sel' : '';
+                let cells = '';
+                if (currentModule === 'thamphan') {
+                    cells = `<td>${esc(r.tham_phan || '—')}</td><td>${esc(r.ksv || '—')}</td>`;
+                } else if (currentModule === 'ksv') {
+                    cells = `<td>${esc(r.ksv || '—')}</td><td>${esc(r.tham_phan || '—')}</td>`;
+                } else if (currentModule === 'chuyen') {
+                    cells = `<td>${esc(r.chuyen_den || '—')}</td><td>${esc(r.chuyen_ngay || '—')}</td><td>${pillChuyen(r)}</td>`;
+                } else if (currentModule === 'nhan') {
+                    cells = `<td>${esc(r.chuyen_den || '—')}</td><td>${esc(r.chuyen_ngay || '—')}</td><td>${pillChuyen(r)}</td>`;
+                } else if (currentModule === 'kc') {
+                    cells = `<td>${r.khang_cao_qua_han ? '<span class="pill pill-bad">Quá hạn</span>' : '<span class="pill pill-ok">Không</span>'}</td><td>${esc(r.kc_ngay || '—')}</td><td>${esc((r.kc_ghi_chu || '').slice(0, 40))}</td>`;
+                } else if (currentModule === 'sauxx') {
+                    cells = `<td>${esc(r.sau_xx_ket_qua || '—')}</td><td>${esc(r.sau_xx_ngay || '—')}</td><td>${esc((r.sau_xx_ghi_chu || '').slice(0, 40))}</td>`;
+                } else if (currentModule === 'tongdat') {
+                    cells = `<td>${esc(r.tong_dat_so || '—')}</td><td>${esc(r.tong_dat_ngay || '—')}</td><td>${r.tong_dat_trang_thai==='da_dang'?'<span class="pill pill-ok">Đã đăng</span>':'<span class="pill pill-muted">Chưa đăng</span>'}</td>`;
+                }
+                return `<tr class="${sel}" onclick="selectWork(${r.id})">
+                    <td>${idx + 1}</td>
+                    <td class="case-info"><b>${esc(r.ten_vu_an || r.so_ban_an || '—')}</b><br><small>${esc(r.ma_vu_viec || r.id)} · ${esc(r.cap_xet_xu || '')}</small></td>
+                    ${cells}
+                    <td><button class="btn btn-primary" style="padding:3px 8px" onclick="event.stopPropagation();selectWork(${r.id})">Chọn</button></td>
+                </tr>`;
+            }).join('');
+        }
+
+        function workCaseId() {
+            const sel = document.getElementById('w_case');
+            const id = sel && sel.value ? parseInt(sel.value, 10) : selectedWorkId;
+            if (!id) { showToast('Hãy chọn vụ việc.', true); return null; }
+            return id;
+        }
+        function pickedName(selId, inputId) {
+            const sel = document.getElementById(selId);
+            const inp = document.getElementById(inputId);
+            if (sel && sel.value && sel.value !== '__other__') return sel.value.trim();
+            return (inp && inp.value || '').trim();
+        }
+        async function saveThamPhan() {
+            const id = workCaseId(); if (!id) return;
+            if (!canAssignNow()) { showToast('Bạn không được phân công Thẩm phán.', true); return; }
+            const name = pickedName('w_tham_phan_sel', 'w_tham_phan');
+            if (!name) { showToast('Nhập hoặc chọn Thẩm phán.', true); return; }
+            await patchRecord(id, { tham_phan: name });
+            selectedWorkId = id;
+        }
+        async function saveKsv() {
+            const id = workCaseId(); if (!id) return;
+            if (!canAssignNow()) { showToast('Bạn không được phân công Kiểm sát viên.', true); return; }
+            const name = pickedName('w_ksv_sel', 'w_ksv');
+            if (!name) { showToast('Nhập hoặc chọn Kiểm sát viên.', true); return; }
+            await patchRecord(id, { ksv: name, can_bo_ksv: name, assignedTo: name });
+            selectedWorkId = id;
+        }
+        async function saveChuyen() {
+            const id = workCaseId(); if (!id) return;
+            if (!canAssignNow()) { showToast('Bạn không được chuyển án.', true); return; }
+            const den = document.getElementById('w_chuyen_den').value;
+            const ngay = document.getElementById('w_chuyen_ngay').value;
+            const lyDo = document.getElementById('w_chuyen_ly_do').value.trim();
+            if (!den) { showToast('Chọn đơn vị nhận.', true); return; }
+            await patchRecord(id, {
+                chuyen_den: den, chuyen_ngay: ngay, chuyen_ly_do: lyDo,
+                chuyen_trang_thai: 'da_chuyen',
+                tinh_trang_gq: ((allRecords.find(r => r.id === id) || {}).tinh_trang_gq || '') + ' | Đã chuyển ' + den
+            });
+            selectedWorkId = id;
+        }
+        async function saveNhan() {
+            const id = workCaseId(); if (!id) return;
+            const rec = allRecords.find(r => r.id === id);
+            if (!rec || rec.chuyen_trang_thai !== 'da_chuyen') {
+                showToast('Chỉ nhận được vụ đã được chuyển đến.', true); return;
+            }
+            const ngay = document.getElementById('w_nhan_ngay').value || today();
+            await patchRecord(id, {
+                chuyen_trang_thai: 'da_nhan', nhan_ngay: ngay,
+                tinh_trang_gq: (rec.tinh_trang_gq || '') + ' | Đã nhận án ' + ngay
+            });
+            selectedWorkId = id;
+        }
+        async function saveKc() {
+            const id = workCaseId(); if (!id) return;
+            const qh = document.getElementById('w_kc_qh').value === '1';
+            await patchRecord(id, {
+                khang_cao_qua_han: qh,
+                kc_ngay: document.getElementById('w_kc_ngay').value,
+                kc_ghi_chu: document.getElementById('w_kc_ghi_chu').value.trim()
+            });
+            selectedWorkId = id;
+        }
+        async function saveSauXx() {
+            const id = workCaseId(); if (!id) return;
+            const kq = document.getElementById('w_sau_xx').value;
+            const rec = allRecords.find(r => r.id === id) || {};
+            await patchRecord(id, {
+                sau_xx_ket_qua: kq,
+                sau_xx_ngay: document.getElementById('w_sau_xx_ngay').value,
+                sau_xx_ghi_chu: document.getElementById('w_sau_xx_ghi_chu').value.trim(),
+                tinh_trang_gq: (rec.tinh_trang_gq || '') + ' | Sau XX: ' + kq
+            });
+            selectedWorkId = id;
+        }
+        async function saveTongDat() {
+            const id = workCaseId(); if (!id) return;
+            const so = document.getElementById('w_td_so').value.trim();
+            const ngay = document.getElementById('w_td_ngay').value;
+            const link = document.getElementById('w_td_link').value.trim();
+            let tt = document.getElementById('w_td_tt').value;
+            if (so || link) tt = 'da_dang';
+            await patchRecord(id, {
+                tong_dat_so: so, tong_dat_ngay: ngay, tong_dat_link: link, tong_dat_trang_thai: tt
+            });
+            selectedWorkId = id;
+        }
+
+        window.onload = () => { seedSampleData(); };
     </script>
 </body>
 </html>

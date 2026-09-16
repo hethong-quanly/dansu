@@ -43,16 +43,65 @@ body.vks-page {
     linear-gradient(180deg, rgba(6, 20, 51, 0.9), rgba(4, 14, 36, 0.94)),
     url("tru-so-vksnd.jpg");
 }
+
+/* Nền đậm → chữ trắng (menu, header, tiêu đề bảng) */
 body.vks-page header,
-body.vks-page .top-nav {
+body.vks-page .top-nav,
+body.vks-page .sidebar-title,
+body.vks-page .modal-header {
   background: var(--vks-crimson-deep) !important;
-  color: var(--vks-fg) !important;
+  color: #ffffff !important;
+}
+body.vks-page header,
+body.vks-page header *,
+body.vks-page .top-nav,
+body.vks-page .top-nav a,
+body.vks-page .top-nav .user-info,
+body.vks-page .top-nav b,
+body.vks-page header a,
+body.vks-page header .btn-back,
+body.vks-page .sidebar-title,
+body.vks-page .modal-header,
+body.vks-page .modal-header span,
+body.vks-page .modal-header .close-btn {
+  color: #ffffff !important;
 }
 body.vks-page header h1,
-body.vks-page header h2,
-body.vks-page h1,
-body.vks-page h2 {
-  color: var(--vks-gold) !important;
+body.vks-page header h2 {
+  color: #ffe566 !important;
+}
+body.vks-page .top-nav a:hover,
+body.vks-page .top-nav a.active {
+  background: #1248ad !important;
+  color: #ffffff !important;
+}
+body.vks-page a {
+  color: var(--vks-crimson);
+}
+body.vks-page .top-nav a {
+  color: #ffffff !important;
+}
+body.vks-page th {
+  background: var(--vks-crimson-deep) !important;
+  color: #ffffff !important;
+}
+body.vks-page td {
+  color: var(--vks-ink);
+}
+body.vks-page .btn-save,
+body.vks-page .btn-primary,
+body.vks-page .btn-in {
+  background: var(--vks-crimson) !important;
+  color: var(--vks-fg) !important;
+}
+body.vks-page .btn-icon.active {
+  background: var(--vks-crimson) !important;
+  color: var(--vks-fg) !important;
+  border-color: var(--vks-crimson) !important;
+}
+body.vks-page .section {
+  background: var(--vks-bg-soft) !important;
+  color: var(--vks-ink) !important;
 }
 body.vks-page .container,
 body.vks-page .sidebar,
@@ -61,33 +110,4 @@ body.vks-page .panel,
 body.vks-page .card {
   background: var(--vks-surface) !important;
   color: var(--vks-ink) !important;
-}
-body.vks-page .btn-save,
-body.vks-page .btn-primary,
-body.vks-page .btn-in {
-  background: var(--vks-crimson) !important;
-  color: var(--vks-fg) !important;
-}
-body.vks-page .section {
-  background: var(--vks-bg-soft) !important;
-  color: var(--vks-ink) !important;
-}
-body.vks-page th {
-  background: var(--vks-crimson-deep) !important;
-  color: var(--vks-gold) !important;
-}
-body.vks-page td {
-  color: var(--vks-ink);
-}
-body.vks-page a {
-  color: var(--vks-crimson);
-}
-body.vks-page .sidebar-title {
-  background: var(--vks-crimson-deep) !important;
-  color: var(--vks-gold) !important;
-}
-body.vks-page .btn-icon.active {
-  background: var(--vks-crimson) !important;
-  color: var(--vks-fg) !important;
-  border-color: var(--vks-crimson) !important;
 }
