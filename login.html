@@ -125,7 +125,6 @@
 
         <form class="glass" id="form-login" onsubmit="handleLogin(event)">
             <h2>Đăng nhập hệ thống</h2>
-            <p class="lead">Tài khoản do Viện trưởng, Phó viện trưởng, Trưởng phòng hoặc Chánh văn phòng đơn vị cấp.</p>
             <label class="field">Tên đăng nhập
                 <input id="username" autocomplete="username">
             </label>
@@ -136,7 +135,7 @@
             <button type="submit" class="btn-in">ĐĂNG NHẬP</button>
             <button type="button" class="forgot" onclick="showForgot()">Quên mật khẩu?</button>
             <a class="install" data-install-app href="cai_dat.html">Cài đặt ứng dụng lên điện thoại</a>
-            <p class="foot">Hệ thống nghiệp vụ nội bộ · VKSND TP. Cần Thơ</p>
+            <p class="foot">Hệ thống Quản lý phần Dân sự · VKSND TP. Cần Thơ</p>
         </form>
 
         <form class="glass" id="form-forgot" style="display:none" onsubmit="handleForgot(event)">
@@ -179,7 +178,7 @@
             fullname: (dbLocal.admin && dbLocal.admin.fullname) || 'Quản trị viên',
             level: 'toi_cao',
             unit: 'VKSND Tối cao',
-            position: (dbLocal.admin && dbLocal.admin.position) || 'Cục trưởng cục Thống kê và CNTT'
+            position: 'Quản trị hệ thống'
         }, rights());
         localStorage.setItem('vks_users_db', JSON.stringify(dbLocal));
         return dbLocal;
@@ -193,7 +192,7 @@
                 fullname: v.fullname || 'Quản trị viên',
                 level: v.level || 'toi_cao',
                 unit: v.unit || 'VKSND Tối cao',
-                position: v.position || 'Cục trưởng cục Thống kê và CNTT'
+                position: 'Quản trị hệ thống'
             }, rights()));
         }).catch(function () {});
         TRIAL.forEach(function (u) {

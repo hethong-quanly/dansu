@@ -11,6 +11,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="static/bmds-export.js?v=20260916d"></script>
     
     <style>
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f5f7fa; }
@@ -318,26 +319,10 @@
         function exportToExcel() {
             db.ref('don_khieu_to').once('value').then(snapshot => {
                 const datas = snapshot.val() || {};
-                const rows = Object.keys(datas).filter(function (key) {
+                const list = Object.keys(datas).filter(function (key) {
                     return !window.VksRbac || VksRbac.canSeeRecord(VksRbac.parseProfile(), datas[key]);
-                }).map((key, i) => {
-                    const item = datas[key];
-                    return {
-                        STT: i + 1,
-                        'Ngày nhận': item.ngay_nhan || '',
-                        'Nguồn đơn': item.nguon_don || '',
-                        'Người nộp': item.ho_ten || '',
-                        'Địa chỉ': item.dia_chi || '',
-                        'Phân loại': item.phan_loai || '',
-                        'Thẩm quyền': item.tham_quyen || '',
-                        'Nội dung': item.noi_dung || '',
-                        'Cán bộ': item.can_bo_ksv || ''
-                    };
-                });
-                if (!rows.length) { alert('Không có dữ liệu để xuất.'); return; }
-                const wb = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(rows), 'Khieu to');
-                XLSX.writeFile(wb, 'DanhSach_KhieuTo_' + new Date().toISOString().slice(0,10) + '.xlsx');
+                }).map(function (key) { return datas[key]; });
+                if (window.VksBmds) VksBmds.exportKhieuto(list);
             });
         }
 

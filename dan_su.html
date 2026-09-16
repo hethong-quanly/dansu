@@ -9,6 +9,7 @@
     <script src="static/rbac.js"></script>
     <script src="static/pwa.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="static/bmds-export.js?v=20260916d"></script>
     <script>
         const currentUser = sessionStorage.getItem('vks_logged_in') === 'true' ? localStorage.getItem('vks_user') : null;
         if (!currentUser) {
@@ -627,32 +628,8 @@
 
         function exportExcelList() {
             const list = lastExportList && lastExportList.length ? lastExportList : visibleCases();
-            if (!list || !list.length) { alert('Không có dữ liệu để xuất.'); return; }
-            const rows = list.map((r, i) => ({
-                STT: i + 1,
-                'Lĩnh vực': LINH_VUC[linhOf(r)] || linhOf(r),
-                'Mã vụ việc': r.ma_vu_viec || r.id || '',
-                'Tên vụ việc': r.ten_vu_an || '',
-                'Cấp xét xử': r.cap_xet_xu || '',
-                'Số thụ lý': r.so_thu_ly || '',
-                'Số bản án': r.so_ban_an || '',
-                'Ngày ban hành': r.ngay_ban_hanh || '',
-                'Nguyên đơn': r.nguyen_don || '',
-                'Bị đơn': r.bi_don || '',
-                'Thẩm phán': r.tham_phan || '',
-                'Kiểm sát viên': r.ksv || '',
-                'Tòa án': r.toa || '',
-                'Tình trạng': r.tinh_trang_gq || '',
-                'Chuyển đến': r.chuyen_den || '',
-                'Trạng thái chuyển': r.chuyen_trang_thai || '',
-                'KC quá hạn': r.khang_cao_qua_han ? 'Có' : '',
-                'Sau xét xử': r.sau_xx_ket_qua || '',
-                'Tổng đạt': r.tong_dat_trang_thai || '',
-                'Người tạo': r.nguoi_tao || ''
-            }));
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(rows), 'An dan su');
-            XLSX.writeFile(wb, 'DanhSach_AnDanSu_' + new Date().toISOString().slice(0,10) + '.xlsx');
+            if (!window.VksBmds) { alert('Chưa tải bộ xuất mẫu thống kê.'); return; }
+            VksBmds.exportDansu(list);
         }
 
         function selectGoc(id, checked) {

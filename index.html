@@ -74,7 +74,7 @@
             </div>
         </div>
         <div class="panel">
-            <h2>Hệ thống nghiệp vụ nội bộ</h2>
+            <h2>Hệ thống Quản lý phần Dân sự</h2>
             <p class="user-bar" style="text-align:right;color:inherit">Xin chào, <b id="display_user">...</b></p>
             <div class="grid">
                 <div class="col">
@@ -112,8 +112,22 @@
             return;
         }
         var profile = window.VksRbac ? VksRbac.parseProfile() : {};
+        try {
+            var usersDB = JSON.parse(localStorage.getItem('vks_users_db') || '{}');
+            if (usersDB.admin && /cục trưởng cục thống kê/i.test(usersDB.admin.position || '')) {
+                usersDB.admin.position = 'Quản trị hệ thống';
+                localStorage.setItem('vks_users_db', JSON.stringify(usersDB));
+            }
+            var stored = JSON.parse(localStorage.getItem('vks_user_profile') || 'null');
+            if (stored && (stored.username === 'admin' || user === 'admin') && /cục trưởng cục thống kê/i.test(stored.position || '')) {
+                stored.position = 'Quản trị hệ thống';
+                localStorage.setItem('vks_user_profile', JSON.stringify(stored));
+            }
+            if (window.VksRbac) profile = VksRbac.parseProfile();
+        } catch (e) {}
         var name = (profile.fullname || user) + ' (' + (profile.username || user) + ')';
-        if (profile.position) name += ' · ' + profile.position;
+        var pos = profile.position || '';
+        if (pos && !/cục trưởng cục thống kê/i.test(pos) && pos !== 'Quản trị hệ thống') name += ' · ' + pos;
         if (profile.department) name += ' · ' + profile.department;
         document.getElementById('display_user').innerText = name;
         function hide(id) {

@@ -8,6 +8,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="static/bmds-export.js?v=20260916d"></script>
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="static/theme.css?v=20260916c">
     <script src="static/rbac.js"></script>
@@ -405,27 +406,8 @@
         };
     }
     function exportExcelList() {
-        if (!lastExportTha.length) { alert('Không có dữ liệu để xuất.'); return; }
-        const rows = lastExportTha.map(function (item, i) {
-            return {
-                STT: i + 1,
-                'Số QĐTHA': item.so_qd_tha || '',
-                'Loại QĐ': item.loai_qd || '',
-                'Cơ quan THA': item.ten_co_quan_tha || item.loai_co_quan || '',
-                'Ngày nhận VKS': item.ngay_nhan_qd || '',
-                'Người phải THA': item.nguoi_phai_tha || '',
-                'Người được THA': item.nguoi_duoc_tha || '',
-                'Số bản án': item.so_ban_an || '',
-                'Mã TADT': item.ma_tadt || '',
-                'Nội dung': item.noi_dung_tha || '',
-                'Tình trạng': item.tinh_trang_tha || '',
-                'Kháng nghị': item.khang_nghi ? 'Có' : '',
-                'Ngày xong': item.ngay_thi_hanh_xong || ''
-            };
-        });
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(rows), 'Thi hanh an');
-        XLSX.writeFile(wb, 'DanhSach_ThiHanhAn_' + new Date().toISOString().slice(0,10) + '.xlsx');
+        if (window.VksBmds) VksBmds.exportThads(lastExportTha);
+        else alert('Chưa tải bộ xuất mẫu thống kê.');
     }
     function downloadJson(name, obj) {
         const blob = new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' });

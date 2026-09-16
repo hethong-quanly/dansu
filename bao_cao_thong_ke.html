@@ -9,6 +9,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="static/bmds-export.js?v=20260916d"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -347,18 +348,41 @@
     }
 
     // ===== LOAD DATA =====
+    async function loadIndexedDansu() {
+        return new Promise(function (resolve) {
+            try {
+                var req = indexedDB.open('VKS_AN_DAN_SU', 2);
+                req.onerror = function () { resolve([]); };
+                req.onsuccess = function (e) {
+                    var idb = e.target.result;
+                    if (!idb.objectStoreNames.contains('records')) { resolve([]); return; }
+                    var r = idb.transaction('records').objectStore('records').getAll();
+                    r.onsuccess = function () { resolve(r.result || []); };
+                    r.onerror = function () { resolve([]); };
+                };
+            } catch (err) { resolve([]); }
+        });
+    }
+
     async function loadAllData() {
         async function getSnap(path) {
             const snap = await db.ref(path).once('value');
             const val = snap.val() || {};
             return Object.entries(val).map(([k, v]) => ({ _key: k, ...v }));
         }
-        const [ads, tha, dkt] = await Promise.all([
+        const [ads, tha, dkt, idb] = await Promise.all([
             getSnap('an_dan_su'),
             getSnap('thi_hanh_an'),
-            getSnap('don_khieu_to')
+            getSnap('don_khieu_to'),
+            loadIndexedDansu()
         ]);
-        allData = { an_dan_su: ads, thi_hanh_an: tha, don_khieu_to: dkt };
+        const byKey = {};
+        ads.forEach(function (x) { byKey[x.ma_vu_viec || x._key] = x; });
+        idb.forEach(function (x) {
+            var k = x.ma_vu_viec || ('idb-' + x.id);
+            byKey[k] = Object.assign({}, byKey[k] || {}, x);
+        });
+        allData = { an_dan_su: Object.keys(byKey).map(function (k) { return byKey[k]; }), thi_hanh_an: tha, don_khieu_to: dkt };
     }
 
     // ===== RENDER =====
@@ -610,34 +634,17 @@
     }
 
     // ===== EXPORT EXCEL =====
-    function exportExcel() {
-        if (!exportData.length) { alert("Vui lòng xem báo cáo trước khi xuất!"); return; }
-
-        const wb = XLSX.utils.book_new();
-
-        // Sheet tổng hợp
-        const summary = [
-            ['BÁO CÁO THỐNG KÊ - VKSND', '', '', ''],
-            [`Ngày xuất: ${new Date().toLocaleDateString('vi-VN')}`, '', '', ''],
-            [''],
-            ['Nghiệp vụ', 'Số lượng'],
-            ['Án Dân sự', allData.an_dan_su.length],
-            ['Thi hành án', allData.thi_hanh_an.length],
-            ['Khiếu nại - Tố cáo', allData.don_khieu_to.length],
-            ['TỔNG CỘNG', allData.an_dan_su.length + allData.thi_hanh_an.length + allData.don_khieu_to.length]
-        ];
-        const wsSummary = XLSX.utils.aoa_to_sheet(summary);
-        XLSX.utils.book_append_sheet(wb, wsSummary, 'Tổng hợp');
-
-        // Sheet chi tiết
-        const wsDetail = XLSX.utils.json_to_sheet(exportData.map(r => ({
-            'STT': r.STT, 'Loại/Cấp': r.LoaiCapXetXu, 'Nghiệp vụ': r.NghiepVu,
-            'Ngày': r.Ngay, 'Thẩm phán': r.ThamPhan, 'Kiểm sát viên': r.KiemSatVien,
-            'Nội dung': r.NoiDung, 'Kết quả': r.KetQua, 'Người nhập': r.NguoiNhap
-        })));
-        XLSX.utils.book_append_sheet(wb, wsDetail, 'Chi tiết');
-
-        XLSX.writeFile(wb, `BaoCao_VKSND_${new Date().toISOString().slice(0,10)}.xlsx`);
+    async function exportExcel() {
+        if (!allData.an_dan_su.length && !allData.thi_hanh_an.length && !allData.don_khieu_to.length) {
+            await loadAllData();
+        }
+        const reportType = document.getElementById('reportType').value;
+        const { from, to } = getTimeRange();
+        function vis(arr) {
+            return (arr || []).filter(function (item) { return canView(item); });
+        }
+        if (!window.VksBmds) { alert('Chưa tải bộ xuất mẫu thống kê.'); return; }
+        VksBmds.exportReport(reportType, vis(allData.an_dan_su), vis(allData.thi_hanh_an), vis(allData.don_khieu_to), from, to === Infinity ? Date.now() : to);
     }
 
     // ===== INIT =====
