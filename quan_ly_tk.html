@@ -9,6 +9,7 @@
     <script src="static/pwa.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="static/fb-key.js?v=20260917a"></script>
     <style>
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f5f7fa; }
         header { background: #071a4a; color: #ffffff; text-align: center; padding: 15px; position: relative; }
@@ -65,9 +66,9 @@
         <div class="form-group">
             <label>Cấp tài khoản:</label>
             <select id="level" onchange="toggleLevel()">
-                <option value="toi_cao">VKSND tối cao</option>
-                <option value="tinh">VKSND Tỉnh / Thành phố</option>
+                <option value="tinh" selected>VKSND Tỉnh / Thành phố</option>
                 <option value="khuvuc">VKSND Khu vực</option>
+                <option value="toi_cao">VKSND tối cao</option>
             </select>
         </div>
 
@@ -78,13 +79,13 @@
             
             <label>Chức vụ:</label>
             <select id="chuc_vu_tinh" onchange="toggleTinhDept()">
+                <option value="Kiểm sát viên" selected>Kiểm sát viên</option>
+                <option value="Kiểm tra viên">Kiểm tra viên</option>
+                <option value="Chuyên viên">Chuyên viên</option>
                 <option value="Viện trưởng">Viện trưởng</option>
                 <option value="Phó viện trưởng phụ trách">Phó viện trưởng phụ trách</option>
                 <option value="Trưởng phòng">Trưởng phòng</option>
                 <option value="Chánh văn phòng">Chánh văn phòng</option>
-                <option value="Kiểm tra viên">Kiểm tra viên</option>
-                <option value="Chuyên viên">Chuyên viên</option>
-                <option value="Kiểm sát viên">Kiểm sát viên</option>
             </select>
             <div id="tinh_dept_wrap" style="display:none;margin-top:12px;">
                 <label>Phòng / Văn phòng:</label>
@@ -257,14 +258,17 @@
                     opt.value = p; opt.textContent = p;
                     tinhSelect.appendChild(opt);
                 });
+                tinhSelect.value = 'Cần Thơ';
             } 
             else if (level === 'khuvuc') {
                 document.getElementById('khuvuc_group').style.display = 'block';
                 const kvSelect = document.getElementById('khu_vuc');
                 kvSelect.innerHTML = '<option value="">-- Chọn Khu vực --</option>';
+                const kvPlaces = ['Ninh Kiều','Bình Thủy','Phong Điền','Cờ Đỏ','Sóc Trăng','Phú Tâm','Ngã Năm','Hòa Tú','Long Phú','Kế Sách','Vị Thanh','Vĩnh Viễn','Hiệp Hưng','Châu Thành'];
                 for (let i = 1; i <= 14; i++) {
                     const opt = document.createElement('option');
-                    opt.value = `Khu vực ${i}`; opt.textContent = `Khu vực ${i}`;
+                    opt.value = `Khu vực ${i}`;
+                    opt.textContent = `Khu vực ${i} – ${kvPlaces[i-1] || ''}`.trim();
                     kvSelect.appendChild(opt);
                 }
             } 
@@ -284,6 +288,10 @@
                 document.getElementById('message').innerHTML = `<div class="error">Vui lòng nhập Username và Họ tên!</div>`;
                 return;
             }
+            if (/[#$\[\]]/.test(username)) {
+                document.getElementById('message').innerHTML = `<div class="error">Tên đăng nhập không dùng ký tự # $ [ ]</div>`;
+                return;
+            }
 
             let unit = '', department = '', position = '';
 
@@ -297,8 +305,8 @@
                 if (window.VksRbac && VksRbac.isTruongPhong(currentUser)) {
                     department = currentUser.department || department;
                     unit = currentUser.unit || unit;
-                    level = 'tinh';
-                } else if (level === 'khuvuc') {
+                }
+            } else if (level === 'khuvuc') {
                 unit = document.getElementById('khu_vuc').value;
                 position = document.getElementById('chuc_vu_khuvuc').value;
             } else if (level === 'toi_cao') {
@@ -310,18 +318,23 @@
                 document.getElementById('message').innerHTML = `<div class="error">Chọn tỉnh / thành phố.</div>`;
                 return;
             }
-
-            if (window.VksRbac && !VksRbac.canCreateAccount(currentUser, { level: level, unit: unit, department: department, position: position })) {
-                document.getElementById('message').innerHTML = `<div class="error">Không được tạo tài khoản ngoài phạm vi đơn vị hoặc chức danh không thuộc thẩm quyền.</div>`;
+            if (level === 'khuvuc' && !unit) {
+                document.getElementById('message').innerHTML = `<div class="error">Chọn khu vực.</div>`;
                 return;
             }
 
-            db.ref('users/' + username).once('value').then(snapshot => {
+            if (window.VksRbac && !VksRbac.canCreateAccount(currentUser, { level: level, unit: unit, department: department, position: position })) {
+                document.getElementById('message').innerHTML = `<div class="error">Không được tạo tài khoản ngoài phạm vi đơn vị hoặc chức danh không thuộc thẩm quyền. Chọn Cấp tỉnh / Cần Thơ hoặc Khu vực 1–14.</div>`;
+                return;
+            }
+
+            const path = 'users/' + fbUserKey(username);
+            db.ref(path).once('value').then(snapshot => {
                 if (snapshot.exists()) {
                     document.getElementById('message').innerHTML = `<div class="error">Tài khoản này đã tồn tại!</div>`;
                     return;
                 }
-                db.ref('users').once('value').then(allSnap => {
+                return db.ref('users').once('value').then(allSnap => {
                     const users = allSnap.val() || {};
                     const limit = slotLimit(level, position);
                     let count = 0;
@@ -339,7 +352,8 @@
                         return;
                     }
                     const rights = (window.VksRbac && VksRbac.rightsFor(level, position, department)) || { p_dansu: true, p_khieuto: true, p_thihanh: true };
-                    db.ref('users/' + username).set(Object.assign({
+                    return db.ref(path).set(Object.assign({
+                        username: username,
                         fullname: fullname,
                         password: "123456",
                         level: level,
@@ -348,12 +362,14 @@
                         position: position,
                         createdAt: Date.now()
                     }, rights)).then(() => {
-                        document.getElementById('message').innerHTML = `<div class="success">Đã tạo tài khoản thành công.<br>Mật khẩu mặc định: <strong>123456</strong></div>`;
+                        document.getElementById('message').innerHTML = `<div class="success">Đã tạo tài khoản và lưu Firebase.<br>Tên đăng nhập: <strong>${username}</strong> — mật khẩu mặc định: <strong>123456</strong></div>`;
                         loadUsers();
                         document.getElementById('username').value = '';
                         document.getElementById('fullname').value = '';
                     });
                 });
+            }).catch(function (err) {
+                document.getElementById('message').innerHTML = `<div class="error">Không ghi được máy chủ Firebase. ${err && err.message ? err.message : ''}</div>`;
             });
         }
 
@@ -369,37 +385,38 @@
                     let capText = u.level === 'toi_cao' ? 'Cấp Tối cao' : 
                                   u.level === 'tinh' ? 'Cấp Tỉnh/TP' : 'Cấp Khu vực';
 
+                    const uname = fbUsernameFrom(key, u);
                     html += `<tr>
-                        <td><strong>${key}</strong></td>
+                        <td><strong>${uname}</strong></td>
                         <td>${u.fullname || ''}</td>
                         <td>${capText}</td>
                         <td>${u.unit || ''}</td>
                         <td>${u.department || ''}</td>
                         <td>${u.position || ''}</td>
                         <td>
-                            <button class="btn-reset" onclick="resetPassword('${key}')">Reset MK</button>
-                            ${key !== 'admin' ? `<button class="btn-delete" onclick="deleteUser('${key}')">Xóa</button>` : ''}
+                            <button class="btn-reset" onclick="resetPassword('${uname}')">Reset MK</button>
+                            ${uname !== 'admin' && key !== 'admin' ? `<button class="btn-delete" onclick="deleteUser('${uname}')">Xóa</button>` : ''}
                         </td>
                     </tr>`;
                 });
 
                 document.getElementById('table-body').innerHTML = html || 
-                    '<tr><td colspan="7" style="text-align:center;color:#999">Chưa có tài khoản nào</td></tr>';
+                    '<tr><td colspan="7" style="text-align:center;color:#999">Không có tài khoản trong phạm vi đơn vị — hoặc chưa kết nối máy chủ.</td></tr>';
             });
         }
 
         function resetPassword(username) {
             if (confirm(`Reset mật khẩu của ${username} về 123456?`)) {
-                db.ref('users/' + username).update({ password: "123456" }).then(() => {
+                fbUserRef(db, username).update({ password: "123456" }).then(() => {
                     alert(`Đã reset mật khẩu của ${username}`);
-                });
+                }).catch(function (err) { alert('Không lưu được máy chủ: ' + (err && err.message || '')); });
             }
         }
 
         function deleteUser(username) {
             if (username === 'admin') return alert("Không được xóa tài khoản Admin!");
             if (confirm(`XÓA tài khoản ${username}?`)) {
-                db.ref('users/' + username).remove().then(() => loadUsers());
+                fbUserRef(db, username).remove().then(() => loadUsers()).catch(function (err) { alert('Không xóa được trên máy chủ: ' + (err && err.message || '')); });
             }
         }
 
@@ -482,8 +499,8 @@
         function grantReset(username) {
             var pw = prompt('Mật khẩu mới cho ' + username + ':', '');
             if (!pw || pw.length < 6) return alert('Mật khẩu tối thiểu 6 ký tự.');
-            db.ref('users/' + username).update({ password: pw }).then(function () {
-                db.ref('password_resets/' + username).update({ status: 'done' });
+            fbUserRef(db, username).update({ password: pw }).then(function () {
+                db.ref('password_resets/' + fbUserKey(username)).update({ status: 'done' });
                 try {
                     var local = JSON.parse(localStorage.getItem('vks_users_db') || '{}');
                     if (local[username]) { local[username].password = pw; localStorage.setItem('vks_users_db', JSON.stringify(local)); }

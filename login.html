@@ -14,6 +14,7 @@
     </script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="static/fb-key.js?v=20260917a"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -163,7 +164,7 @@
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     var db = firebase.database();
     var ADMIN_PW = 'VKSNDTPCT';
-    var TRIAL = ['vt.vksndtc','pvt.vksndtc','ctk.vksndtc','cb.vksndtc','vt.cantho','pvt.cantho','cvp.cantho','cb.cantho','vt.kv1','pvt.kv1','cvp.kv1','cb.kv1','cb.kv2','vt.hanoi','cb.hn1'];
+    var TRIAL = ['vt.vksndtc','pvt.vksndtc','ctk.vksndtc','cb.vksndtc','cvp.cantho','cb.cantho','cvp.kv1','cb.kv1','cb.kv2','vt.hanoi','cb.hn1'];
 
     function rights() { return { p_dansu: true, p_khieuto: true, p_thihanh: true }; }
 
@@ -196,9 +197,9 @@
             }, rights()));
         }).catch(function () {});
         TRIAL.forEach(function (u) {
-            db.ref('users/' + u).once('value').then(function (s) {
+            fbUserRef(db, u).once('value').then(function (s) {
                 var v = s.val();
-                if (v && (v.password === '123456' || v.password === 'admin123')) db.ref('users/' + u).remove();
+                if (v && (v.password === '123456' || v.password === 'admin123')) fbUserRef(db, u).remove();
             }).catch(function () {});
         });
     }
@@ -254,7 +255,7 @@
         var password = document.getElementById('password').value;
         if (!username || !password) { showError('error-msg', 'Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu.'); return; }
         var local = seedLocal();
-        db.ref('users/' + username).once('value').then(function (snap) {
+        fbUserRef(db, username).once('value').then(function (snap) {
             var remote = snap.val();
             if (remote) {
                 if (remote.password !== password) { showError('error-msg', 'Mật khẩu không chính xác.'); return; }
@@ -297,7 +298,7 @@
         local = local.filter(function (r) { return r.username !== username || r.status !== 'pending'; });
         local.unshift(rec);
         localStorage.setItem('vks_password_resets', JSON.stringify(local));
-        db.ref('password_resets/' + username).set(rec).catch(function () {});
+        db.ref('password_resets/' + fbUserKey(username)).set(rec).catch(function () {});
         document.getElementById('forgot-ok').innerText = 'Yêu cầu đã được ghi nhận. Liên hệ Viện trưởng hoặc Chánh văn phòng đơn vị để được cấp lại mật khẩu.';
         document.getElementById('forgot-ok').style.display = 'block';
         document.getElementById('forgot-btn').style.display = 'none';
