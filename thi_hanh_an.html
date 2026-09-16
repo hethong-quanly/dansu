@@ -10,6 +10,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="static/theme.css">
+    <script src="static/rbac.js"></script>
     <style>
         * { box-sizing: border-box; }
         body { font-family: 'Be Vietnam Pro', sans-serif; margin: 0; }
@@ -279,10 +280,15 @@
         return user;
     }
     function checkLogin() {
-        currentUser = parseCurrentUser();
+        currentUser = window.VksRbac ? VksRbac.parseProfile() : parseCurrentUser();
         if (!currentUser.username) {
             alert("Vui lòng đăng nhập trước!");
             window.location.href = "login.html";
+            return false;
+        }
+        if (window.VksRbac && !VksRbac.canAccessModule(currentUser, 'thads')) {
+            alert("Tài khoản không được phân quyền vào mục Thi hành án dân sự!");
+            window.location.href = "index.html";
             return false;
         }
         return true;
@@ -317,6 +323,7 @@
             chap_hanh_vien: collectList('chap_hanh_vien_list'),
             ksv: collectList('ksv_list')
         };
+        if (window.VksRbac) VksRbac.stampMeta(data, currentUser);
         FIELD_IDS.forEach(function (id) { data[id] = document.getElementById(id).value; });
         CHECK_IDS.forEach(function (id) { data[id] = document.getElementById(id).checked; });
         return data;
@@ -364,14 +371,16 @@
             lastExportKeys = [];
             Object.keys(datas).forEach(function (key) {
                 const item = datas[key];
-                const canView = !currentUser.level || currentUser.level === 'toi_cao' ||
+                const canView = window.VksRbac ? VksRbac.canSeeRecord(currentUser, item) : (
+                    !currentUser.level || currentUser.level === 'toi_cao' ||
                     (item.unit && item.unit === currentUser.unit) ||
-                    (item.createdBy && item.createdBy === currentUser.username);
+                    (item.createdBy && item.createdBy === currentUser.username)
+                );
                 if (!canView) return;
                 lastExportTha.push(item);
                 lastExportKeys.push(key);
                 const pdfLink = item.pdf_url ? '<a href="' + item.pdf_url + '" target="_blank" class="btn-pdf">PDF</a>' : '';
-                html += '<tr><td>' + (stt++) + '</td><td>' + (item.so_qd_tha || '') + '</td><td>' + (item.ngay_nhan_qd || '') + '</td><td>' + (item.nguoi_phai_tha || '') + '</td><td>' + (item.so_ban_an || '') + (item.ma_tadt ? '<br><small>' + item.ma_tadt + '</small>' : '') + '</td><td>' + (item.tinh_trang_tha || '') + '</td><td>' + (item.ngay_thi_hanh_xong || '') + '</td><td>' + pdfLink + '</td><td><button class="btn-edit" onclick="editRecord(\'' + key + '\')">Sửa</button><button class="btn-delete" onclick="deleteRecord(\'' + key + '\')">Xóa</button></td></tr>';
+                html += '<tr><td>' + (stt++) + '</td><td>' + (item.so_qd_tha || '') + '</td><td>' + (item.ngay_nhan_qd || '') + '</td><td>' + (item.nguoi_phai_tha || '') + '</td><td>' + (item.so_ban_an || '') + (item.ma_tadt ? '<br><small>' + item.ma_tadt + '</small>' : '') + '</td><td>' + (item.tinh_trang_tha || '') + '</td><td>' + (item.ngay_thi_hanh_xong || '') + '</td><td>' + pdfLink + '</td><td><button class="btn-edit" onclick="editRecord(\'' + key + '\')">Sửa</button>' + ((window.VksRbac && VksRbac.isLeader(currentUser)) ? '<button class="btn-delete" onclick="deleteRecord(\'' + key + '\')">Xóa</button>' : '') + '</td></tr>';
             });
             document.getElementById('table-body').innerHTML = html || '<tr><td colspan="9" style="text-align:center;color:#999">Chưa có hồ sơ nào thuộc thẩm quyền của bạn</td></tr>';
         });
@@ -481,6 +490,9 @@
     window.onload = function () {
         if (!checkLogin()) return;
         toggleDinhGiaFields();
+        if (window.VksRbac && VksRbac.isKsv(currentUser)) {
+            if (!document.querySelector('#ksv_list input')) addKSV(currentUser.fullname || currentUser.username || '');
+        }
         loadData();
     };
 </script>

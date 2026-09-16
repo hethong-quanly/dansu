@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>Báo cáo Thống kê Tổng hợp</title>
     <link rel="stylesheet" href="static/theme.css">
+    <script src="static/rbac.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -277,7 +278,7 @@
 
     function checkLogin() {
         const logged = sessionStorage.getItem('vks_logged_in') === 'true';
-        currentUser = parseCurrentUser() || {};
+        currentUser = (window.VksRbac ? VksRbac.parseProfile() : parseCurrentUser()) || {};
         if (!logged || !currentUser.username) {
             alert("Vui lòng đăng nhập trước!");
             window.location.href = "login.html";
@@ -336,6 +337,7 @@
     }
 
     function canView(item) {
+        if (window.VksRbac) return VksRbac.canSeeRecord(currentUser, item);
         if (!currentUser.level) return true;
         if (currentUser.level === 'toi_cao') return true;
         if (item.unit && item.unit === currentUser.unit) return true;

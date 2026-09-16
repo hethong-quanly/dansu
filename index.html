@@ -10,6 +10,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="static/theme.css">
+    <script src="static/rbac.js"></script>
     <style>
         * { box-sizing: border-box; }
         html, body { margin: 0; min-height: 100%; }
@@ -74,10 +75,10 @@
                 <div class="col">
                     <h3>Chức năng chính</h3>
                     <div class="menu">
-                        <a href="dan_su.html">I. Quản lý án dân sự, HC, KD-TM, HN-GĐ, LĐ</a>
-                        <a href="khieu_to.html">II. Kiểm sát, giải quyết khiếu nại, tố cáo</a>
-                        <a href="thi_hanh_an.html">III. Kiểm sát thi hành án dân sự</a>
-                        <a href="quan_ly_tk.html">Quản lý tài khoản</a>
+                        <a id="menu-dansu" href="dan_su.html">I. Quản lý án dân sự, HC, KD-TM, HN-GĐ, LĐ</a>
+                        <a id="menu-khieuto" href="khieu_to.html">II. Kiểm sát, giải quyết khiếu nại, tố cáo</a>
+                        <a id="menu-thads" href="thi_hanh_an.html">III. Kiểm sát thi hành án dân sự</a>
+                        <a id="menu-accounts" href="quan_ly_tk.html">Quản lý tài khoản</a>
                         <a href="doi_mk.html">Đổi mật khẩu</a>
                     </div>
                 </div>
@@ -85,9 +86,9 @@
                     <h3>Báo cáo thống kê</h3>
                     <div class="menu">
                         <a class="report" href="bao_cao_tong_hop.html">Báo cáo số liệu thống kê tổng hợp</a>
-                        <a class="report" href="bao_cao_dan_su.html">Báo cáo số liệu án dân sự</a>
-                        <a class="report" href="bao_cao_thi_hanh_an.html">Báo cáo số liệu thi hành án dân sự</a>
-                        <a class="report" href="bao_cao_khieu_to.html">Báo cáo số liệu khiếu nại, tố cáo</a>
+                        <a id="report-dansu" class="report" href="bao_cao_dan_su.html">Báo cáo số liệu án dân sự</a>
+                        <a id="report-thads" class="report" href="bao_cao_thi_hanh_an.html">Báo cáo số liệu thi hành án dân sự</a>
+                        <a id="report-khieuto" class="report" href="bao_cao_khieu_to.html">Báo cáo số liệu khiếu nại, tố cáo</a>
                     </div>
                 </div>
             </div>
@@ -104,12 +105,21 @@
             window.location.href = "login.html";
             return;
         }
-        var name = user;
-        try {
-            var p = JSON.parse(localStorage.getItem('vks_user_profile') || 'null');
-            if (p && p.fullname) name = p.fullname + ' (' + (p.username || user) + ')';
-        } catch (e) {}
+        var profile = window.VksRbac ? VksRbac.parseProfile() : {};
+        var name = (profile.fullname || user) + ' (' + (profile.username || user) + ')';
+        if (profile.position) name += ' · ' + profile.position;
+        if (profile.department) name += ' · ' + profile.department;
         document.getElementById('display_user').innerText = name;
+        function hide(id) {
+            var el = document.getElementById(id);
+            if (el) el.style.display = 'none';
+        }
+        if (window.VksRbac) {
+            if (!VksRbac.canAccessModule(profile, 'dansu')) { hide('menu-dansu'); hide('report-dansu'); }
+            if (!VksRbac.canAccessModule(profile, 'khieuto')) { hide('menu-khieuto'); hide('report-khieuto'); }
+            if (!VksRbac.canAccessModule(profile, 'thads')) { hide('menu-thads'); hide('report-thads'); }
+            if (!VksRbac.canManageAccounts(profile)) hide('menu-accounts');
+        }
     })();
     function applyTheme(t) {
         document.documentElement.setAttribute('data-theme', t);

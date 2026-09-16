@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản lý Án Dân sự - VKS Cần Thơ</title>
     <link rel="stylesheet" href="static/theme.css">
+    <script src="static/rbac.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script>
         const currentUser = sessionStorage.getItem('vks_logged_in') === 'true' ? localStorage.getItem('vks_user') : null;
@@ -13,9 +14,9 @@
             alert("Vui lòng đăng nhập!");
             window.location.href = "login.html";
         } else {
-            const usersDB = JSON.parse(localStorage.getItem('vks_users_db') || '{}');
-            const userData = usersDB[currentUser];
-            if (currentUser !== 'admin' && (!userData || userData.p_dansu !== true)) {
+            const profile = window.VksRbac ? VksRbac.parseProfile() : {};
+            window.__vksProfile = profile;
+            if (window.VksRbac && !VksRbac.canAccessModule(profile, 'dansu')) {
                 alert("Tài khoản của bạn không được phân quyền vào mục Dân sự!");
                 window.location.href = "index.html";
             }
@@ -412,7 +413,8 @@
             const db = await openDB();
             const request = db.transaction('records', 'readonly').objectStore('records').getAll();
             request.onsuccess = () => {
-                allRecords = request.result || [];
+                const raw = request.result || [];
+                allRecords = window.VksRbac ? raw.filter(r => VksRbac.canSeeRecord(VksRbac.parseProfile(), r)) : raw;
                 renderTable(allRecords);
             };
         }
@@ -484,7 +486,7 @@
                     <td class="action-btns">
                         <button class="btn-view" onclick="viewPDF(${r.id})" title="Xem PDF">📄</button>
                         <button class="btn-edit" onclick="editRecord(${r.id})">Sửa</button>
-                        <button class="btn-del" onclick="deleteRecord(${r.id})">Xóa</button>
+                        ${window.VksRbac && VksRbac.isLeader(window.__vksProfile || VksRbac.parseProfile()) ? `<button class="btn-del" onclick="deleteRecord(${r.id})">Xóa</button>` : ''}
                     </td>
                 </tr>`;
             });
@@ -542,6 +544,13 @@
                 else el.value = '';
             });
             document.getElementById('m_pdf_file').value = '';
+            if (window.VksRbac && VksRbac.isKsv(window.__vksProfile || VksRbac.parseProfile())) {
+                const p = window.__vksProfile || VksRbac.parseProfile();
+                document.getElementById('m_ksv').value = p.fullname || currentUser || '';
+                document.getElementById('m_ksv').readOnly = true;
+            } else {
+                document.getElementById('m_ksv').readOnly = false;
+            }
             document.getElementById('modal-add').classList.add('show');
         }
         
@@ -563,6 +572,13 @@
                 document.getElementById('m_bi_don').value = r.bi_don || '';
                 document.getElementById('m_tham_phan').value = r.tham_phan || '';
                 document.getElementById('m_ksv').value = r.ksv || '';
+                if (window.VksRbac && VksRbac.isKsv(window.__vksProfile || VksRbac.parseProfile())) {
+                    const p = window.__vksProfile || VksRbac.parseProfile();
+                    document.getElementById('m_ksv').value = p.fullname || r.ksv || '';
+                    document.getElementById('m_ksv').readOnly = true;
+                } else {
+                    document.getElementById('m_ksv').readOnly = false;
+                }
                 document.getElementById('m_toa').value = r.toa || 'Tòa án nhân dân thành phố Vũng Tàu';
                 document.getElementById('m_ma_vu_viec').value = r.ma_vu_viec || '';
                 if (document.getElementById('m_ma_tadt')) document.getElementById('m_ma_tadt').value = r.ma_tadt || '';
@@ -593,12 +609,14 @@
                 ma_tadt: document.getElementById('m_ma_tadt').value.trim(),
                 link_tadt: document.getElementById('m_link_tadt').value.trim(),
                 nguoi_tao: currentUser,
+                createdBy: currentUser,
                 tinh_trang_gq: document.getElementById('m_so_thu_ly').value ? 
                     `- Thụ lý số: ${document.getElementById('m_so_thu_ly').value} ngày ${document.getElementById('m_ngay_ban_hanh').value || '...'}` : '- Thụ lý mới',
                 timestamp: Date.now(),
                 merged_into: null,
                 imported_ids: []
             };
+            if (window.VksRbac) VksRbac.stampMeta(data, window.__vksProfile || VksRbac.parseProfile());
             const db = await openDB();
             const tx = db.transaction('records', 'readwrite');
             const store = tx.objectStore('records');

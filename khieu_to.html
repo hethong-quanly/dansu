@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <title>Quản lý Giải quyết Khiếu nại, Tố cáo</title>
     <link rel="stylesheet" href="static/theme.css">
+    <script src="static/rbac.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
@@ -199,6 +200,7 @@
                 tham_quyen: document.getElementById('tham_quyen').value,
                 timestamp: Date.now()
             };
+            if (window.VksRbac) VksRbac.stampMeta(data);
 
             // Nếu thuộc thẩm quyền giải quyết thì lưu thêm các trường
             if (data.tham_quyen === "Thuộc thẩm quyền giải quyết") {
@@ -265,6 +267,7 @@
                 if (datas) {
                     Object.keys(datas).forEach(key => {
                         const item = datas[key];
+                        if (window.VksRbac && !VksRbac.canSeeRecord(VksRbac.parseProfile(), item)) return;
                         const tomTat = item.noi_dung ? item.noi_dung.substring(0, 60) + '...' : '';
                         const pdfLink = item.pdf_url ? `<a href="${item.pdf_url}" target="_blank" class="btn-pdf">PDF</a>` : 'Không có';
 
@@ -280,7 +283,7 @@
                             <td>${pdfLink}</td>
                             <td>
                                 <button class="btn-edit" onclick="editRecord('${key}')">Sửa</button>
-                                <button class="btn-delete" onclick="deleteRecord('${key}')">Xóa</button>
+                                ${window.VksRbac && VksRbac.isLeader(VksRbac.parseProfile()) ? `<button class="btn-delete" onclick="deleteRecord('${key}')">Xóa</button>` : ''}
                             </td>
                         </tr>`;
                     });
@@ -314,7 +317,9 @@
         function exportToExcel() {
             db.ref('don_khieu_to').once('value').then(snapshot => {
                 const datas = snapshot.val() || {};
-                const rows = Object.keys(datas).map((key, i) => {
+                const rows = Object.keys(datas).filter(function (key) {
+                    return !window.VksRbac || VksRbac.canSeeRecord(VksRbac.parseProfile(), datas[key]);
+                }).map((key, i) => {
                     const item = datas[key];
                     return {
                         STT: i + 1,
@@ -336,6 +341,21 @@
         }
 
         window.onload = () => {
+            if (sessionStorage.getItem('vks_logged_in') !== 'true' || !localStorage.getItem('vks_user')) {
+                alert('Vui lòng đăng nhập trước!');
+                window.location.href = 'login.html';
+                return;
+            }
+            if (window.VksRbac && !VksRbac.canAccessModule(VksRbac.parseProfile(), 'khieuto')) {
+                alert('Tài khoản không được phân quyền vào mục Khiếu nại, tố cáo!');
+                window.location.href = 'index.html';
+                return;
+            }
+            const p = window.VksRbac ? VksRbac.parseProfile() : {};
+            if (window.VksRbac && VksRbac.isKsv(p) && document.getElementById('can_bo_ksv')) {
+                document.getElementById('can_bo_ksv').value = p.fullname || p.username || '';
+                document.getElementById('can_bo_ksv').readOnly = true;
+            }
             loadData();
             toggleThamQuyen();
         };

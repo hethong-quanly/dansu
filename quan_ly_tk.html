@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <title>Quản lý Tài khoản - VKSNDTC</title>
     <link rel="stylesheet" href="static/theme.css">
+    <script src="static/rbac.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
@@ -43,7 +44,12 @@
             <div id="reset-list"></div>
         </div>
         <h3>Tạo tài khoản mới</h3>
-        <p style="color:#555;font-size:13px;margin-top:-8px;">Mỗi cấp / đơn vị gồm 4 chức danh: Viện trưởng, Phó viện trưởng phụ trách, Cục trưởng TK-CNTT (cấp tối cao) hoặc Chánh văn phòng (cấp tỉnh, khu vực), và Cán bộ cập nhật dữ liệu. Mỗi chức danh chỉ được 01 tài khoản.</p>
+        <p style="color:#555;font-size:13px;margin-top:-8px;line-height:1.55;">
+            <b>VKSNDTC:</b> Viện trưởng, Phó viện trưởng phụ trách, Cục trưởng, tối đa 02 cán bộ phụ trách.<br>
+            <b>Cấp tỉnh:</b> Viện trưởng; Phó viện trưởng (có thể nhiều hơn 02); Phòng 9, 10, 11 và Văn phòng — mỗi đơn vị 01 Trưởng phòng/Chánh văn phòng, kiểm tra viên, chuyên viên, kiểm sát viên.<br>
+            <b>Cấp khu vực:</b> Viện trưởng, Phó viện trưởng phụ trách, kiểm sát viên, kiểm tra viên, chuyên viên.<br>
+            Kiểm sát viên chỉ được nhập, theo dõi, quản lý, trích xuất vụ việc được phân công thụ lý, không xem dữ liệu của tài khoản khác.
+        </p>
         <div id="message"></div>
 
         <div class="form-group">
@@ -70,35 +76,37 @@
             <select id="tinh_thanh"></select>
             
             <label>Chức vụ:</label>
-            <select id="chuc_vu_tinh">
+            <select id="chuc_vu_tinh" onchange="toggleTinhDept()">
                 <option value="Viện trưởng">Viện trưởng</option>
                 <option value="Phó viện trưởng phụ trách">Phó viện trưởng phụ trách</option>
+                <option value="Trưởng phòng">Trưởng phòng</option>
                 <option value="Chánh văn phòng">Chánh văn phòng</option>
-                <option value="Cán bộ cập nhật dữ liệu">Cán bộ cập nhật dữ liệu</option>
+                <option value="Kiểm tra viên">Kiểm tra viên</option>
+                <option value="Chuyên viên">Chuyên viên</option>
+                <option value="Kiểm sát viên">Kiểm sát viên</option>
             </select>
+            <div id="tinh_dept_wrap" style="display:none;margin-top:12px;">
+                <label>Phòng / Văn phòng:</label>
+                <select id="phong_tinh">
+                    <option value="Phòng 9">Phòng 9</option>
+                    <option value="Phòng 10">Phòng 10</option>
+                    <option value="Phòng 11">Phòng 11</option>
+                    <option value="Văn phòng">Văn phòng</option>
+                </select>
+            </div>
         </div>
 
         <!-- Cấp Khu vực -->
         <div id="khuvuc_group" class="form-group" style="display:none;">
             <label>Khu vực:</label>
             <select id="khu_vuc"></select>
-            
-            <label>Phòng:</label>
-            <select id="phong_khuvuc">
-                <option value="Khu vuc 1">Khu vực 1</option> <option value="Khu vuc 2">Khu vực 2</option> <option value="Khu vuc 3">Khu vực 3</option> <option value="Khu vuc 4">Khu vực 4</option> <option value="Khu vuc 5">Khu vực 5</option> <option value="Khu vuc 6">Khu vực 6</option> <option value="Khu vuc 7">Khu vực 7</option> <option value="Khu vuc 8">Khu vực 8</option> <option value="Khu vuc 9">Khu vực 9</option> <option value="Khu vuc 10">Khu vực 10</option> 
-                <option value="Khu vuc 11">Khu vực 11</option> <option value="Khu vuc 12">Khu vực 12</option> <option value="Khu vuc 13">Khu vực 13</option> <option value="Khu vuc 14">Khu vực 14</option> <option value="Khu vuc 15">Khu vực 15</option> <option value="Khu vuc 16">Khu vực 16</option> <option value="Khu vuc 18">Khu vực 18</option> <option value="Khu vuc 19">Khu vực 19</option> 
-                <option value="Phong 9">Phòng 9</option>
-                <option value="Phong 10">Phòng 10</option>
-                <option value="Phong 11">Phòng 11</option>
-                <option value="Phong 15">Phòng 15</option>
-            </select>
-            
             <label>Chức vụ:</label>
             <select id="chuc_vu_khuvuc">
                 <option value="Viện trưởng">Viện trưởng</option>
                 <option value="Phó viện trưởng phụ trách">Phó viện trưởng phụ trách</option>
-                <option value="Chánh văn phòng">Chánh văn phòng</option>
-                <option value="Cán bộ cập nhật dữ liệu">Cán bộ cập nhật dữ liệu</option>
+                <option value="Kiểm sát viên">Kiểm sát viên</option>
+                <option value="Kiểm tra viên">Kiểm tra viên</option>
+                <option value="Chuyên viên">Chuyên viên</option>
             </select>
         </div>
 
@@ -109,7 +117,7 @@
                 <option value="Viện trưởng">Viện trưởng</option>
                 <option value="Phó viện trưởng phụ trách">Phó viện trưởng phụ trách</option>
                 <option value="Cục trưởng cục Thống kê và CNTT">Cục trưởng cục Thống kê và CNTT</option>
-                <option value="Cán bộ cập nhật dữ liệu">Cán bộ cập nhật dữ liệu</option>
+                <option value="Cán bộ phụ trách">Cán bộ phụ trách</option>
             </select>
         </div>
 
@@ -125,6 +133,7 @@
                     <th>Họ tên</th>
                     <th>Cấp</th>
                     <th>Đơn vị</th>
+                    <th>Phòng</th>
                     <th>Chức vụ</th>
                     <th>Thao tác</th>
                 </tr>
@@ -192,11 +201,10 @@
 
             const isAdmin =
                 currentUser.username === "admin" ||
-                currentUser.level === "toi_cao" ||
-                isLeaderPosition(currentUser.position);
+                (window.VksRbac ? VksRbac.canManageAccounts(currentUser) : isLeaderPosition(currentUser.position));
 
             if (!isAdmin) {
-                alert("Chỉ Viện trưởng, Phó viện trưởng, Cục trưởng TK-CNTT hoặc Chánh văn phòng được quản trị tài khoản.");
+                alert("Chỉ Viện trưởng, Phó viện trưởng, Cục trưởng, Trưởng phòng hoặc Chánh văn phòng được quản trị tài khoản thuộc phạm vi đơn vị.");
                 window.location.href = "index.html";
                 return false;
             }
@@ -205,6 +213,32 @@
 
         // ================== TOGGLE CẤP TÀI KHOẢN ==================
         const provinces = ["Cần Thơ","Hà Nội","TP. Hồ Chí Minh","Đà Nẵng","Hải Phòng","An Giang","Bạc Liêu","Bến Tre","Cà Mau","Đồng Tháp","Hậu Giang","Kiên Giang","Long An","Sóc Trăng","Tiền Giang","Trà Vinh","Vĩnh Long","Khác"];
+
+        function toggleTinhDept() {
+            const pos = document.getElementById('chuc_vu_tinh').value;
+            const wrap = document.getElementById('tinh_dept_wrap');
+            const sel = document.getElementById('phong_tinh');
+            const need = pos === 'Trưởng phòng' || pos === 'Kiểm tra viên' || pos === 'Chuyên viên' || pos === 'Kiểm sát viên' || pos === 'Chánh văn phòng';
+            wrap.style.display = need ? 'block' : 'none';
+            if (pos === 'Chánh văn phòng') {
+                sel.innerHTML = '<option value="Văn phòng">Văn phòng</option>';
+                sel.value = 'Văn phòng';
+            } else if (pos === 'Trưởng phòng') {
+                sel.innerHTML = '<option value="Phòng 9">Phòng 9</option><option value="Phòng 10">Phòng 10</option><option value="Phòng 11">Phòng 11</option>';
+            } else if (need) {
+                sel.innerHTML = '<option value="Phòng 9">Phòng 9</option><option value="Phòng 10">Phòng 10</option><option value="Phòng 11">Phòng 11</option><option value="Văn phòng">Văn phòng</option>';
+            }
+        }
+
+        function slotLimit(level, position) {
+            if (position === 'Viện trưởng') return 1;
+            if (position === 'Cục trưởng cục Thống kê và CNTT') return 1;
+            if (position === 'Chánh văn phòng') return 1;
+            if (position === 'Trưởng phòng') return 1;
+            if (position === 'Cán bộ phụ trách') return 2;
+            if (position === 'Phó viện trưởng phụ trách') return level === 'tinh' ? Infinity : 1;
+            return Infinity;
+        }
 
         function toggleLevel() {
             const level = document.getElementById('level').value;
@@ -236,6 +270,7 @@
             else if (level === 'toi_cao') {
                 document.getElementById('toicao_group').style.display = 'block';
             }
+            toggleTinhDept();
         }
 
         // ================== TẠO TÀI KHOẢN MỚI ==================
@@ -254,13 +289,30 @@
             if (level === 'tinh') {
                 unit = document.getElementById('tinh_thanh').value;
                 position = document.getElementById('chuc_vu_tinh').value;
-            } else if (level === 'khuvuc') {
+                if (document.getElementById('tinh_dept_wrap').style.display !== 'none') {
+                    department = document.getElementById('phong_tinh').value;
+                }
+                if (position === 'Chánh văn phòng') department = 'Văn phòng';
+                if (window.VksRbac && VksRbac.isTruongPhong(currentUser)) {
+                    department = currentUser.department || department;
+                    unit = currentUser.unit || unit;
+                    level = 'tinh';
+                } else if (level === 'khuvuc') {
                 unit = document.getElementById('khu_vuc').value;
-                department = document.getElementById('phong_khuvuc').value;
                 position = document.getElementById('chuc_vu_khuvuc').value;
             } else if (level === 'toi_cao') {
                 unit = 'VKSND Tối cao';
                 position = document.getElementById('chuc_vu_toicao').value;
+            }
+
+            if (level === 'tinh' && !unit) {
+                document.getElementById('message').innerHTML = `<div class="error">Chọn tỉnh / thành phố.</div>`;
+                return;
+            }
+
+            if (window.VksRbac && !VksRbac.canCreateAccount(currentUser, { level: level, unit: unit, department: department, position: position })) {
+                document.getElementById('message').innerHTML = `<div class="error">Không được tạo tài khoản ngoài phạm vi đơn vị hoặc chức danh không thuộc thẩm quyền.</div>`;
+                return;
             }
 
             db.ref('users/' + username).once('value').then(snapshot => {
@@ -270,15 +322,23 @@
                 }
                 db.ref('users').once('value').then(allSnap => {
                     const users = allSnap.val() || {};
-                    const taken = Object.keys(users).some(key => {
+                    const limit = slotLimit(level, position);
+                    let count = 0;
+                    Object.keys(users).forEach(key => {
+                        if (key === 'admin') return;
                         const u = users[key] || {};
-                        return u.level === level && (u.unit || '') === unit && (u.position || '') === position;
+                        if (u.level !== level || (u.position || '') !== position) return;
+                        if (level === 'tinh' && (u.unit || '') !== unit) return;
+                        if (level === 'khuvuc' && (u.unit || '') !== unit) return;
+                        if (position === 'Trưởng phòng' && (u.department || '') !== department) return;
+                        count += 1;
                     });
-                    if (taken) {
-                        document.getElementById('message').innerHTML = `<div class="error">Đơn vị này đã có tài khoản chức danh «${position}». Mỗi cấp chỉ tạo 01 tài khoản cho mỗi chức danh.</div>`;
+                    if (Number.isFinite(limit) && count >= limit) {
+                        document.getElementById('message').innerHTML = `<div class="error">Đơn vị này đã đủ ${limit} tài khoản «${position}»${position === 'Trưởng phòng' ? ' cho ' + department : ''}.</div>`;
                         return;
                     }
-                    db.ref('users/' + username).set({
+                    const rights = (window.VksRbac && VksRbac.rightsFor(level, position, department)) || { p_dansu: true, p_khieuto: true, p_thihanh: true };
+                    db.ref('users/' + username).set(Object.assign({
                         fullname: fullname,
                         password: "123456",
                         level: level,
@@ -286,7 +346,7 @@
                         department: department || null,
                         position: position,
                         createdAt: Date.now()
-                    }).then(() => {
+                    }, rights)).then(() => {
                         document.getElementById('message').innerHTML = `<div class="success">Đã tạo tài khoản thành công.<br>Mật khẩu mặc định: <strong>123456</strong></div>`;
                         loadUsers();
                         document.getElementById('username').value = '';
@@ -304,6 +364,7 @@
                 
                 Object.keys(users).forEach(key => {
                     const u = users[key];
+                    if (window.VksRbac && !VksRbac.canSeeAccount(currentUser, key, u)) return;
                     let capText = u.level === 'toi_cao' ? 'Cấp Tối cao' : 
                                   u.level === 'tinh' ? 'Cấp Tỉnh/TP' : 'Cấp Khu vực';
 
@@ -312,6 +373,7 @@
                         <td>${u.fullname || ''}</td>
                         <td>${capText}</td>
                         <td>${u.unit || ''}</td>
+                        <td>${u.department || ''}</td>
                         <td>${u.position || ''}</td>
                         <td>
                             <button class="btn-reset" onclick="resetPassword('${key}')">Reset MK</button>
@@ -321,7 +383,7 @@
                 });
 
                 document.getElementById('table-body').innerHTML = html || 
-                    '<tr><td colspan="6" style="text-align:center;color:#999">Chưa có tài khoản nào</td></tr>';
+                    '<tr><td colspan="7" style="text-align:center;color:#999">Chưa có tài khoản nào</td></tr>';
             });
         }
 
@@ -340,10 +402,56 @@
             }
         }
 
+        function applyActorLocks() {
+            if (!currentUser) return;
+            const levelSel = document.getElementById('level');
+            if (window.VksRbac && VksRbac.isTruongPhong(currentUser)) {
+                levelSel.value = 'tinh';
+                levelSel.disabled = true;
+                document.getElementById('chuc_vu_tinh').innerHTML =
+                    '<option value="Kiểm sát viên">Kiểm sát viên</option>' +
+                    '<option value="Kiểm tra viên">Kiểm tra viên</option>' +
+                    '<option value="Chuyên viên">Chuyên viên</option>';
+                if (currentUser.unit) {
+                    const tinh = document.getElementById('tinh_thanh');
+                    let found = false;
+                    for (let i = 0; i < tinh.options.length; i++) {
+                        if (tinh.options[i].value === currentUser.unit) { found = true; break; }
+                    }
+                    if (!found && currentUser.unit) {
+                        const opt = document.createElement('option');
+                        opt.value = currentUser.unit; opt.textContent = currentUser.unit;
+                        tinh.appendChild(opt);
+                    }
+                    tinh.value = currentUser.unit;
+                    tinh.disabled = true;
+                }
+            } else if (currentUser.level === 'tinh' && currentUser.username !== 'admin') {
+                Array.from(levelSel.options).forEach(function (o) {
+                    if (o.value === 'toi_cao') o.remove();
+                });
+                if (levelSel.value === 'toi_cao') levelSel.value = 'tinh';
+            } else if (currentUser.level === 'khuvuc') {
+                levelSel.value = 'khuvuc';
+                levelSel.disabled = true;
+            }
+        }
+
         // ================== KHỞI ĐỘNG ==================
         window.onload = () => {
             if (!checkAdminPermission()) return;
             toggleLevel();
+            applyActorLocks();
+            toggleLevel();
+            applyActorLocks();
+            if (window.VksRbac && VksRbac.isTruongPhong(currentUser)) {
+                toggleTinhDept();
+                const sel = document.getElementById('phong_tinh');
+                if (currentUser.department) {
+                    sel.value = currentUser.department;
+                    sel.disabled = true;
+                }
+            }
             loadUsers();
             loadResets();
         };

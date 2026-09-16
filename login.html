@@ -117,7 +117,7 @@
 
         <form class="glass" id="form-login" onsubmit="handleLogin(event)">
             <h2>Đăng nhập hệ thống</h2>
-            <p class="lead">Tài khoản do Viện trưởng hoặc Chánh văn phòng đơn vị cấp.</p>
+            <p class="lead">Tài khoản do Viện trưởng, Phó viện trưởng, Trưởng phòng hoặc Chánh văn phòng đơn vị cấp.</p>
             <label class="field">Tên đăng nhập
                 <input id="username" autocomplete="username">
             </label>
@@ -217,6 +217,7 @@
             fullname: extra.fullname || username,
             level: extra.level || '',
             unit: extra.unit || '',
+            department: extra.department || extra.phong || '',
             position: extra.position || ''
         }, rights(), extra);
     }
