@@ -1,193 +1,135 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hệ thống Quản lý Phần Dân sự - VKS Cần Thơ</title>
+    <script>
+        (function(){try{var t=localStorage.getItem('vks-dansu-theme');if(t!=='dark'&&t!=='light')t='light';document.documentElement.setAttribute('data-theme',t);}catch(e){}})();
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="static/theme.css">
     <style>
-        body { 
-            font-family: 'Segoe UI', Tahoma, sans-serif; 
-            background: linear-gradient(135deg, #e0eafc, #cfdef3); 
-            margin: 0; padding: 30px; 
-            min-height: 100vh; 
+        * { box-sizing: border-box; }
+        html, body { margin: 0; min-height: 100%; }
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+            color: #fff8f0;
+            background: #54141d;
         }
-        .dashboard-container { 
-            background: white; 
-            padding: 40px; 
-            border-radius: 20px; 
-            box-shadow: 0 15px 40px rgba(0,0,0,0.18); 
-            max-width: 1200px; 
-            margin: 0 auto; 
+        .hero { position: relative; min-height: 100vh; }
+        .hq-photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 38%; }
+        .hq-veil { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(84,20,29,.45) 0%, rgba(28,10,12,.72) 100%); }
+        [data-theme="dark"] .hq-veil { background: linear-gradient(180deg, rgba(12,8,10,.55), rgba(8,5,6,.82)); }
+        .wrap { position: relative; z-index: 2; max-width: 1100px; margin: 0 auto; padding: 28px 16px 48px; }
+        .top { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+        .brand { display: flex; align-items: center; gap: 12px; }
+        .brand img { width: 56px; height: 56px; object-fit: contain; }
+        .brand p { margin: 0; font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: #e8c675; }
+        .brand h1 { margin: 2px 0 0; font-size: 18px; }
+        .user-bar { font-size: 13px; color: #f4ebe4; }
+        .user-bar b { color: #ffe566; }
+        .panel { margin-top: 22px; background: rgba(255,253,248,.92); color: #1c1612; border-radius: 18px; border: 1px solid rgba(198,174,114,.38); padding: 28px; box-shadow: 0 18px 40px -18px rgba(0,0,0,.5); }
+        [data-theme="dark"] .panel { background: rgba(26,18,20,.9); color: #f4ebe4; }
+        .panel h2 { margin: 0 0 6px; text-align: center; font-size: 13px; letter-spacing: .18em; text-transform: uppercase; color: #7a1e2b; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin-top: 18px; }
+        @media (max-width: 800px) { .grid { grid-template-columns: 1fr; } }
+        .col h3 { margin: 0 0 12px; font-size: 15px; color: #7a1e2b; border-bottom: 2px solid #c6ae72; padding-bottom: 8px; }
+        .menu a {
+            display: block; padding: 14px 16px; margin-bottom: 10px; border-radius: 10px;
+            background: #7a1e2b; color: #fff8f0; text-decoration: none; font-weight: 700; font-size: 14px; text-align: center;
         }
-        header { 
-            text-align: center; 
-            margin-bottom: 40px; 
-        }
-        header img { width: 95px; margin-bottom: 12px; }
-        header h1 { 
-            color: #0408c5; 
-            font-size: 24px; 
-            text-transform: uppercase; 
-            line-height: 1.5; 
-        }
-
-        .main-content {
-            display: flex;
-            gap: 40px;
-            justify-content: center;
-            flex-wrap: wrap;
-        }
-
-        .column {
-            flex: 1;
-            max-width: 520px;
-            min-width: 280px;
-        }
-
-        .column h2 {
-            color: #0408c5;
-            font-size: 19px;
-            margin-bottom: 20px;
-            text-align: center;
-            padding-bottom: 10px;
-            border-bottom: 3px solid #5670e6;
-        }
-
-        .menu-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-        }
-
-        .menu-item {
-            padding: 18px 22px;
-            background: #5670e6;
-            color: white;
-            border-radius: 12px;
-            text-decoration: none;
-            font-weight: bold;
-            font-size: 15.5px;
-            text-align: center;
-            transition: all 0.3s;
-            box-shadow: 0 4px 12px rgba(86,112,230,0.3);
-            display: block;
-        }
-        .menu-item:hover {
-            background: #0408c5;
-            transform: translateY(-4px);
-            box-shadow: 0 8px 20px rgba(4,8,197,0.4);
-        }
-
-        .report-item {
-            background: #f0f4ff;
-            border-left: 6px solid #5670e6;
-            color: #333;
-        }
-        .report-item:hover {
-            background: #e0e9ff;
-            color: #0408c5;
-        }
-
-        .logout-btn {
-            background: #d32f2f;
-            color: white;
-            padding: 16px;
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 16px;
-            width: 100%;
-            margin-top: 40px;
-            transition: background 0.2s;
-        }
-        .logout-btn:hover {
-            background: #b71c1c;
-        }
-
-        .user-bar {
-            text-align: right;
-            margin-bottom: 15px;
-            font-size: 14px;
-            color: #555;
-        }
-        .user-bar b {
-            color: #0408c5;
-        }
+        .menu a:hover { background: #922433; }
+        .menu a.report { background: #f7efe4; color: #54141d; border: 1px solid #d8cfc0; }
+        .menu a.report:hover { border-color: #7a1e2b; color: #7a1e2b; }
+        .logout { width: 100%; margin-top: 18px; height: 48px; border: 0; border-radius: 10px; background: #9b2c2c; color: #fff; font: inherit; font-weight: 800; cursor: pointer; }
+        .theme-switch { display: inline-flex; height: 40px; overflow: hidden; border: 1px solid rgba(232,198,117,.38); border-radius: 10px; background: rgba(84,20,29,.72); }
+        .theme-btn { border: 0; background: none; color: #e8c675; font: inherit; font-size: 12px; font-weight: 700; padding: 0 12px; cursor: pointer; }
+        .theme-btn[aria-pressed="true"] { background: #7a1e2b; color: #fff; }
     </style>
 </head>
 <body>
-    <div class="dashboard-container">
-        <header>
-            <img src="https://vienkiemsat.cantho.gov.vn/files/images/logo-vks.png" alt="Logo VKS" onerror="this.style.display='none'">
-            <h1>VIỆN KIỂM SÁT NHÂN DÂN TỐI CAO<br>
-                HỆ THỐNG QUẢN LÝ PHẦN DÂN SỰ</h1>
-        </header>
-
-        <div class="user-bar">
-            Xin chào, <b id="display_user">...</b>
-        </div>
-
-        <div class="main-content">
-            
-            <!-- CỘT TRÁI: CHỨC NĂNG CHÍNH -->
-            <div class="column">
-                <h2>CHỨC NĂNG CHÍNH</h2>
-                <div class="menu-grid">
-                    <a href="dan_su.html" class="menu-item">I. QUẢN LÝ ÁN DÂN SỰ, HC, KD-TM, HN-GĐ, LĐ</a>
-                    <a href="khieu_to.html" class="menu-item">II. KIỂM SÁT, GIẢI QUYẾT KHIẾU NẠI, TỐ CÁO</a>
-                    <a href="thi_hanh_an.html" class="menu-item">III. KIỂM SÁT THI HÀNH ÁN DÂN SỰ</a>
-                    <a href="quan_ly_tk.html" class="menu-item">QUẢN LÝ TÀI KHOẢN</a>
-                    <a href="doi_mk.html" class="menu-item">ĐỔI MẬT KHẨU</a>
+<div class="hero">
+    <img class="hq-photo" src="static/tru-so-vksnd.jpg" alt="">
+    <div class="hq-veil"></div>
+    <div class="wrap">
+        <div class="top">
+            <div class="brand">
+                <img src="static/logo_moi.png" alt="Phù hiệu VKS">
+                <div>
+                    <p>Viện kiểm sát nhân dân thành phố Cần Thơ</p>
+                    <h1>Quản lý phần dân sự</h1>
                 </div>
             </div>
-
-            <!-- CỘT PHẢI: BÁO CÁO THỐNG KÊ -->
-            <div class="column">
-                <h2>BÁO CÁO THỐNG KÊ</h2>
-                <div class="menu-grid">
-                    <a href="bao_cao_tong_hop.html" class="menu-item report-item">
-                        📊 BÁO CÁO SỐ LIỆU THỐNG KÊ TỔNG HỢP
-                    </a>
-                    <a href="bao_cao_dan_su.html" class="menu-item report-item">
-                        📋 BÁO CÁO SỐ LIỆU ÁN DÂN SỰ
-                    </a>
-                    <a href="bao_cao_thi_hanh_an.html" class="menu-item report-item">
-                        📋 BÁO CÁO SỐ LIỆU THI HÀNH ÁN DÂN SỰ
-                    </a>
-                    <a href="bao_cao_khieu_to.html" class="menu-item report-item">
-                        📋 BÁO CÁO SỐ LIỆU KHIẾU NẠI, TỐ CÁO
-                    </a>
-                </div>
+            <div class="theme-switch">
+                <button type="button" class="theme-btn" data-theme-set="light" aria-pressed="true">Sáng</button>
+                <button type="button" class="theme-btn" data-theme-set="dark" aria-pressed="false">Tối</button>
             </div>
         </div>
-
-        <button onclick="logout()" class="logout-btn">🚪 ĐĂNG XUẤT</button>
+        <div class="panel">
+            <h2>Hệ thống nghiệp vụ nội bộ</h2>
+            <p class="user-bar" style="text-align:right;color:inherit">Xin chào, <b id="display_user">...</b></p>
+            <div class="grid">
+                <div class="col">
+                    <h3>Chức năng chính</h3>
+                    <div class="menu">
+                        <a href="dan_su.html">I. Quản lý án dân sự, HC, KD-TM, HN-GĐ, LĐ</a>
+                        <a href="khieu_to.html">II. Kiểm sát, giải quyết khiếu nại, tố cáo</a>
+                        <a href="thi_hanh_an.html">III. Kiểm sát thi hành án dân sự</a>
+                        <a href="quan_ly_tk.html">Quản lý tài khoản</a>
+                        <a href="doi_mk.html">Đổi mật khẩu</a>
+                    </div>
+                </div>
+                <div class="col">
+                    <h3>Báo cáo thống kê</h3>
+                    <div class="menu">
+                        <a class="report" href="bao_cao_tong_hop.html">Báo cáo số liệu thống kê tổng hợp</a>
+                        <a class="report" href="bao_cao_dan_su.html">Báo cáo số liệu án dân sự</a>
+                        <a class="report" href="bao_cao_thi_hanh_an.html">Báo cáo số liệu thi hành án dân sự</a>
+                        <a class="report" href="bao_cao_khieu_to.html">Báo cáo số liệu khiếu nại, tố cáo</a>
+                    </div>
+                </div>
+            </div>
+            <button class="logout" onclick="logout()">Đăng xuất</button>
+        </div>
     </div>
-
-    <script>
-        // Kiểm tra đăng nhập ngay lập tức
-        (function() {
-            const isLoggedIn = sessionStorage.getItem('vks_logged_in') === 'true';
-            const user = localStorage.getItem('vks_user');
-            
-            if (!isLoggedIn || !user) {
-                alert("Vui lòng đăng nhập trước!");
-                window.location.href = "login.html";
-                return;
-            }
-            
-            // Hiển thị tên user
-            document.getElementById('display_user').innerText = user;
-        })();
-
-        function logout() {
-            if (confirm("Bạn có chắc chắn muốn đăng xuất không?")) {
-                localStorage.removeItem('vks_user');
-                sessionStorage.removeItem('vks_logged_in');
-                window.location.href = "login.html";
-            }
+</div>
+<script>
+    (function() {
+        const isLoggedIn = sessionStorage.getItem('vks_logged_in') === 'true';
+        const user = localStorage.getItem('vks_user');
+        if (!isLoggedIn || !user) {
+            alert("Vui lòng đăng nhập trước!");
+            window.location.href = "login.html";
+            return;
         }
-    </script>
+        var name = user;
+        try {
+            var p = JSON.parse(localStorage.getItem('vks_user_profile') || 'null');
+            if (p && p.fullname) name = p.fullname + ' (' + (p.username || user) + ')';
+        } catch (e) {}
+        document.getElementById('display_user').innerText = name;
+    })();
+    function applyTheme(t) {
+        document.documentElement.setAttribute('data-theme', t);
+        try { localStorage.setItem('vks-dansu-theme', t); } catch (e) {}
+        document.querySelectorAll('[data-theme-set]').forEach(function (b) {
+            b.setAttribute('aria-pressed', b.getAttribute('data-theme-set') === t ? 'true' : 'false');
+        });
+    }
+    document.addEventListener('click', function (e) {
+        var b = e.target.closest && e.target.closest('[data-theme-set]');
+        if (b) applyTheme(b.getAttribute('data-theme-set'));
+    });
+    applyTheme((function () { try { return localStorage.getItem('vks-dansu-theme') || 'light'; } catch (e) { return 'light'; } })());
+    function logout() {
+        if (confirm("Bạn có chắc chắn muốn đăng xuất không?")) {
+            localStorage.removeItem('vks_user');
+            sessionStorage.removeItem('vks_logged_in');
+            window.location.href = "login.html";
+        }
+    }
+</script>
 </body>
 </html>

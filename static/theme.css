@@ -1,0 +1,59 @@
+:root, [data-theme="light"] {
+  --vks-bg: #f3eee4;
+  --vks-surface: #fffdf8;
+  --vks-ink: #1c1612;
+  --vks-muted: #6d6459;
+  --vks-line: #d8cfc0;
+  --vks-crimson: #7a1e2b;
+  --vks-crimson-deep: #54141d;
+  --vks-crimson-mid: #922433;
+  --vks-fg: #fff8f0;
+  --vks-brass: #c6ae72;
+}
+[data-theme="dark"] {
+  --vks-bg: #160e10;
+  --vks-surface: #24181b;
+  --vks-ink: #f4ebe4;
+  --vks-muted: #b9a89a;
+  --vks-line: #3d2e31;
+  --vks-crimson: #c45a66;
+  --vks-crimson-deep: #3a1519;
+  --vks-crimson-mid: #a33a48;
+  --vks-fg: #fff4ea;
+  --vks-brass: #e8d09a;
+}
+body.vks-page {
+  font-family: "Be Vietnam Pro", "Segoe UI", sans-serif;
+  color: var(--vks-ink);
+  background-color: var(--vks-bg);
+  background-image:
+    linear-gradient(180deg, rgba(243, 238, 228, 0.84), rgba(243, 238, 228, 0.9)),
+    url("tru-so-vksnd.jpg");
+  background-size: cover;
+  background-position: center 38%;
+  background-attachment: fixed;
+  min-height: 100vh;
+}
+[data-theme="dark"] body.vks-page {
+  background-image:
+    linear-gradient(180deg, rgba(22, 14, 16, 0.88), rgba(16, 9, 11, 0.92)),
+    url("tru-so-vksnd.jpg");
+}
+body.vks-page header,
+body.vks-page .top-nav {
+  background: var(--vks-crimson-deep) !important;
+  color: var(--vks-fg) !important;
+}
+body.vks-page header h1,
+body.vks-page header h2 {
+  color: var(--vks-fg) !important;
+}
+body.vks-page .btn-save,
+body.vks-page .btn-primary,
+body.vks-page .btn-in {
+  background: var(--vks-crimson) !important;
+  color: var(--vks-fg) !important;
+}
+body.vks-page .section {
+  background: #f7efe4 !important;
+}

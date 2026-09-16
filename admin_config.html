@@ -3,14 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <title>Cấu hình hệ thống - Admin</title>
+    <link rel="stylesheet" href="static/theme.css">
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #0408c5;
-            --accent: #f8f536;
-            --bg: #f0f2fc;
+            --primary: #7a1e2b;
+            --accent: #fff8f0;
+            --bg: #f3eee4;
             --white: #fff;
             --border: #e2e4f0;
             --green: #16a34a;
@@ -75,7 +76,7 @@
             cursor: pointer; transition: all 0.18s;
         }
         .btn-primary { background: var(--primary); color: white; }
-        .btn-primary:hover { background: #0306a8; }
+        .btn-primary:hover { background: #54141d; }
         .btn-danger { background: var(--red); color: white; margin-top: 10px; }
         .btn-danger:hover { background: #b91c1c; }
         .btn-login { background: var(--primary); color: white; width: 100%; padding: 14px; border: none; border-radius: 10px; font-family: inherit; font-size: 15px; font-weight: 700; cursor: pointer; margin-top: 10px; }
@@ -109,7 +110,7 @@
         }
     </style>
 </head>
-<body>
+<body class="vks-page">
 <header>
     <a href="index.html" class="btn-back">← Quay lại</a>
     <h1>⚙️ Cấu hình hệ thống</h1>

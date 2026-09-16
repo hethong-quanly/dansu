@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản lý Án Dân sự - VKS Cần Thơ</title>
+    <link rel="stylesheet" href="static/theme.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script>
         const currentUser = sessionStorage.getItem('vks_logged_in') === 'true' ? localStorage.getItem('vks_user') : null;
@@ -103,7 +105,7 @@
         .imported-badge { display: inline-block; background: #17a2b8; color: white; font-size: 10px; padding: 1px 6px; border-radius: 3px; margin-left: 5px; }
     </style>
 </head>
-<body>
+<body class="vks-page">
     <!-- TOP NAV - Đã bỏ HÌNH SỰ vì đây là module Dân sự -->
     <div class="top-nav">
         <a href="index.html">TRANG CHỦ</a>
@@ -242,6 +244,8 @@
                     <div class="form-group"><label>Cấp xét xử *</label><select id="m_cap_xet_xu"><option value="Sơ thẩm">Sơ thẩm</option><option value="Phúc thẩm">Phúc thẩm</option></select></div>
                     <div class="form-group"><label>Số Thụ lý</label><input type="text" id="m_so_thu_ly" placeholder="VD: 07"></div>
                     <div class="form-group"><label>Số Bản án / Quyết định *</label><input type="text" id="m_so_ban_an" placeholder="VD: 02104011"></div>
+                    <div class="form-group"><label>Mã định danh TADT</label><input type="text" id="m_ma_tadt" placeholder="Mã vụ Tòa án điện tử"></div>
+                    <div class="form-group"><label>Liên kết TADT / công bố bản án</label><input type="url" id="m_link_tadt" placeholder="https://tadt.toaan.gov.vn/..."></div>
                     <div class="form-group"><label>Ngày thụ lý / ban hành</label><input type="date" id="m_ngay_ban_hanh"></div>
                     <div class="form-group full"><label>Tên vụ việc / Đương sự chính</label><input type="text" id="m_ten_vu_an" placeholder="VD: Nguyễn Thị Bích Trâm - ..."></div>
                     <div class="form-group full"><label>Nguyên đơn</label><textarea id="m_nguyen_don" placeholder="Họ tên nguyên đơn..."></textarea></div>
@@ -561,6 +565,8 @@
                 document.getElementById('m_ksv').value = r.ksv || '';
                 document.getElementById('m_toa').value = r.toa || 'Tòa án nhân dân thành phố Vũng Tàu';
                 document.getElementById('m_ma_vu_viec').value = r.ma_vu_viec || '';
+                if (document.getElementById('m_ma_tadt')) document.getElementById('m_ma_tadt').value = r.ma_tadt || '';
+                if (document.getElementById('m_link_tadt')) document.getElementById('m_link_tadt').value = r.link_tadt || '';
                 document.getElementById('modal-add').classList.add('show');
             };
         }
@@ -584,6 +590,8 @@
                 ksv: document.getElementById('m_ksv').value.trim(),
                 toa: document.getElementById('m_toa').value,
                 ma_vu_viec: document.getElementById('m_ma_vu_viec').value.trim() || soBA,
+                ma_tadt: document.getElementById('m_ma_tadt').value.trim(),
+                link_tadt: document.getElementById('m_link_tadt').value.trim(),
                 nguoi_tao: currentUser,
                 tinh_trang_gq: document.getElementById('m_so_thu_ly').value ? 
                     `- Thụ lý số: ${document.getElementById('m_so_thu_ly').value} ngày ${document.getElementById('m_ngay_ban_hanh').value || '...'}` : '- Thụ lý mới',

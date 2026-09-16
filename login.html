@@ -20,11 +20,8 @@
             --muted: #6d6459;
             --line: rgba(198,174,114,.38);
             --crimson: #7a1e2b;
-            --crimson-mid: #922433;
             --fg: #fff8f0;
             --brass: #c6ae72;
-            --chip: rgba(16,8,10,.32);
-            --chip-hover: rgba(16,8,10,.45);
             --switch-bg: rgba(84,20,29,.72);
             --switch-on: #7a1e2b;
             --error: #c53030;
@@ -36,27 +33,17 @@
             --muted: #b9a89a;
             --line: rgba(198,174,114,.28);
             --crimson: #c45a66;
-            --crimson-mid: #a33a48;
             --fg: #fff4ea;
             --brass: #e8d09a;
-            --chip: rgba(8,6,7,.45);
-            --chip-hover: rgba(8,6,7,.62);
             --switch-bg: rgba(12,8,10,.78);
             --switch-on: #54141d;
             --error: #f87171;
         }
         * { box-sizing: border-box; }
         html, body { margin: 0; min-height: 100%; min-height: 100dvh; }
-        body {
-            font-family: 'Be Vietnam Pro', sans-serif;
-            color: var(--fg);
-            background: #54141d;
-        }
+        body { font-family: 'Be Vietnam Pro', sans-serif; color: var(--fg); background: #54141d; }
         .hero { position: relative; min-height: 100dvh; overflow-x: hidden; }
-        .hq-photo {
-            position: absolute; inset: 0; width: 100%; height: 100%;
-            object-fit: cover; object-position: center 38%; pointer-events: none;
-        }
+        .hq-photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 38%; pointer-events: none; }
         .hq-veil { position: absolute; inset: 0; background: var(--veil); pointer-events: none; }
         .tech-grid {
             position: absolute; inset: 0; pointer-events: none; opacity: .22;
@@ -66,104 +53,39 @@
                 linear-gradient(to bottom, rgba(255,255,255,.04) 1px, transparent 1px);
             background-size: 32px 32px, 96px 96px, 96px 96px;
         }
-        .theme-fab {
-            position: absolute; top: max(12px, env(safe-area-inset-top));
-            right: max(12px, env(safe-area-inset-right)); z-index: 30;
-        }
-        .theme-switch {
-            display: inline-flex; height: 44px; overflow: hidden;
-            border: 1px solid rgba(232,198,117,.38); border-radius: 12px;
-            background: var(--switch-bg);
-        }
-        .theme-btn {
-            display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-            min-width: 44px; padding: 0 12px; border: 0; background: transparent;
-            font: inherit; font-size: 12px; font-weight: 700; color: var(--brass); cursor: pointer;
-        }
+        .theme-fab { position: absolute; top: max(12px, env(safe-area-inset-top)); right: max(12px, env(safe-area-inset-right)); z-index: 30; }
+        .theme-switch { display: inline-flex; height: 44px; overflow: hidden; border: 1px solid rgba(232,198,117,.38); border-radius: 12px; background: var(--switch-bg); }
+        .theme-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-width: 44px; padding: 0 12px; border: 0; background: transparent; font: inherit; font-size: 12px; font-weight: 700; color: var(--brass); cursor: pointer; }
         .theme-btn svg { width: 16px; height: 16px; }
         .theme-btn[aria-pressed="true"] { background: var(--switch-on); color: #fff; }
-        .center {
-            position: relative; z-index: 10;
-            display: flex; flex-direction: column; align-items: center;
-            min-height: 100dvh; padding: 56px 16px 32px;
-        }
-        .logo-wrap {
-            position: relative; width: 160px; height: 160px;
-            display: flex; align-items: center; justify-content: center;
-        }
+        .center { position: relative; z-index: 10; display: flex; flex-direction: column; align-items: center; min-height: 100dvh; padding: 56px 16px 32px; }
+        .logo-wrap { position: relative; width: 160px; height: 160px; display: flex; align-items: center; justify-content: center; }
         @media (min-width: 640px) { .logo-wrap { width: 200px; height: 200px; } }
-        @keyframes ping-ring {
-            0% { transform: translate(-50%, -50%) scale(.8); opacity: .5; }
-            100% { transform: translate(-50%, -50%) scale(1.8); opacity: 0; }
-        }
-        .ping-ring {
-            position: absolute; top: 50%; left: 50%; border-radius: 50%;
-            pointer-events: none; animation: ping-ring 3.5s ease-out infinite;
-        }
+        @keyframes ping-ring { 0% { transform: translate(-50%, -50%) scale(.8); opacity: .5; } 100% { transform: translate(-50%, -50%) scale(1.8); opacity: 0; } }
+        .ping-ring { position: absolute; top: 50%; left: 50%; border-radius: 50%; pointer-events: none; animation: ping-ring 3.5s ease-out infinite; }
         .ping-ring:nth-child(1) { width: 280px; height: 280px; border: 3px solid rgba(232,198,117,.38); }
         .ping-ring:nth-child(2) { width: 220px; height: 220px; border: 2px solid rgba(232,198,117,.28); animation-delay: 1.2s; }
         .ping-ring:nth-child(3) { width: 180px; height: 180px; border: 2px solid rgba(232,198,117,.22); animation-delay: 2.4s; }
         .logo { width: 140px; height: 140px; object-fit: contain; position: relative; z-index: 2; }
         @media (min-width: 640px) { .logo { width: 168px; height: 168px; } }
-        .vks-gold {
-            margin: 10px 0 0; text-align: center; font-weight: 900;
-            letter-spacing: .16em; text-transform: uppercase;
-            font-size: clamp(12px, 3.3vw, 16px); line-height: 1.55; color: #ffe566;
-            text-shadow: 0 1px 0 #fff6c2, 1px 1px 0 #e8c675, 2px 2px 0 #c9952e, 3px 3px 0 #a67c1a, 4px 4px 0 #8a6414, 4px 6px 14px rgba(0,0,0,.5);
-            max-width: 92vw; padding: 0 12px;
-        }
-        .app-title {
-            margin: 8px 0 0; text-align: center; font-size: clamp(22px, 4vw, 32px);
-            font-weight: 800; letter-spacing: .06em; color: #fff;
-        }
-        .app-title span {
-            background: linear-gradient(90deg, #e8c675, #fff6c2);
-            -webkit-background-clip: text; background-clip: text; color: transparent;
-        }
-        .app-sub {
-            margin: 8px 0 0; font-size: 12px; font-weight: 700; letter-spacing: .22em;
-            text-transform: uppercase; color: var(--brass);
-        }
-        .glass {
-            width: min(440px, 100%); margin-top: 22px;
-            border-radius: 18px; border: 1px solid var(--line);
-            background: var(--glass); color: var(--ink);
-            box-shadow: 0 20px 50px -24px rgba(0,0,0,.55);
-            backdrop-filter: blur(14px); padding: 22px 22px 18px;
-        }
+        .vks-gold { margin: 10px 0 0; text-align: center; font-weight: 900; letter-spacing: .16em; text-transform: uppercase; font-size: clamp(12px, 3.3vw, 16px); line-height: 1.55; color: #ffe566; text-shadow: 0 1px 0 #fff6c2, 1px 1px 0 #e8c675, 2px 2px 0 #c9952e, 3px 3px 0 #a67c1a, 4px 4px 0 #8a6414, 4px 6px 14px rgba(0,0,0,.5); max-width: 92vw; padding: 0 12px; }
+        .app-title { margin: 8px 0 0; text-align: center; font-size: clamp(22px, 4vw, 32px); font-weight: 800; letter-spacing: .06em; color: #fff; }
+        .app-title span { background: linear-gradient(90deg, #e8c675, #fff6c2); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .glass { width: min(440px, 100%); margin-top: 22px; border-radius: 18px; border: 1px solid var(--line); background: var(--glass); color: var(--ink); box-shadow: 0 20px 50px -24px rgba(0,0,0,.55); backdrop-filter: blur(14px); padding: 22px 22px 18px; }
         .glass h2 { margin: 0; font-size: 22px; font-weight: 700; }
         .glass p.lead { margin: 6px 0 0; font-size: 13px; color: var(--muted); }
         label.field { display: flex; flex-direction: column; gap: 6px; margin-top: 14px; font-size: 13px; font-weight: 600; }
-        input {
-            height: 44px; border-radius: 8px; border: 1px solid rgba(198,174,114,.35);
-            background: rgba(255,255,255,.7); color: inherit; padding: 0 12px; font: inherit;
-        }
+        input { height: 44px; border-radius: 8px; border: 1px solid rgba(198,174,114,.35); background: rgba(255,255,255,.7); color: inherit; padding: 0 12px; font: inherit; }
         [data-theme="dark"] input { background: rgba(8,6,7,.45); border-color: rgba(198,174,114,.22); color: var(--ink); }
         input:focus { outline: 2px solid rgba(122,30,43,.4); border-color: var(--crimson); }
         .error { display: none; margin-top: 10px; font-size: 13px; color: var(--error); }
-        .btn-in {
-            width: 100%; height: 48px; margin-top: 14px; border: 0; border-radius: 8px;
-            background: #7a1e2b; color: #fff8f0; font: inherit; font-weight: 800;
-            letter-spacing: .08em; cursor: pointer;
-        }
+        .ok { display: none; margin-top: 10px; font-size: 13px; color: #2c6a4a; line-height: 1.5; }
+        .btn-in { width: 100%; height: 48px; margin-top: 14px; border: 0; border-radius: 8px; background: #7a1e2b; color: #fff8f0; font: inherit; font-weight: 800; letter-spacing: .08em; cursor: pointer; }
         .btn-in:hover { background: #922433; }
-        .hint { margin-top: 16px; font-size: 11px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
-        .chips { display: grid; gap: 8px; margin-top: 10px; }
-        @media (min-width: 520px) { .chips { grid-template-columns: 1fr 1fr; } }
-        .chip {
-            display: flex; min-height: 44px; align-items: center; justify-content: space-between; gap: 8px;
-            border-radius: 8px; border: 1px solid var(--line); background: rgba(122,30,43,.06);
-            padding: 10px 12px; text-align: left; color: var(--ink); cursor: pointer; font: inherit;
-        }
-        .chip:hover { border-color: #c6ae72; }
-        .chip b { display: block; font-size: 13px; }
-        .chip small { display: block; font-size: 11px; color: var(--muted); }
-        .chip .u { font-family: ui-monospace, monospace; font-size: 11px; color: #7a1e2b; font-weight: 700; }
-        [data-theme="dark"] .chip .u { color: var(--brass); }
+        .forgot { display: block; width: 100%; margin-top: 12px; border: 0; background: none; font: inherit; font-size: 13px; font-weight: 600; color: var(--crimson); cursor: pointer; text-align: center; }
+        .forgot:hover { text-decoration: underline; }
         .foot { margin-top: 14px; text-align: center; font-size: 11px; color: var(--muted); }
-        @media (prefers-reduced-motion: reduce) {
-            .ping-ring { animation: none; }
-        }
+        @media (prefers-reduced-motion: reduce) { .ping-ring { animation: none; } }
     </style>
 </head>
 <body>
@@ -171,7 +93,6 @@
     <img class="hq-photo" src="static/tru-so-vksnd.jpg" alt="Trụ sở Viện kiểm sát nhân dân thành phố Cần Thơ">
     <div class="hq-veil"></div>
     <div class="tech-grid"></div>
-
     <div class="theme-fab">
         <div class="theme-switch" role="group" aria-label="Chọn giao diện">
             <button type="button" class="theme-btn" data-theme-set="light" aria-pressed="true" title="Giao diện sáng">
@@ -184,7 +105,6 @@
             </button>
         </div>
     </div>
-
     <div class="center">
         <div class="logo-wrap">
             <div class="ping-ring"></div>
@@ -194,26 +114,35 @@
         </div>
         <h2 class="vks-gold">Viện kiểm sát nhân dân thành phố Cần Thơ</h2>
         <h1 class="app-title">QUẢN LÝ <span>PHẦN DÂN SỰ</span></h1>
-        <p class="app-sub">Phục vụ công tác kiểm sát</p>
 
-        <form class="glass" onsubmit="handleLogin(event)">
+        <form class="glass" id="form-login" onsubmit="handleLogin(event)">
             <h2>Đăng nhập hệ thống</h2>
-            <p class="lead">Tài khoản theo cấp: VKSNDTC · tỉnh/thành · khu vực</p>
+            <p class="lead">Tài khoản do Viện trưởng hoặc Chánh văn phòng đơn vị cấp.</p>
             <label class="field">Tên đăng nhập
-                <input id="username" autocomplete="username" placeholder="vd: vt.cantho">
+                <input id="username" autocomplete="username">
             </label>
             <label class="field">Mật khẩu
-                <input id="password" type="password" autocomplete="current-password" placeholder="Mật khẩu">
+                <input id="password" type="password" autocomplete="current-password">
             </label>
             <div class="error" id="error-msg"></div>
             <button type="submit" class="btn-in">ĐĂNG NHẬP</button>
-            <p class="hint">Tài khoản dùng thử · mật khẩu 123456</p>
-            <div class="chips" id="quick-accounts"></div>
+            <button type="button" class="forgot" onclick="showForgot()">Quên mật khẩu?</button>
             <p class="foot">Hệ thống nghiệp vụ nội bộ · VKSND TP. Cần Thơ</p>
+        </form>
+
+        <form class="glass" id="form-forgot" style="display:none" onsubmit="handleForgot(event)">
+            <h2>Quên mật khẩu</h2>
+            <p class="lead">Nhập tên đăng nhập. Lãnh đạo đơn vị sẽ cấp lại mật khẩu trong mục Quản lý tài khoản.</p>
+            <label class="field">Tên đăng nhập
+                <input id="forgot-user" autocomplete="username">
+            </label>
+            <div class="error" id="forgot-error"></div>
+            <div class="ok" id="forgot-ok"></div>
+            <button type="submit" class="btn-in" id="forgot-btn">GỬI YÊU CẦU</button>
+            <button type="button" class="forgot" onclick="showLogin()">Quay lại đăng nhập</button>
         </form>
     </div>
 </div>
-
 <script>
     var firebaseConfig = {
         apiKey: "AIzaSyDunRDIeyBTVXTODoO22ywk1Q35cCx2sV8",
@@ -225,18 +154,46 @@
     };
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     var db = firebase.database();
+    var ADMIN_PW = 'VKSNDTPCT';
+    var TRIAL = ['vt.vksndtc','pvt.vksndtc','ctk.vksndtc','cb.vksndtc','vt.cantho','pvt.cantho','cvp.cantho','cb.cantho','vt.kv1','pvt.kv1','cvp.kv1','cb.kv1','cb.kv2','vt.hanoi','cb.hn1'];
 
-    var DEFAULTS = [
-        { username: 'admin', password: 'admin123', fullname: 'Quản trị viên', level: 'toi_cao', unit: 'VKSND Tối cao', position: 'Cục trưởng cục Thống kê và CNTT' },
-        { username: 'vt.vksndtc', password: '123456', fullname: 'Nguyễn Văn Thành', level: 'toi_cao', unit: 'VKSND Tối cao', position: 'Viện trưởng' },
-        { username: 'pvt.vksndtc', password: '123456', fullname: 'Nguyễn Thị Hồng Hà', level: 'toi_cao', unit: 'VKSND Tối cao', position: 'Phó viện trưởng phụ trách' },
-        { username: 'ctk.vksndtc', password: '123456', fullname: 'Trần Văn Khoa', level: 'toi_cao', unit: 'VKSND Tối cao', position: 'Cục trưởng cục Thống kê và CNTT' },
-        { username: 'cb.vksndtc', password: '123456', fullname: 'Trần Thị Minh', level: 'toi_cao', unit: 'VKSND Tối cao', position: 'Cán bộ cập nhật dữ liệu' },
-        { username: 'vt.cantho', password: '123456', fullname: 'Lê Hoàng Phúc', level: 'tinh', unit: 'Cần Thơ', position: 'Viện trưởng' },
-        { username: 'pvt.cantho', password: '123456', fullname: 'Ngô Minh Tuấn', level: 'tinh', unit: 'Cần Thơ', position: 'Phó viện trưởng phụ trách' },
-        { username: 'cvp.cantho', password: '123456', fullname: 'Đỗ Thị Lan', level: 'tinh', unit: 'Cần Thơ', position: 'Chánh văn phòng' },
-        { username: 'cb.cantho', password: '123456', fullname: 'Phạm Thị Hương', level: 'tinh', unit: 'Cần Thơ', position: 'Cán bộ cập nhật dữ liệu' }
-    ];
+    function rights() { return { p_dansu: true, p_khieuto: true, p_thihanh: true }; }
+
+    function seedLocal() {
+        var dbLocal = {};
+        try { dbLocal = JSON.parse(localStorage.getItem('vks_users_db') || '{}') || {}; } catch (e) { dbLocal = {}; }
+        TRIAL.forEach(function (u) {
+            if (dbLocal[u] && (dbLocal[u].password === '123456' || dbLocal[u].password === 'admin123')) delete dbLocal[u];
+        });
+        dbLocal.admin = Object.assign({}, dbLocal.admin || {}, {
+            password: ADMIN_PW,
+            fullname: (dbLocal.admin && dbLocal.admin.fullname) || 'Quản trị viên',
+            level: 'toi_cao',
+            unit: 'VKSND Tối cao',
+            position: (dbLocal.admin && dbLocal.admin.position) || 'Cục trưởng cục Thống kê và CNTT'
+        }, rights());
+        localStorage.setItem('vks_users_db', JSON.stringify(dbLocal));
+        return dbLocal;
+    }
+
+    function scrubRemoteTrials() {
+        db.ref('users/admin').once('value').then(function (snap) {
+            var v = snap.val() || {};
+            db.ref('users/admin').update(Object.assign({
+                password: ADMIN_PW,
+                fullname: v.fullname || 'Quản trị viên',
+                level: v.level || 'toi_cao',
+                unit: v.unit || 'VKSND Tối cao',
+                position: v.position || 'Cục trưởng cục Thống kê và CNTT'
+            }, rights()));
+        }).catch(function () {});
+        TRIAL.forEach(function (u) {
+            db.ref('users/' + u).once('value').then(function (s) {
+                var v = s.val();
+                if (v && (v.password === '123456' || v.password === 'admin123')) db.ref('users/' + u).remove();
+            }).catch(function () {});
+        });
+    }
 
     function applyTheme(t) {
         document.documentElement.setAttribute('data-theme', t);
@@ -253,31 +210,14 @@
     });
     applyTheme((function () { try { return localStorage.getItem('vks-dansu-theme') || 'light'; } catch (e) { return 'light'; } })());
 
-    function rights() {
-        return { p_dansu: true, p_khieuto: true, p_thihanh: true };
-    }
-
-    function seedLocal() {
-        var dbLocal = {};
-        try { dbLocal = JSON.parse(localStorage.getItem('vks_users_db') || '{}') || {}; } catch (e) { dbLocal = {}; }
-        DEFAULTS.forEach(function (u) {
-            if (!dbLocal[u.username]) {
-                dbLocal[u.username] = Object.assign({ password: u.password, fullname: u.fullname, level: u.level, unit: u.unit, position: u.position }, rights());
-            }
-        });
-        localStorage.setItem('vks_users_db', JSON.stringify(dbLocal));
-        return dbLocal;
-    }
-
     function profileOf(username, extra) {
         extra = extra || {};
-        var base = DEFAULTS.find(function (u) { return u.username === username; }) || { username: username, fullname: username, level: extra.level || '', unit: extra.unit || '', position: extra.position || '' };
         return Object.assign({
             username: username,
-            fullname: extra.fullname || base.fullname,
-            level: extra.level || base.level,
-            unit: extra.unit || base.unit,
-            position: extra.position || base.position
+            fullname: extra.fullname || username,
+            level: extra.level || '',
+            unit: extra.unit || '',
+            position: extra.position || ''
         }, rights(), extra);
     }
 
@@ -288,13 +228,13 @@
         localStorage.setItem('vks_username', username);
         localStorage.setItem('vks_user_profile', JSON.stringify(profile));
         var local = seedLocal();
-        local[username] = Object.assign({}, local[username] || {}, profile, { password: extra && extra.password ? extra.password : (local[username] && local[username].password) || '123456' });
+        local[username] = Object.assign({}, local[username] || {}, profile, { password: extra && extra.password ? extra.password : (local[username] && local[username].password) });
         localStorage.setItem('vks_users_db', JSON.stringify(local));
         window.location.href = 'index.html';
     }
 
-    function showError(msg) {
-        var el = document.getElementById('error-msg');
+    function showError(id, msg) {
+        var el = document.getElementById(id);
         el.innerText = msg;
         el.style.display = 'block';
     }
@@ -303,48 +243,60 @@
         if (e) e.preventDefault();
         var username = document.getElementById('username').value.trim();
         var password = document.getElementById('password').value;
-        if (!username || !password) { showError('Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu.'); return; }
-
+        if (!username || !password) { showError('error-msg', 'Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu.'); return; }
         var local = seedLocal();
         db.ref('users/' + username).once('value').then(function (snap) {
             var remote = snap.val();
             if (remote) {
-                if (remote.password !== password) { showError('Mật khẩu không chính xác.'); return; }
+                if (remote.password !== password) { showError('error-msg', 'Mật khẩu không chính xác.'); return; }
                 enter(username, remote);
                 return;
             }
             var user = local[username];
-            if (!user) { showError('Tài khoản không tồn tại trên hệ thống.'); return; }
-            if (user.password !== password) { showError('Mật khẩu không chính xác.'); return; }
+            if (!user) { showError('error-msg', 'Tài khoản không tồn tại trên hệ thống.'); return; }
+            if (user.password !== password) { showError('error-msg', 'Mật khẩu không chính xác.'); return; }
             enter(username, user);
         }).catch(function () {
             var user = local[username];
-            if (!user || user.password !== password) { showError('Không kết nối được máy chủ. Kiểm tra tài khoản dùng thử hoặc mạng.'); return; }
+            if (!user || user.password !== password) { showError('error-msg', 'Không kết nối được máy chủ. Kiểm tra tài khoản hoặc mạng.'); return; }
             enter(username, user);
         });
     }
 
-    function renderQuick() {
-        var box = document.getElementById('quick-accounts');
-        var picks = DEFAULTS.filter(function (u) { return u.username !== 'admin'; }).slice(0, 8);
-        box.innerHTML = picks.map(function (u) {
-            var cap = u.level === 'toi_cao' ? 'Cấp VKSNDTC' : 'Cấp tỉnh';
-            return '<button type="button" class="chip" data-user="' + u.username + '" data-pass="' + u.password + '">' +
-                '<span><b>' + u.fullname + '</b><small>' + cap + ' · ' + u.position + '</small></span>' +
-                '<span class="u">' + u.username + '</span></button>';
-        }).join('');
-        box.addEventListener('click', function (ev) {
-            var b = ev.target.closest('.chip');
-            if (!b) return;
-            document.getElementById('username').value = b.getAttribute('data-user');
-            document.getElementById('password').value = b.getAttribute('data-pass');
-            handleLogin();
-        });
+    function showForgot() {
+        document.getElementById('form-login').style.display = 'none';
+        document.getElementById('form-forgot').style.display = 'block';
+        document.getElementById('forgot-user').value = document.getElementById('username').value;
+        document.getElementById('forgot-error').style.display = 'none';
+        document.getElementById('forgot-ok').style.display = 'none';
+        document.getElementById('forgot-btn').style.display = 'block';
+    }
+    function showLogin() {
+        document.getElementById('form-forgot').style.display = 'none';
+        document.getElementById('form-login').style.display = 'block';
+        document.getElementById('error-msg').style.display = 'none';
+    }
+    function handleForgot(e) {
+        e.preventDefault();
+        var username = document.getElementById('forgot-user').value.trim();
+        document.getElementById('forgot-error').style.display = 'none';
+        document.getElementById('forgot-ok').style.display = 'none';
+        if (!username) { showError('forgot-error', 'Nhập tên đăng nhập.'); return; }
+        var rec = { username: username, requestedAt: Date.now(), status: 'pending' };
+        var local = [];
+        try { local = JSON.parse(localStorage.getItem('vks_password_resets') || '[]'); } catch (err) { local = []; }
+        local = local.filter(function (r) { return r.username !== username || r.status !== 'pending'; });
+        local.unshift(rec);
+        localStorage.setItem('vks_password_resets', JSON.stringify(local));
+        db.ref('password_resets/' + username).set(rec).catch(function () {});
+        document.getElementById('forgot-ok').innerText = 'Yêu cầu đã được ghi nhận. Liên hệ Viện trưởng hoặc Chánh văn phòng đơn vị để được cấp lại mật khẩu.';
+        document.getElementById('forgot-ok').style.display = 'block';
+        document.getElementById('forgot-btn').style.display = 'none';
     }
 
     window.onload = function () {
         seedLocal();
-        renderQuick();
+        scrubRemoteTrials();
         document.getElementById('username').focus();
     };
 </script>

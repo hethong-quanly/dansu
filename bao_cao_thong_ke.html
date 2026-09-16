@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Báo cáo Thống kê Tổng hợp</title>
+    <link rel="stylesheet" href="static/theme.css">
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -10,16 +11,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #0408c5;
+            --primary: #7a1e2b;
             --primary-dark: #03069a;
-            --accent: #f8f536;
+            --accent: #fff8f0;
             --green: #16a34a;
             --orange: #ea580c;
             --red: #dc2626;
-            --bg: #f0f2fc;
+            --bg: #f3eee4;
             --white: #ffffff;
             --border: #e2e4f0;
-            --text: #1a1a2e;
+            --text: #1c1612;
             --text-muted: #6b7280;
             --shadow: 0 2px 16px rgba(4,8,197,0.10);
         }
@@ -110,7 +111,7 @@
 
         table { width: 100%; border-collapse: collapse; font-size: 13px; }
         thead th {
-            background: #f0f2fc; color: var(--primary); font-weight: 700;
+            background: #f3eee4; color: var(--primary); font-weight: 700;
             padding: 11px 13px; text-align: left; border-bottom: 2px solid var(--border);
         }
         tbody tr { border-bottom: 1px solid var(--border); transition: background 0.15s; }
@@ -158,7 +159,7 @@
         }
     </style>
 </head>
-<body>
+<body class="vks-page">
 <header>
     <a href="index.html" class="btn-back">← Menu chính</a>
     <h1>📊 BÁO CÁO THỐNG KÊ TỔNG HỢP</h1>
@@ -430,7 +431,7 @@
                     labels: ['Án Dân sự', 'Thi hành án', 'Khiếu nại - Tố cáo'],
                     datasets: [{
                         data: [filteredAds.length, filteredTha.length, filteredDkt.length],
-                        backgroundColor: ['#0408c5', '#16a34a', '#ea580c'],
+                        backgroundColor: ['#7a1e2b', '#16a34a', '#ea580c'],
                         borderWidth: 2, borderColor: '#fff'
                     }]
                 },
@@ -457,7 +458,7 @@
                     datasets: [{
                         label: 'Số vụ',
                         data: Object.values(capCount).length ? Object.values(capCount) : [0],
-                        backgroundColor: ['#0408c5', '#6366f1', '#818cf8', '#c7d2fe'],
+                        backgroundColor: ['#7a1e2b', '#6366f1', '#818cf8', '#c7d2fe'],
                         borderRadius: 8
                     }]
                 },

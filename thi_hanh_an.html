@@ -2,117 +2,227 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Quản lý Kiểm sát Thi hành án Dân sự</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kiểm sát thi hành án dân sự</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="static/theme.css">
     <style>
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f5f7fa; }
-        header { background: #0408c5; color: #f8f536; text-align: center; padding: 15px; position: relative; }
+        * { box-sizing: border-box; }
+        body { font-family: 'Be Vietnam Pro', sans-serif; margin: 0; }
+        header { background: #54141d; color: #fff8f0; text-align: center; padding: 15px; position: relative; }
         .btn-back { position: absolute; left: 20px; top: 20px; color: white; text-decoration: none; font-weight: bold; background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 6px; }
-        
-        .container { display: flex; padding: 20px; gap: 25px; }
-        .sidebar { flex: 1.3; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        .main-panel { flex: 2.5; background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); overflow-y: auto; }
-        
-        .form-group { margin-bottom: 16px; }
-        label { font-weight: bold; margin-bottom: 6px; color: #333; display: block; }
-        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 6px; font-size: 14px; }
-        
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 13px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; vertical-align: top; }
-        th { background: #e0f2f1; color: #0408c5; }
-        
-        .btn-save { background: #5670e6; color: white; padding: 14px; border: none; border-radius: 8px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 15px; }
-        .btn-add { background: #4caf50; color: white; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 13px; }
-        .btn-edit { background: #ff9800; color: white; padding: 5px 10px; border-radius: 5px; font-size: 12px; margin-right: 5px; }
-        .btn-delete { background: #d32f2f; color: white; padding: 5px 10px; border-radius: 5px; font-size: 12px; }
-        .btn-pdf { background: #4caf50; color: white; padding: 5px 10px; border-radius: 5px; font-size: 12px; }
-        
-        .multi-item { display: flex; gap: 10px; margin-top: 8px; align-items: center; }
-        .section { background: #f0f4ff; padding: 15px; border-radius: 8px; margin: 15px 0; }
+        .container { display: flex; padding: 20px; gap: 22px; align-items: flex-start; }
+        @media (max-width: 980px) { .container { flex-direction: column; } }
+        .sidebar, .main-panel { background: #fffdf8; padding: 22px; border-radius: 12px; box-shadow: 0 8px 24px -16px rgba(28,22,18,.4); }
+        .sidebar { flex: 1.25; }
+        .main-panel { flex: 2.2; overflow-x: auto; }
+        .form-group { margin-bottom: 12px; }
+        label { font-weight: 600; margin-bottom: 5px; color: #3a332c; display: block; font-size: 13px; }
+        input, select, textarea { width: 100%; padding: 10px; border: 1px solid #d8cfc0; border-radius: 6px; font-size: 14px; font-family: inherit; background: #fff; color: #1c1612; }
+        table { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 13px; }
+        th, td { border: 1px solid #d8cfc0; padding: 8px; text-align: left; vertical-align: top; }
+        th { background: #f3e6d8; color: #54141d; }
+        .btn-save { background: #7a1e2b; color: #fff8f0; padding: 14px; border: none; border-radius: 8px; cursor: pointer; width: 100%; font-weight: 700; margin-top: 8px; }
+        .btn-add { background: #2c6a4a; color: white; padding: 6px 12px; border: 0; border-radius: 6px; cursor: pointer; font-size: 13px; }
+        .btn-edit { background: #8a5a16; color: white; padding: 5px 10px; border: 0; border-radius: 5px; font-size: 12px; margin-right: 4px; }
+        .btn-delete { background: #9b2c2c; color: white; padding: 5px 10px; border: 0; border-radius: 5px; font-size: 12px; }
+        .btn-pdf { background: #2c6a4a; color: white; padding: 5px 10px; border-radius: 5px; font-size: 12px; text-decoration: none; }
+        .multi-item { display: flex; gap: 8px; margin-top: 6px; align-items: center; }
+        .section { background: #f7efe4; padding: 14px; border-radius: 8px; margin: 12px 0; border: 1px solid #e6dccb; }
+        .section h4 { margin: 0 0 10px; font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: #7a1e2b; }
+        .hint { font-size: 12px; color: #6d6459; margin: 0 0 10px; line-height: 1.45; }
+        .checks label { font-weight: 500; display: flex; gap: 8px; align-items: center; margin: 6px 0; }
+        .checks input { width: auto; }
+        .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        @media (max-width: 640px) { .row2 { grid-template-columns: 1fr; } }
+        .toolbar { display: flex; gap: 8px; flex-wrap: wrap; }
+        .toolbar button, .toolbar a { padding: 8px 14px; background: #2c6a4a; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; text-decoration: none; font-size: 13px; }
+        .toolbar .ghost { background: #7a1e2b; }
     </style>
 </head>
-<body>
+<body class="vks-page">
     <header>
         <a href="index.html" class="btn-back">← Menu chính</a>
-        <h2>QUẢN LÝ KIỂM SÁT THI HÀNH ÁN DÂN SỰ</h2>
+        <h2>KIỂM SÁT THI HÀNH ÁN DÂN SỰ</h2>
+        <p style="margin:4px 0 0;font-size:12px;color:#e8c675">Luật 106/2025/QH15 · NĐ 151/2026/NĐ-CP · NĐ 152/2026/NĐ-CP</p>
     </header>
-
     <div class="container">
         <div class="sidebar">
-            <h3>Nhập thông tin Thi hành án</h3>
-
-            <div class="form-group"><label>Ngày nhận QĐTHA:</label><input type="date" id="ngay_nhan_qd"></div>
-            <div class="form-group"><label>QĐTHA số:</label><input type="text" id="so_qd_tha"></div>
-            <div class="form-group"><label>Ngày ban hành QĐTHA:</label><input type="date" id="ngay_ban_hanh_qd"></div>
-
-            <div class="form-group">
-                <label>Chấp hành viên:</label>
-                <div id="chap_hanh_vien_list"></div>
-                <button class="btn-add" onclick="addChapHanhVien()">+ Thêm Chấp hành viên</button>
-            </div>
-
-            <div class="form-group"><label>Quyết định phân công KSV số:</label><input type="text" id="qd_phan_cong_ksv_so"></div>
-            <div class="form-group"><label>Ngày phân công KSV:</label><input type="date" id="ngay_phan_cong_ksv"></div>
-            <div class="form-group">
-                <label>Kiểm sát viên:</label>
-                <div id="ksv_list"></div>
-                <button class="btn-add" onclick="addKSV()">+ Thêm Kiểm sát viên</button>
-            </div>
-
-            <div class="form-group"><label>Người phải thi hành án:</label><input type="text" id="nguoi_phai_tha"></div>
-            <div class="form-group"><label>Địa chỉ người phải THA:</label><input type="text" id="dia_chi_phai_tha"></div>
-            <div class="form-group"><label>Người được thi hành án:</label><input type="text" id="nguoi_duoc_tha"></div>
-            <div class="form-group"><label>Địa chỉ người được THA:</label><input type="text" id="dia_chi_duoc_tha"></div>
+            <h3>Nhập việc thi hành án</h3>
 
             <div class="section">
-                <h4>Nội dung thi hành án</h4>
-                <div class="form-group"><label>Nội dung phải thi hành:</label><textarea id="noi_dung_tha" rows="3"></textarea></div>
-                <div class="form-group"><label>Số tiền phải thi hành:</label><input type="text" id="so_tien_tha"></div>
-                <div class="form-group"><label>Tài sản phải thi hành:</label><textarea id="tai_san_tha" rows="2"></textarea></div>
+                <h4>Bản án, quyết định nguồn · TADT</h4>
+                <p class="hint">Khóa đối chiếu Tòa án điện tử: số thụ lý, số bản án/QĐ, mã định danh vụ việc. Cổng tadt.toaan.gov.vn không công bố API công khai — liên thông bằng tệp JSON/Excel.</p>
+                <div class="row2">
+                    <div class="form-group"><label>Số thụ lý Tòa án</label><input id="so_thu_ly_ta"></div>
+                    <div class="form-group"><label>Số bản án / QĐ</label><input id="so_ban_an"></div>
+                    <div class="form-group"><label>Ngày tuyên / ban hành</label><input type="date" id="ngay_ban_an"></div>
+                    <div class="form-group"><label>Tòa án ra bản án</label><input id="toa_an_nguon"></div>
+                    <div class="form-group"><label>Mã định danh TADT</label><input id="ma_tadt" placeholder="Mã vụ trên TADT"></div>
+                    <div class="form-group"><label>Liên kết TADT / công bố</label><input id="link_tadt" placeholder="https://"></div>
+                </div>
+                <div class="toolbar">
+                    <button type="button" onclick="document.getElementById('tadt_file').click()">Nhập JSON TADT</button>
+                    <input type="file" id="tadt_file" accept="application/json,.json" hidden onchange="importTadt(event)">
+                    <button type="button" class="ghost" onclick="exportTadtCurrent()">Xuất JSON mẫu</button>
+                    <a href="https://tadt.toaan.gov.vn/dashboard" target="_blank" rel="noreferrer">Mở TADT</a>
+                </div>
             </div>
-
-            <div class="form-group"><label>Ngày xác minh điều kiện THA:</label><input type="date" id="ngay_xac_minh"></div>
-            <div class="form-group"><label>Kết quả xác minh:</label><textarea id="ket_qua_xac_minh" rows="3"></textarea></div>
 
             <div class="section">
-                <label><strong>Tình trạng thi hành:</strong></label>
-                <select id="tinh_trang_tha" onchange="toggleDinhGiaFields()">
-                    <option value="Co dieu kien">Có điều kiện thi hành</option>
-                    <option value="Chua co dieu kien">Chưa có điều kiện thi hành</option>
-                </select>
-            </div>
-
-            <div id="dinh_gia_section" class="section" style="display:none;">
-                <h4>Định giá & Đấu giá tài sản</h4>
-                <div class="form-group"><label>Công ty thẩm định giá:</label><input type="text" id="cong_ty_tham_dinh"></div>
-                <div class="form-group"><label>Giá trị tài sản:</label><input type="text" id="gia_tri_tai_san"></div>
-                <div class="form-group"><label>Ngày đưa ra bán đấu giá lần 1:</label><input type="date" id="ngay_dau_gia_lan1"></div>
+                <h4>Quyết định thi hành án</h4>
+                <p class="hint">Điều 29 Luật 106: QĐ về THA gửi VKS trong 03 ngày làm việc kể từ ngày ra quyết định.</p>
+                <div class="row2">
+                    <div class="form-group"><label>Số QĐTHA</label><input id="so_qd_tha"></div>
+                    <div class="form-group"><label>Ngày ra QĐ</label><input type="date" id="ngay_ban_hanh_qd"></div>
+                    <div class="form-group"><label>Ngày VKS nhận</label><input type="date" id="ngay_nhan_qd"></div>
+                    <div class="form-group"><label>Ngày gửi VKS</label><input type="date" id="ngay_gui_vks"></div>
+                    <div class="form-group"><label>Loại quyết định</label>
+                        <select id="loai_qd">
+                            <option value="theo_don">Theo đơn yêu cầu</option>
+                            <option value="chu_dong">Chủ động</option>
+                            <option value="vp_thads">Văn phòng THADS / Thừa hành viên (NĐ 151)</option>
+                        </select>
+                    </div>
+                    <div class="form-group"><label>Cơ quan THA</label>
+                        <select id="loai_co_quan">
+                            <option value="cqthads">Cơ quan THADS tỉnh, thành phố</option>
+                            <option value="phong_thads_kv">Phòng THADS khu vực</option>
+                            <option value="vp_thads">Văn phòng THADS (Thừa hành viên)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group"><label>Tên cơ quan / văn phòng THA</label><input id="ten_co_quan_tha"></div>
                 <div class="form-group">
-                    <label>Kết quả đấu giá lần 1:</label>
+                    <label>Chấp hành viên / Thừa hành viên</label>
+                    <div id="chap_hanh_vien_list"></div>
+                    <button class="btn-add" type="button" onclick="addChapHanhVien()">+ Thêm</button>
+                </div>
+                <div class="checks"><label><input type="checkbox" id="gui_tre_3ngay"> Gửi QĐTHA cho VKS quá 03 ngày làm việc</label></div>
+            </div>
+
+            <div class="form-group"><label>Quyết định phân công KSV số</label><input id="qd_phan_cong_ksv_so"></div>
+            <div class="form-group"><label>Ngày phân công KSV</label><input type="date" id="ngay_phan_cong_ksv"></div>
+            <div class="form-group">
+                <label>Kiểm sát viên</label>
+                <div id="ksv_list"></div>
+                <button class="btn-add" type="button" onclick="addKSV()">+ Thêm Kiểm sát viên</button>
+            </div>
+
+            <div class="section">
+                <h4>Đương sự</h4>
+                <div class="form-group"><label>Người phải thi hành án</label><input id="nguoi_phai_tha"></div>
+                <div class="form-group"><label>Địa chỉ người phải THA</label><input id="dia_chi_phai_tha"></div>
+                <div class="form-group"><label>Người được thi hành án</label><input id="nguoi_duoc_tha"></div>
+                <div class="form-group"><label>Địa chỉ người được THA</label><input id="dia_chi_duoc_tha"></div>
+                <div class="form-group"><label>Người có quyền lợi, nghĩa vụ liên quan</label><input id="nguoi_lien_quan"></div>
+            </div>
+
+            <div class="section">
+                <h4>Nghĩa vụ thi hành</h4>
+                <div class="form-group"><label>Loại nghĩa vụ</label>
+                    <select id="loai_nghia_vu">
+                        <option value="tien">Nghĩa vụ về tiền</option>
+                        <option value="tai_san">Nghĩa vụ về tài sản</option>
+                        <option value="hanh_vi">Nghĩa vụ về hành vi</option>
+                        <option value="hon_hop">Hỗn hợp</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Nội dung phải thi hành</label><textarea id="noi_dung_tha" rows="3"></textarea></div>
+                <div class="form-group"><label>Số tiền phải thi hành</label><input id="so_tien_tha"></div>
+                <div class="form-group"><label>Tài sản phải thi hành</label><textarea id="tai_san_tha" rows="2"></textarea></div>
+            </div>
+
+            <div class="section">
+                <h4>Xác minh điều kiện thi hành án</h4>
+                <p class="hint">Có kháng nghị VKS về kết quả xác minh thì phải xác minh lại trong 05 ngày làm việc.</p>
+                <div class="form-group"><label>Ngày xác minh</label><input type="date" id="ngay_xac_minh"></div>
+                <div class="form-group"><label>Kết quả xác minh</label><textarea id="ket_qua_xac_minh" rows="3"></textarea></div>
+                <div class="form-group"><label>Tình trạng thi hành</label>
+                    <select id="tinh_trang_tha" onchange="toggleDinhGiaFields()">
+                        <option value="Co dieu kien">Có điều kiện thi hành</option>
+                        <option value="Chua co dieu kien">Chưa có điều kiện thi hành</option>
+                        <option value="Dang thi hanh">Đang thi hành</option>
+                        <option value="Da thi hanh xong">Đã thi hành xong</option>
+                        <option value="Dinh chi">Đình chỉ THA</option>
+                    </select>
+                </div>
+                <div class="checks">
+                    <label><input type="checkbox" id="xac_minh_lai"> Đã xác minh lại theo kháng nghị VKS</label>
+                    <label><input type="checkbox" id="tb_ket_thuc_thang"> Đã nhận danh sách việc kết thúc trong tháng (NĐ 152)</label>
+                    <label><input type="checkbox" id="tb_ket_thuc_vks"> Đã thông báo VKS về kết thúc việc THA</label>
+                </div>
+            </div>
+
+            <div id="dinh_gia_section" class="section">
+                <h4>Bảo đảm, kê biên, xác định giá, bán tài sản</h4>
+                <p class="hint">QĐ phong tỏa, tạm giữ gửi ngay VKS. Kế hoạch cưỡng chế gửi VKS. VKS kiểm sát kê biên, xác định giá, bán tài sản.</p>
+                <div class="form-group"><label>Biện pháp bảo đảm</label>
+                    <select id="bp_bao_dam">
+                        <option value="">— Không —</option>
+                        <option value="phong_toa">Phong tỏa tài khoản, tài sản</option>
+                        <option value="tam_giu">Tạm giữ tài sản, giấy tờ</option>
+                        <option value="cam_xuat_canh">Cấm xuất cảnh</option>
+                        <option value="khac">Khác</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Biện pháp cưỡng chế</label>
+                    <select id="bp_cuong_che">
+                        <option value="">— Không —</option>
+                        <option value="ke_bien">Kê biên tài sản</option>
+                        <option value="khau_tru">Khấu trừ tài khoản / thu nhập</option>
+                        <option value="buoc_thuc_hien">Buộc thực hiện hành vi</option>
+                        <option value="ban_tai_san">Bán tài sản / đấu giá</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Công ty thẩm định giá</label><input id="cong_ty_tham_dinh"></div>
+                <div class="form-group"><label>Giá trị tài sản</label><input id="gia_tri_tai_san"></div>
+                <div class="form-group"><label>Ngày đưa ra bán đấu giá lần 1</label><input type="date" id="ngay_dau_gia_lan1"></div>
+                <div class="form-group"><label>Kết quả đấu giá lần 1</label>
                     <select id="ket_qua_dau_gia_lan1">
+                        <option value="">—</option>
                         <option value="Thanh cong">Bán thành công</option>
                         <option value="Chua ban duoc">Chưa bán được</option>
                     </select>
                 </div>
+                <div class="checks">
+                    <label><input type="checkbox" id="ke_bien"> Đã kê biên tài sản</label>
+                    <label><input type="checkbox" id="xac_dinh_gia"> Đã xác định giá</label>
+                    <label><input type="checkbox" id="ban_tai_san"> Đã bán / đấu giá tài sản</label>
+                    <label><input type="checkbox" id="kh_cuong_che_vks"> Kế hoạch cưỡng chế đã gửi VKS</label>
+                </div>
             </div>
 
-            <div class="form-group"><label>Ngày thi hành xong:</label><input type="date" id="ngay_thi_hanh_xong"></div>
-
-            <div class="form-group">
-                <label>Đính kèm File PDF:</label>
-                <input type="file" id="pdf_file" accept=".pdf">
+            <div class="section">
+                <h4>Kiểm sát của Viện kiểm sát</h4>
+                <p class="hint">Điều 12, Điều 112 Luật 106 — kháng nghị 15 ngày (khu vực, tỉnh); 01 năm nếu việc THA đã kết thúc.</p>
+                <div class="checks">
+                    <label><input type="checkbox" id="truc_tiep_ks"> Đã trực tiếp kiểm sát, có kết luận</label>
+                    <label><input type="checkbox" id="kien_nghi"> Đã ban hành kiến nghị</label>
+                    <label><input type="checkbox" id="kien_nghi_chap_nhan"> Kiến nghị được chấp nhận</label>
+                    <label><input type="checkbox" id="khang_nghi"> Đã ban hành kháng nghị</label>
+                    <label><input type="checkbox" id="khang_nghi_chap_nhan"> Kháng nghị được chấp nhận</label>
+                    <label><input type="checkbox" id="y_kien_mien_giam"> Đã có ý kiến miễn, giảm nghĩa vụ THA</label>
+                    <label><input type="checkbox" id="khieu_nai_tha"> Có khiếu nại, tố cáo về THA</label>
+                </div>
             </div>
 
+            <div class="form-group"><label>Ngày thi hành xong</label><input type="date" id="ngay_thi_hanh_xong"></div>
+            <div class="form-group"><label>Đính kèm File PDF</label><input type="file" id="pdf_file" accept=".pdf"></div>
             <button class="btn-save" onclick="saveData()" id="btn-save">LƯU HỒ SƠ THI HÀNH ÁN</button>
         </div>
 
         <div class="main-panel">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-                <h3>DANH SÁCH THI HÀNH ÁN DÂN SỰ</h3>
-                <button onclick="exportExcelList()" style="padding:8px 16px;background:#16a34a;color:white;border:none;border-radius:6px;cursor:pointer;font-weight:600;">Xuất Excel</button>
+            <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+                <h3>Danh sách việc thi hành án</h3>
+                <div class="toolbar">
+                    <button onclick="exportExcelList()">Xuất Excel</button>
+                    <button class="ghost" onclick="exportTadtList()">Xuất JSON TADT</button>
+                </div>
             </div>
             <table id="data-table">
                 <thead>
@@ -121,10 +231,10 @@
                         <th>Số QĐTHA</th>
                         <th>Ngày nhận</th>
                         <th>Người phải THA</th>
-                        <th>Nội dung</th>
+                        <th>Bản án / TADT</th>
                         <th>Tình trạng</th>
                         <th>Ngày xong</th>
-                        <th>File PDF</th>
+                        <th>File</th>
                         <th>Thao tác</th>
                     </tr>
                 </thead>
@@ -132,284 +242,247 @@
             </table>
         </div>
     </div>
+<script>
+    var firebaseConfig = {
+        apiKey: "AIzaSyDunRDIeyBTVXTODoO22ywk1Q35cCx2sV8",
+        authDomain: "dansu-vksndtpct.firebaseapp.com",
+        databaseURL: "https://dansu-vksndtpct-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "dansu-vksndtpct",
+        storageBucket: "dansu-vksndtpct.firebasestorage.app",
+        appId: "1:843158256686:web:eb128d64c8b9bfd7aef3bf"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    var db = firebase.database();
+    var storage = firebase.storage();
+    var editingKey = null;
+    var currentUser = null;
+    var lastExportTha = [];
+    var lastExportKeys = [];
 
-    <script>
-        // ================== FIREBASE & LOGIN ==================
-        var firebaseConfig = {
-            apiKey: "AIzaSyDunRDIeyBTVXTODoO22ywk1Q35cCx2sV8",
-            authDomain: "dansu-vksndtpct.firebaseapp.com",
-            databaseURL: "https://dansu-vksndtpct-default-rtdb.asia-southeast1.firebasedatabase.app",
-            projectId: "dansu-vksndtpct",
-            storageBucket: "dansu-vksndtpct.firebasestorage.app",
-            appId: "1:843158256686:web:eb128d64c8b9bfd7aef3bf"
+    var FIELD_IDS = ['so_thu_ly_ta','so_ban_an','ngay_ban_an','toa_an_nguon','ma_tadt','link_tadt','so_qd_tha','ngay_ban_hanh_qd','ngay_nhan_qd','ngay_gui_vks','loai_qd','loai_co_quan','ten_co_quan_tha','qd_phan_cong_ksv_so','ngay_phan_cong_ksv','nguoi_phai_tha','dia_chi_phai_tha','nguoi_duoc_tha','dia_chi_duoc_tha','nguoi_lien_quan','loai_nghia_vu','noi_dung_tha','so_tien_tha','tai_san_tha','ngay_xac_minh','ket_qua_xac_minh','tinh_trang_tha','ngay_thi_hanh_xong','cong_ty_tham_dinh','gia_tri_tai_san','ngay_dau_gia_lan1','ket_qua_dau_gia_lan1','bp_bao_dam','bp_cuong_che'];
+    var CHECK_IDS = ['gui_tre_3ngay','xac_minh_lai','tb_ket_thuc_thang','tb_ket_thuc_vks','ke_bien','xac_dinh_gia','ban_tai_san','kh_cuong_che_vks','truc_tiep_ks','kien_nghi','kien_nghi_chap_nhan','khang_nghi','khang_nghi_chap_nhan','y_kien_mien_giam','khieu_nai_tha'];
+
+    function parseCurrentUser() {
+        const raw = localStorage.getItem('vks_user');
+        let user = {};
+        if (!raw) return user;
+        try {
+            const parsed = JSON.parse(raw);
+            if (parsed && typeof parsed === 'object') user = parsed;
+            else if (typeof parsed === 'string') user = { username: parsed };
+        } catch (e) { user = { username: raw }; }
+        if (!user.username) user.username = raw;
+        try {
+            const profile = JSON.parse(localStorage.getItem('vks_user_profile') || 'null');
+            if (profile && typeof profile === 'object') user = Object.assign({}, profile, user);
+        } catch (e) {}
+        return user;
+    }
+    function checkLogin() {
+        currentUser = parseCurrentUser();
+        if (!currentUser.username) {
+            alert("Vui lòng đăng nhập trước!");
+            window.location.href = "login.html";
+            return false;
+        }
+        return true;
+    }
+    function collectList(id) {
+        return Array.from(document.querySelectorAll('#' + id + ' input')).map(function (i) { return i.value.trim(); }).filter(Boolean).join('; ');
+    }
+    function addChapHanhVien(val) {
+        const container = document.getElementById('chap_hanh_vien_list');
+        const div = document.createElement('div');
+        div.className = 'multi-item';
+        div.innerHTML = '<input type="text" placeholder="Tên Chấp hành viên / Thừa hành viên" value="' + (val || '').replace(/"/g,'"') + '"><button type="button" onclick="this.parentElement.remove()" style="background:#9b2c2c;color:white;padding:6px 10px;border:none;border-radius:4px;">X</button>';
+        container.appendChild(div);
+    }
+    function addKSV(val) {
+        const container = document.getElementById('ksv_list');
+        const div = document.createElement('div');
+        div.className = 'multi-item';
+        div.innerHTML = '<input type="text" placeholder="Tên Kiểm sát viên" value="' + (val || '').replace(/"/g,'"') + '"><button type="button" onclick="this.parentElement.remove()" style="background:#9b2c2c;color:white;padding:6px 10px;border:none;border-radius:4px;">X</button>';
+        container.appendChild(div);
+    }
+    function toggleDinhGiaFields() {
+        const val = document.getElementById('tinh_trang_tha').value;
+        document.getElementById('dinh_gia_section').style.display = (val === 'Chua co dieu kien') ? 'none' : 'block';
+    }
+    function gatherForm() {
+        const data = {
+            createdBy: currentUser.username,
+            unit: currentUser.unit || "Cần Thơ",
+            position: currentUser.position || null,
+            timestamp: Date.now(),
+            chap_hanh_vien: collectList('chap_hanh_vien_list'),
+            ksv: collectList('ksv_list')
         };
-        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-        var db = firebase.database();
-        var storage = firebase.storage();
-
-        let editingKey = null;
-        let currentUser = null;
-        let lastExportTha = [];
-
-        function parseCurrentUser() {
-            const raw = localStorage.getItem('vks_user');
-            let user = {};
-            if (!raw) return user;
-            try {
-                const parsed = JSON.parse(raw);
-                if (parsed && typeof parsed === 'object') user = parsed;
-                else if (typeof parsed === 'string') user = { username: parsed };
-            } catch (e) { user = { username: raw }; }
-            if (!user.username) user.username = raw;
-            try {
-                const profile = JSON.parse(localStorage.getItem('vks_user_profile') || 'null');
-                if (profile && typeof profile === 'object') user = Object.assign({}, profile, user);
-            } catch (e) {}
-            return user;
-        }
-
-        function checkLogin() {
-            currentUser = parseCurrentUser();
-            if (!currentUser.username) {
-                alert("Vui lòng đăng nhập trước!");
-                window.location.href = "login.html";
-                return false;
-            }
-            return true;
-        }
-
-        // ================== THÊM ĐA ITEM ==================
-        function addChapHanhVien() {
-            const container = document.getElementById('chap_hanh_vien_list');
-            const div = document.createElement('div');
-            div.className = 'multi-item';
-            div.innerHTML = `<input type="text" placeholder="Tên Chấp hành viên"><button type="button" onclick="this.parentElement.remove()" style="background:#d32f2f;color:white;padding:6px 10px;border:none;border-radius:4px;">X</button>`;
-            container.appendChild(div);
-        }
-
-        function addKSV() {
-            const container = document.getElementById('ksv_list');
-            const div = document.createElement('div');
-            div.className = 'multi-item';
-            div.innerHTML = `<input type="text" placeholder="Tên Kiểm sát viên"><button type="button" onclick="this.parentElement.remove()" style="background:#d32f2f;color:white;padding:6px 10px;border:none;border-radius:4px;">X</button>`;
-            container.appendChild(div);
-        }
-
-        function toggleDinhGiaFields() {
-            const val = document.getElementById('tinh_trang_tha').value;
-            document.getElementById('dinh_gia_section').style.display = (val === "Co dieu kien") ? "block" : "none";
-        }
-
-        // ================== LƯU DỮ LIỆU ==================
-        function saveData() {
-            if (!checkLogin()) return;
-
-            const file = document.getElementById('pdf_file').files[0];
-
-            const data = {
-                ngay_nhan_qd: document.getElementById('ngay_nhan_qd').value,
-                so_qd_tha: document.getElementById('so_qd_tha').value,
-                ngay_ban_hanh_qd: document.getElementById('ngay_ban_hanh_qd').value,
-                nguoi_phai_tha: document.getElementById('nguoi_phai_tha').value,
-                dia_chi_phai_tha: document.getElementById('dia_chi_phai_tha').value,
-                nguoi_duoc_tha: document.getElementById('nguoi_duoc_tha').value,
-                dia_chi_duoc_tha: document.getElementById('dia_chi_duoc_tha').value,
-                noi_dung_tha: document.getElementById('noi_dung_tha').value,
-                so_tien_tha: document.getElementById('so_tien_tha').value,
-                tai_san_tha: document.getElementById('tai_san_tha').value,
-                ngay_xac_minh: document.getElementById('ngay_xac_minh').value,
-                ket_qua_xac_minh: document.getElementById('ket_qua_xac_minh').value,
-                tinh_trang_tha: document.getElementById('tinh_trang_tha').value,
-                ngay_thi_hanh_xong: document.getElementById('ngay_thi_hanh_xong').value,
-                createdBy: currentUser.username,
-                unit: currentUser.unit || "Cần Thơ",
-                position: currentUser.position || null,
-                timestamp: Date.now()
-            };
-
-            if (data.tinh_trang_tha === "Co dieu kien") {
-                data.cong_ty_tham_dinh = document.getElementById('cong_ty_tham_dinh').value;
-                data.gia_tri_tai_san = document.getElementById('gia_tri_tai_san').value;
-                data.ngay_dau_gia_lan1 = document.getElementById('ngay_dau_gia_lan1').value;
-                data.ket_qua_dau_gia_lan1 = document.getElementById('ket_qua_dau_gia_lan1').value;
-            }
-
-            if (file) {
-                const storageRef = storage.ref('pdf_tha/' + Date.now() + '_' + file.name);
-                storageRef.put(file).then(snapshot => {
-                    snapshot.ref.getDownloadURL().then(url => {
-                        data.pdf_url = url;
-                        saveToDatabase(data);
-                    });
+        FIELD_IDS.forEach(function (id) { data[id] = document.getElementById(id).value; });
+        CHECK_IDS.forEach(function (id) { data[id] = document.getElementById(id).checked; });
+        return data;
+    }
+    function fillForm(item) {
+        FIELD_IDS.forEach(function (id) {
+            if (document.getElementById(id)) document.getElementById(id).value = item[id] || '';
+        });
+        CHECK_IDS.forEach(function (id) {
+            if (document.getElementById(id)) document.getElementById(id).checked = !!item[id];
+        });
+        document.getElementById('chap_hanh_vien_list').innerHTML = '';
+        document.getElementById('ksv_list').innerHTML = '';
+        (item.chap_hanh_vien || '').split(';').map(function (s) { return s.trim(); }).filter(Boolean).forEach(addChapHanhVien);
+        (item.ksv || '').split(';').map(function (s) { return s.trim(); }).filter(Boolean).forEach(addKSV);
+        toggleDinhGiaFields();
+    }
+    function saveData() {
+        if (!checkLogin()) return;
+        const file = document.getElementById('pdf_file').files[0];
+        const data = gatherForm();
+        if (!data.so_qd_tha || !data.nguoi_phai_tha) { alert('Nhập số QĐTHA và người phải thi hành án.'); return; }
+        if (file) {
+            const storageRef = storage.ref('pdf_tha/' + Date.now() + '_' + file.name);
+            storageRef.put(file).then(function (snapshot) {
+                snapshot.ref.getDownloadURL().then(function (url) {
+                    data.pdf_url = url;
+                    saveToDatabase(data);
                 });
-            } else {
-                saveToDatabase(data);
-            }
-        }
-
-        function saveToDatabase(data) {
-            if (editingKey) {
-                db.ref('thi_hanh_an/' + editingKey).update(data).then(() => {
-                    alert("Cập nhật thành công!");
-                    resetForm();
-                    loadData();
-                });
-            } else {
-                db.ref('thi_hanh_an').push(data).then(() => {
-                    alert("Lưu hồ sơ thành công!");
-                    resetForm();
-                    loadData();
-                });
-            }
-        }
-
-        // ================== LOAD & FILTER DỮ LIỆU ==================
-        function loadData() {
-            if (!checkLogin()) return;
-
-            db.ref('thi_hanh_an').on('value', (snapshot) => {
-                const datas = snapshot.val() || {};
-                let html = '';
-                let stt = 1;
-                lastExportTha = [];
-
-                Object.keys(datas).forEach(key => {
-                    const item = datas[key];
-                    const canView = !currentUser.level || currentUser.level === 'toi_cao' ||
-                                   (item.unit && item.unit === currentUser.unit) ||
-                                   (item.createdBy && item.createdBy === currentUser.username);
-
-                    if (!canView) return;
-                    lastExportTha.push(item);
-
-                    const pdfLink = item.pdf_url ? `<a href="${item.pdf_url}" target="_blank" class="btn-pdf">PDF</a>` : 'Không có';
-
-                    html += `<tr>
-                        <td>${stt++}</td>
-                        <td>${item.so_qd_tha || ''}</td>
-                        <td>${item.ngay_nhan_qd || ''}</td>
-                        <td>${item.nguoi_phai_tha || ''}</td>
-                        <td>${item.noi_dung_tha ? item.noi_dung_tha.substring(0,50)+'...' : ''}</td>
-                        <td>${item.tinh_trang_tha || ''}</td>
-                        <td>${item.ngay_thi_hanh_xong || ''}</td>
-                        <td>${pdfLink}</td>
-                        <td>
-                        <button class="btn-edit" onclick="editRecord('${key}')">Sửa</button>
-                        <button class="btn-delete" onclick="deleteRecord('${key}')">Xóa</button>
-                        <button onclick="exportToWord('${key}', 'thi_hanh_an')">Word</button>
-                        </td>
-                    </tr>`;
-                });
-
-                document.getElementById('table-body').innerHTML = html || '<tr><td colspan="9" style="text-align:center;color:#999">Chưa có hồ sơ nào thuộc thẩm quyền của bạn</td></tr>';
             });
-        }
-
-        function exportExcelList() {
-            if (!lastExportTha.length) { alert('Không có dữ liệu để xuất.'); return; }
-            const rows = lastExportTha.map((item, i) => ({
+        } else saveToDatabase(data);
+    }
+    function saveToDatabase(data) {
+        const done = function () { alert(editingKey ? "Cập nhật thành công!" : "Lưu hồ sơ thành công!"); resetForm(); loadData(); };
+        if (editingKey) db.ref('thi_hanh_an/' + editingKey).update(data).then(done);
+        else db.ref('thi_hanh_an').push(data).then(done);
+    }
+    function loadData() {
+        if (!checkLogin()) return;
+        db.ref('thi_hanh_an').on('value', function (snapshot) {
+            const datas = snapshot.val() || {};
+            let html = '';
+            let stt = 1;
+            lastExportTha = [];
+            lastExportKeys = [];
+            Object.keys(datas).forEach(function (key) {
+                const item = datas[key];
+                const canView = !currentUser.level || currentUser.level === 'toi_cao' ||
+                    (item.unit && item.unit === currentUser.unit) ||
+                    (item.createdBy && item.createdBy === currentUser.username);
+                if (!canView) return;
+                lastExportTha.push(item);
+                lastExportKeys.push(key);
+                const pdfLink = item.pdf_url ? '<a href="' + item.pdf_url + '" target="_blank" class="btn-pdf">PDF</a>' : '';
+                html += '<tr><td>' + (stt++) + '</td><td>' + (item.so_qd_tha || '') + '</td><td>' + (item.ngay_nhan_qd || '') + '</td><td>' + (item.nguoi_phai_tha || '') + '</td><td>' + (item.so_ban_an || '') + (item.ma_tadt ? '<br><small>' + item.ma_tadt + '</small>' : '') + '</td><td>' + (item.tinh_trang_tha || '') + '</td><td>' + (item.ngay_thi_hanh_xong || '') + '</td><td>' + pdfLink + '</td><td><button class="btn-edit" onclick="editRecord(\'' + key + '\')">Sửa</button><button class="btn-delete" onclick="deleteRecord(\'' + key + '\')">Xóa</button></td></tr>';
+            });
+            document.getElementById('table-body').innerHTML = html || '<tr><td colspan="9" style="text-align:center;color:#999">Chưa có hồ sơ nào thuộc thẩm quyền của bạn</td></tr>';
+        });
+    }
+    function toTadt(item) {
+        return {
+            heThongNguon: 'VKS-Dansu',
+            maDinhDanhTADT: item.ma_tadt || '',
+            soThuLy: item.so_thu_ly_ta || '',
+            soBanAnQuyetDinh: item.so_ban_an || '',
+            ngayBanHanh: item.ngay_ban_an || '',
+            toaAn: item.toa_an_nguon || '',
+            tenVuViec: item.noi_dung_tha || '',
+            nguyenDon: item.nguoi_duoc_tha || '',
+            biDon: item.nguoi_phai_tha || '',
+            loaiAn: 'THADS',
+            soQDTHA: item.so_qd_tha || '',
+            ngayQDTHA: item.ngay_ban_hanh_qd || '',
+            ngayNhanVKS: item.ngay_nhan_qd || '',
+            linkCongBo: item.link_tadt || ''
+        };
+    }
+    function exportExcelList() {
+        if (!lastExportTha.length) { alert('Không có dữ liệu để xuất.'); return; }
+        const rows = lastExportTha.map(function (item, i) {
+            return {
                 STT: i + 1,
                 'Số QĐTHA': item.so_qd_tha || '',
-                'Ngày nhận': item.ngay_nhan_qd || '',
+                'Loại QĐ': item.loai_qd || '',
+                'Cơ quan THA': item.ten_co_quan_tha || item.loai_co_quan || '',
+                'Ngày nhận VKS': item.ngay_nhan_qd || '',
                 'Người phải THA': item.nguoi_phai_tha || '',
                 'Người được THA': item.nguoi_duoc_tha || '',
+                'Số bản án': item.so_ban_an || '',
+                'Mã TADT': item.ma_tadt || '',
                 'Nội dung': item.noi_dung_tha || '',
                 'Tình trạng': item.tinh_trang_tha || '',
+                'Kháng nghị': item.khang_nghi ? 'Có' : '',
                 'Ngày xong': item.ngay_thi_hanh_xong || ''
-            }));
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(rows), 'Thi hanh an');
-            XLSX.writeFile(wb, 'DanhSach_ThiHanhAn_' + new Date().toISOString().slice(0,10) + '.xlsx');
-        }
-
-        function editRecord(key) {
-            db.ref('thi_hanh_an/' + key).once('value').then(snapshot => {
-                const item = snapshot.val();
-                // Điền dữ liệu vào form (bạn có thể mở rộng thêm nếu cần)
-                document.getElementById('so_qd_tha').value = item.so_qd_tha || '';
-                document.getElementById('ngay_nhan_qd').value = item.ngay_nhan_qd || '';
-                // ... (các trường khác tương tự)
-                editingKey = key;
-                document.getElementById('btn-save').innerText = 'CẬP NHẬT';
-            });
-        }
-
-        function deleteRecord(key) {
-            if (confirm("Xóa hồ sơ này?")) {
-                db.ref('thi_hanh_an/' + key).remove().then(() => loadData());
-            }
-        }
-
-        function resetForm() {
-            // Reset tất cả input và list động
-            document.querySelectorAll('input, textarea, select').forEach(el => el.value = '');
-            document.getElementById('chap_hanh_vien_list').innerHTML = '';
-            document.getElementById('ksv_list').innerHTML = '';
-            document.getElementById('tinh_trang_tha').value = "Co dieu kien";
-            toggleDinhGiaFields();
-            editingKey = null;
-            document.getElementById('btn-save').innerText = 'LƯU HỒ SƠ THI HÀNH ÁN';
-        }
-function exportToWord(item) {
-    const content = `
-        <html><head><meta charset="utf-8"><style>body{font-family:Times New Roman;font-size:14pt;}</style></head>
-        <body>
-            <h2>Hồ sơ ${item.cap_thu_ly || 'Thi hành án' || 'Khiếu tố'}</h2>
-            <p><strong>Người tạo:</strong> ${item.createdBy}</p>
-            <p><strong>Đơn vị:</strong> ${item.unit}</p>
-            <p><strong>Nội dung:</strong> ${item.noi_dung || item.noi_dung_tha || item.noi_dung || '...'}</p>
-        </body></html>`;
-    
-    const blob = new Blob(['\ufeff', content], { type: 'application/msword' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `HoSo_${new Date().toISOString().slice(0,10)}.doc`;
-    a.click();
-}
-       // ====================== XUẤT WORD ======================
-function exportToWord(key, module) {
-    if (!key) return alert("Không tìm thấy dữ liệu!");
-
-    let refPath = module === 'dan_su' ? 'an_dan_su' : 
-                  module === 'thi_hanh_an' ? 'thi_hanh_an' : 'don_khieu_to';
-
-    db.ref(refPath + '/' + key).once('value').then(snapshot => {
-        const item = snapshot.val();
-        if (!item) return alert("Không tìm thấy hồ sơ!");
-
-        const content = `
-            <html>
-            <head><meta charset="utf-8">
-            <style>
-                body { font-family: 'Times New Roman', serif; font-size: 14pt; line-height: 1.6; }
-                h2 { text-align: center; }
-                .label { font-weight: bold; }
-            </style>
-            </head>
-            <body>
-                <h2>HỒ SƠ ${module.toUpperCase()}</h2>
-                <p><span class="label">Người tạo:</span> ${item.createdBy || ''}</p>
-                <p><span class="label">Đơn vị:</span> ${item.unit || ''}</p>
-                <p><span class="label">Ngày:</span> ${item.ngay_nhan || item.ngay_thu_ly || item.ngay_nhan_qd || ''}</p>
-                <hr>
-                <p><span class="label">Nội dung:</span><br>${item.noi_dung || item.noi_dung_tha || item.ho_ten || 'Không có nội dung'}</p>
-            </body>
-            </html>`;
-
-        const blob = new Blob(['\ufeff', content], { type: 'application/msword' });
-        const url = URL.createObjectURL(blob);
+            };
+        });
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(rows), 'Thi hanh an');
+        XLSX.writeFile(wb, 'DanhSach_ThiHanhAn_' + new Date().toISOString().slice(0,10) + '.xlsx');
+    }
+    function downloadJson(name, obj) {
+        const blob = new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' });
         const a = document.createElement('a');
-        a.href = url;
-        a.download = `HoSo_${module}_${new Date().toISOString().slice(0,10)}.doc`;
+        a.href = URL.createObjectURL(blob);
+        a.download = name;
         a.click();
-    });
-}
-        window.onload = () => {
-            if (!checkLogin()) return;
-            toggleDinhGiaFields();
-            loadData();
+    }
+    function exportTadtList() {
+        if (!lastExportTha.length) { alert('Không có dữ liệu để xuất.'); return; }
+        downloadJson('lien-thong-tadt-thads.json', { heThong: 'VKS-Dansu', dinhDang: 'TADT-exchange-1.0', records: lastExportTha.map(toTadt) });
+    }
+    function exportTadtCurrent() {
+        downloadJson('mau-lien-thong-tadt.json', { heThong: 'VKS-Dansu', dinhDang: 'TADT-exchange-1.0', records: [toTadt(gatherForm())] });
+    }
+    function importTadt(ev) {
+        const file = ev.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function () {
+            try {
+                const raw = JSON.parse(reader.result);
+                const list = Array.isArray(raw) ? raw : (raw.records || [raw]);
+                const r = list[0] || {};
+                if (r.soThuLy || r.so_thu_ly) document.getElementById('so_thu_ly_ta').value = r.soThuLy || r.so_thu_ly || '';
+                if (r.soBanAnQuyetDinh || r.so_ban_an) document.getElementById('so_ban_an').value = r.soBanAnQuyetDinh || r.so_ban_an || '';
+                if (r.ngayBanHanh) document.getElementById('ngay_ban_an').value = r.ngayBanHanh;
+                if (r.toaAn) document.getElementById('toa_an_nguon').value = r.toaAn;
+                if (r.maDinhDanhTADT || r.ma_tadt) document.getElementById('ma_tadt').value = r.maDinhDanhTADT || r.ma_tadt || '';
+                if (r.linkCongBo || r.link_tadt) document.getElementById('link_tadt').value = r.linkCongBo || r.link_tadt || '';
+                if (r.nguyenDon) document.getElementById('nguoi_duoc_tha').value = r.nguyenDon;
+                if (r.biDon) document.getElementById('nguoi_phai_tha').value = r.biDon;
+                if (r.tenVuViec) document.getElementById('noi_dung_tha').value = r.tenVuViec;
+                if (r.soQDTHA) document.getElementById('so_qd_tha').value = r.soQDTHA;
+                alert('Đã nạp ' + list.length + ' bản ghi TADT vào biểu mẫu.');
+            } catch (e) { alert('Không đọc được tệp TADT.'); }
         };
-    </script>
+        reader.readAsText(file);
+        ev.target.value = '';
+    }
+    function editRecord(key) {
+        db.ref('thi_hanh_an/' + key).once('value').then(function (snapshot) {
+            fillForm(snapshot.val() || {});
+            editingKey = key;
+            document.getElementById('btn-save').innerText = 'CẬP NHẬT';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    }
+    function deleteRecord(key) {
+        if (confirm("Xóa hồ sơ này?")) db.ref('thi_hanh_an/' + key).remove().then(loadData);
+    }
+    function resetForm() {
+        FIELD_IDS.forEach(function (id) { var el = document.getElementById(id); if (el) el.value = ''; });
+        CHECK_IDS.forEach(function (id) { var el = document.getElementById(id); if (el) el.checked = false; });
+        document.getElementById('chap_hanh_vien_list').innerHTML = '';
+        document.getElementById('ksv_list').innerHTML = '';
+        document.getElementById('tinh_trang_tha').value = 'Co dieu kien';
+        document.getElementById('pdf_file').value = '';
+        toggleDinhGiaFields();
+        editingKey = null;
+        document.getElementById('btn-save').innerText = 'LƯU HỒ SƠ THI HÀNH ÁN';
+    }
+    window.onload = function () {
+        if (!checkLogin()) return;
+        toggleDinhGiaFields();
+        loadData();
+    };
+</script>
 </body>
 </html>

@@ -1,13 +1,15 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <title>Quản lý Tài khoản - VKSNDTC</title>
+    <link rel="stylesheet" href="static/theme.css">
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f5f7fa; }
-        header { background: #0408c5; color: #f8f536; text-align: center; padding: 15px; position: relative; }
+        header { background: #7a1e2b; color: #fff8f0; text-align: center; padding: 15px; position: relative; }
         .btn-back { position: absolute; left: 20px; top: 20px; color: white; text-decoration: none; font-weight: bold; background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 6px; }
         
         .container { max-width: 1200px; margin: 20px auto; padding: 25px; background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
@@ -17,9 +19,9 @@
         
         table { width: 100%; border-collapse: collapse; margin-top: 30px; font-size: 14px; }
         th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
-        th { background: #e0f2f1; color: #0408c5; }
+        th { background: #e0f2f1; color: #7a1e2b; }
         
-        .btn-save { background: #5670e6; color: white; padding: 14px; border: none; border-radius: 8px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 15px; }
+        .btn-save { background: #922433; color: white; padding: 14px; border: none; border-radius: 8px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 15px; }
         .btn-reset { background: #ff9800; color: white; padding: 8px 14px; border: none; border-radius: 5px; cursor: pointer; }
         .btn-delete { background: #d32f2f; color: white; padding: 8px 14px; border: none; border-radius: 5px; cursor: pointer; }
         
@@ -28,7 +30,7 @@
         .error { background: #f8d7da; color: #721c24; }
     </style>
 </head>
-<body>
+<body class="vks-page">
     <header>
         <a href="index.html" class="btn-back">← Menu chính</a>
         <h1>VIỆN KIỂM SÁT NHÂN DÂN TỐI CAO</h1>
@@ -36,6 +38,10 @@
     </header>
 
     <div class="container">
+        <div id="reset-box" style="display:none;background:#f7eedc;border:1px solid #e0b56a;border-radius:10px;padding:14px 16px;margin-bottom:18px;">
+            <h3 style="margin:0 0 8px;color:#8a5a16;">Yêu cầu cấp lại mật khẩu</h3>
+            <div id="reset-list"></div>
+        </div>
         <h3>Tạo tài khoản mới</h3>
         <p style="color:#555;font-size:13px;margin-top:-8px;">Mỗi cấp / đơn vị gồm 4 chức danh: Viện trưởng, Phó viện trưởng phụ trách, Cục trưởng TK-CNTT (cấp tối cao) hoặc Chánh văn phòng (cấp tỉnh, khu vực), và Cán bộ cập nhật dữ liệu. Mỗi chức danh chỉ được 01 tài khoản.</p>
         <div id="message"></div>
@@ -339,7 +345,47 @@
             if (!checkAdminPermission()) return;
             toggleLevel();
             loadUsers();
+            loadResets();
         };
+
+        function loadResets() {
+            function render(map) {
+                var keys = Object.keys(map || {}).filter(function (k) { return map[k] && map[k].status === 'pending'; });
+                var box = document.getElementById('reset-box');
+                var list = document.getElementById('reset-list');
+                if (!keys.length) { box.style.display = 'none'; return; }
+                box.style.display = 'block';
+                list.innerHTML = keys.map(function (k) {
+                    var r = map[k];
+                    return '<div style="display:flex;justify-content:space-between;gap:8px;align-items:center;margin:6px 0;"><span><b>' + (r.username || k) + '</b></span><button type="button" class="btn-reset" onclick="grantReset(\'' + (r.username || k) + '\')">Cấp lại mật khẩu</button></div>';
+                }).join('');
+            }
+            db.ref('password_resets').on('value', function (snap) { render(snap.val() || {}); });
+            try {
+                var local = JSON.parse(localStorage.getItem('vks_password_resets') || '[]');
+                if (local.length) {
+                    var map = {};
+                    local.forEach(function (r) { map[r.username] = r; });
+                    if (!document.getElementById('reset-list').innerHTML) render(map);
+                }
+            } catch (e) {}
+        }
+        function grantReset(username) {
+            var pw = prompt('Mật khẩu mới cho ' + username + ':', '');
+            if (!pw || pw.length < 6) return alert('Mật khẩu tối thiểu 6 ký tự.');
+            db.ref('users/' + username).update({ password: pw }).then(function () {
+                db.ref('password_resets/' + username).update({ status: 'done' });
+                try {
+                    var local = JSON.parse(localStorage.getItem('vks_users_db') || '{}');
+                    if (local[username]) { local[username].password = pw; localStorage.setItem('vks_users_db', JSON.stringify(local)); }
+                    var resets = JSON.parse(localStorage.getItem('vks_password_resets') || '[]').map(function (r) {
+                        return r.username === username ? Object.assign({}, r, { status: 'done' }) : r;
+                    });
+                    localStorage.setItem('vks_password_resets', JSON.stringify(resets));
+                } catch (e) {}
+                alert('Đã cấp lại mật khẩu.');
+            });
+        }
     </script>
 </body>
 </html>
