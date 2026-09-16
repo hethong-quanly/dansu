@@ -253,11 +253,34 @@
     let exportData = [];
     let chartDonut, chartBar;
 
+    function parseCurrentUser() {
+        const raw = localStorage.getItem('vks_user');
+        if (!raw) return null;
+        let user = null;
+        try {
+            const parsed = JSON.parse(raw);
+            if (parsed && typeof parsed === 'object') user = parsed;
+            else if (typeof parsed === 'string') user = { username: parsed };
+        } catch (e) {
+            user = { username: raw };
+        }
+        if (!user || !user.username) user = { username: raw };
+        try {
+            const usersDB = JSON.parse(localStorage.getItem('vks_users_db') || '{}');
+            const profile = usersDB[user.username];
+            if (profile && typeof profile === 'object') {
+                user = Object.assign({ username: user.username, fullname: profile.fullname, level: profile.level, unit: profile.unit }, profile, user);
+            }
+        } catch (e) {}
+        return user;
+    }
+
     function checkLogin() {
-        currentUser = JSON.parse(localStorage.getItem('vks_user') || '{}');
-        if (!currentUser.username) {
+        const logged = sessionStorage.getItem('vks_logged_in') === 'true';
+        currentUser = parseCurrentUser() || {};
+        if (!logged || !currentUser.username) {
             alert("Vui lòng đăng nhập trước!");
-            window.location.href = "index.html";
+            window.location.href = "login.html";
             return false;
         }
         return true;
@@ -295,9 +318,17 @@
         return { from, to };
     }
 
+    function itemTime(item) {
+        if (item.timestamp) return Number(item.timestamp);
+        const d = item.ngay_thu_ly || item.ngay_nhan_qd || item.ngay_nhan || item.ngay_ghi || item.createdAt || '';
+        if (!d) return 0;
+        const t = new Date(d).getTime();
+        return isNaN(t) ? 0 : t;
+    }
+
     function passTimeFilter(item, from, to) {
-        const ts = item.timestamp || 0;
         if (from === 0 && to === Infinity) return true;
+        const ts = itemTime(item);
         return ts >= from && ts <= to;
     }
 
@@ -604,8 +635,23 @@
     }
 
     // ===== INIT =====
+    function applyQueryParams() {
+        const params = new URLSearchParams(window.location.search);
+        const type = params.get('type');
+        const sel = document.getElementById('reportType');
+        if (type && sel && sel.querySelector('option[value="' + type + '"]')) {
+            sel.value = type;
+        }
+        const period = params.get('period');
+        const psel = document.getElementById('periodType');
+        if (period && psel && psel.querySelector('option[value="' + period + '"]')) {
+            psel.value = period;
+        }
+    }
+
     window.onload = () => {
         if (!checkLogin()) return;
+        applyQueryParams();
         toggleCustomDate();
         loadReport();
     };
