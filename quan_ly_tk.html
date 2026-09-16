@@ -37,6 +37,7 @@
 
     <div class="container">
         <h3>Tạo tài khoản mới</h3>
+        <p style="color:#555;font-size:13px;margin-top:-8px;">Mỗi cấp / đơn vị gồm 4 chức danh: Viện trưởng, Phó viện trưởng phụ trách, Cục trưởng TK-CNTT (cấp tối cao) hoặc Chánh văn phòng (cấp tỉnh, khu vực), và Cán bộ cập nhật dữ liệu. Mỗi chức danh chỉ được 01 tài khoản.</p>
         <div id="message"></div>
 
         <div class="form-group">
@@ -64,10 +65,10 @@
             
             <label>Chức vụ:</label>
             <select id="chuc_vu_tinh">
-                <option value="Vien truong">Viện trưởng</option>
-                <option value="Pho vien truong">Phó Viện trưởng</option>
-                <option value="Kiem sat vien">Kiểm sát viên</option>
-                <option value="Khac">Khác</option>
+                <option value="Viện trưởng">Viện trưởng</option>
+                <option value="Phó viện trưởng phụ trách">Phó viện trưởng phụ trách</option>
+                <option value="Chánh văn phòng">Chánh văn phòng</option>
+                <option value="Cán bộ cập nhật dữ liệu">Cán bộ cập nhật dữ liệu</option>
             </select>
         </div>
 
@@ -88,10 +89,10 @@
             
             <label>Chức vụ:</label>
             <select id="chuc_vu_khuvuc">
-                <option value="Truong phong">Trưởng phòng</option>
-                <option value="Pho truong phong">Phó trưởng phòng</option>
-                <option value="Kiem sat vien">Kiểm sát viên</option>
-                <option value="Khac">Khác</option>
+                <option value="Viện trưởng">Viện trưởng</option>
+                <option value="Phó viện trưởng phụ trách">Phó viện trưởng phụ trách</option>
+                <option value="Chánh văn phòng">Chánh văn phòng</option>
+                <option value="Cán bộ cập nhật dữ liệu">Cán bộ cập nhật dữ liệu</option>
             </select>
         </div>
 
@@ -99,11 +100,10 @@
         <div id="toicao_group" class="form-group" style="display:none;">
             <label>Chức vụ:</label>
             <select id="chuc_vu_toicao">
-                <option value="Cuc truong">Cục trưởng</option>
-                <option value="Vu truong">Vụ trưởng</option>
-                <option value="Pho cuc truong">Phó Cục trưởng</option>
-                <option value="Pho vu truong">Phó Vụ trưởng</option>
-                <option value="Khac">Khác</option>
+                <option value="Viện trưởng">Viện trưởng</option>
+                <option value="Phó viện trưởng phụ trách">Phó viện trưởng phụ trách</option>
+                <option value="Cục trưởng cục Thống kê và CNTT">Cục trưởng cục Thống kê và CNTT</option>
+                <option value="Cán bộ cập nhật dữ liệu">Cán bộ cập nhật dữ liệu</option>
             </select>
         </div>
 
@@ -143,26 +143,54 @@
         let currentUser = null;
 
         // ================== KIỂM TRA QUYỀN ADMIN ==================
+        function parseCurrentUser() {
+            const raw = localStorage.getItem('vks_user');
+            let user = {};
+            if (!raw) return user;
+            try {
+                const parsed = JSON.parse(raw);
+                if (parsed && typeof parsed === 'object') user = parsed;
+                else if (typeof parsed === 'string') user = { username: parsed };
+            } catch (e) {
+                user = { username: raw };
+            }
+            if (!user.username) user.username = raw;
+            try {
+                const profile = JSON.parse(localStorage.getItem('vks_user_profile') || 'null');
+                if (profile && typeof profile === 'object') user = Object.assign({}, profile, user);
+            } catch (e) {}
+            try {
+                const usersDB = JSON.parse(localStorage.getItem('vks_users_db') || '{}');
+                const p = usersDB[user.username];
+                if (p) user = Object.assign({ username: user.username }, p, user);
+            } catch (e) {}
+            return user;
+        }
+
+        function isLeaderPosition(pos) {
+            const s = (pos || '').toLowerCase();
+            return s.includes('viện trưởng') || s.includes('vien truong') ||
+                s.includes('cục trưởng') || s.includes('cuc truong') ||
+                s.includes('chánh văn phòng') || s.includes('chanh van phong') ||
+                s.includes('trưởng phòng') || s.includes('truong phong');
+        }
+
         function checkAdminPermission() {
-            currentUser = JSON.parse(localStorage.getItem('vks_user') || '{}');
+            currentUser = parseCurrentUser();
             
             if (!currentUser.username) {
                 alert("Vui lòng đăng nhập trước!");
-                window.location.href = "index.html";
+                window.location.href = "login.html";
                 return false;
             }
 
-            const isAdmin = 
-                currentUser.username === "admin" || 
+            const isAdmin =
+                currentUser.username === "admin" ||
                 currentUser.level === "toi_cao" ||
-                (currentUser.position && 
-                    (currentUser.position.includes("truong") || 
-                     currentUser.position.includes("Vien truong") || 
-                     currentUser.position.includes("Cuc truong") ||
-                     currentUser.position.includes("Truong phong")));
+                isLeaderPosition(currentUser.position);
 
             if (!isAdmin) {
-                alert("Chỉ tài khoản Admin hoặc Lãnh đạo (Viện trưởng / Cục trưởng / Trưởng phòng) mới được truy cập trang này!");
+                alert("Chỉ Viện trưởng, Phó viện trưởng, Cục trưởng TK-CNTT hoặc Chánh văn phòng được quản trị tài khoản.");
                 window.location.href = "index.html";
                 return false;
             }
@@ -232,7 +260,18 @@
             db.ref('users/' + username).once('value').then(snapshot => {
                 if (snapshot.exists()) {
                     document.getElementById('message').innerHTML = `<div class="error">Tài khoản này đã tồn tại!</div>`;
-                } else {
+                    return;
+                }
+                db.ref('users').once('value').then(allSnap => {
+                    const users = allSnap.val() || {};
+                    const taken = Object.keys(users).some(key => {
+                        const u = users[key] || {};
+                        return u.level === level && (u.unit || '') === unit && (u.position || '') === position;
+                    });
+                    if (taken) {
+                        document.getElementById('message').innerHTML = `<div class="error">Đơn vị này đã có tài khoản chức danh «${position}». Mỗi cấp chỉ tạo 01 tài khoản cho mỗi chức danh.</div>`;
+                        return;
+                    }
                     db.ref('users/' + username).set({
                         fullname: fullname,
                         password: "123456",
@@ -242,13 +281,12 @@
                         position: position,
                         createdAt: Date.now()
                     }).then(() => {
-                        document.getElementById('message').innerHTML = `<div class="success">✅ Tạo tài khoản thành công!<br>Mật khẩu mặc định: <strong>123456</strong></div>`;
+                        document.getElementById('message').innerHTML = `<div class="success">Đã tạo tài khoản thành công.<br>Mật khẩu mặc định: <strong>123456</strong></div>`;
                         loadUsers();
-                        // Reset form
                         document.getElementById('username').value = '';
                         document.getElementById('fullname').value = '';
                     });
-                }
+                });
             });
         }
 

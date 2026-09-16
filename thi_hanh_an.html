@@ -6,6 +6,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f5f7fa; }
         header { background: #0408c5; color: #f8f536; text-align: center; padding: 15px; position: relative; }
@@ -109,7 +110,10 @@
         </div>
 
         <div class="main-panel">
-            <h3>DANH SÁCH THI HÀNH ÁN DÂN SỰ</h3>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                <h3>DANH SÁCH THI HÀNH ÁN DÂN SỰ</h3>
+                <button onclick="exportExcelList()" style="padding:8px 16px;background:#16a34a;color:white;border:none;border-radius:6px;cursor:pointer;font-weight:600;">Xuất Excel</button>
+            </div>
             <table id="data-table">
                 <thead>
                     <tr>
@@ -145,12 +149,30 @@
 
         let editingKey = null;
         let currentUser = null;
+        let lastExportTha = [];
+
+        function parseCurrentUser() {
+            const raw = localStorage.getItem('vks_user');
+            let user = {};
+            if (!raw) return user;
+            try {
+                const parsed = JSON.parse(raw);
+                if (parsed && typeof parsed === 'object') user = parsed;
+                else if (typeof parsed === 'string') user = { username: parsed };
+            } catch (e) { user = { username: raw }; }
+            if (!user.username) user.username = raw;
+            try {
+                const profile = JSON.parse(localStorage.getItem('vks_user_profile') || 'null');
+                if (profile && typeof profile === 'object') user = Object.assign({}, profile, user);
+            } catch (e) {}
+            return user;
+        }
 
         function checkLogin() {
-            currentUser = JSON.parse(localStorage.getItem('vks_user') || '{}');
+            currentUser = parseCurrentUser();
             if (!currentUser.username) {
                 alert("Vui lòng đăng nhập trước!");
-                window.location.href = "index.html";
+                window.location.href = "login.html";
                 return false;
             }
             return true;
@@ -249,14 +271,16 @@
                 const datas = snapshot.val() || {};
                 let html = '';
                 let stt = 1;
+                lastExportTha = [];
 
                 Object.keys(datas).forEach(key => {
                     const item = datas[key];
-                    const canView = currentUser.level === 'toi_cao' || 
+                    const canView = !currentUser.level || currentUser.level === 'toi_cao' ||
                                    (item.unit && item.unit === currentUser.unit) ||
                                    (item.createdBy && item.createdBy === currentUser.username);
 
                     if (!canView) return;
+                    lastExportTha.push(item);
 
                     const pdfLink = item.pdf_url ? `<a href="${item.pdf_url}" target="_blank" class="btn-pdf">PDF</a>` : 'Không có';
 
@@ -279,6 +303,23 @@
 
                 document.getElementById('table-body').innerHTML = html || '<tr><td colspan="9" style="text-align:center;color:#999">Chưa có hồ sơ nào thuộc thẩm quyền của bạn</td></tr>';
             });
+        }
+
+        function exportExcelList() {
+            if (!lastExportTha.length) { alert('Không có dữ liệu để xuất.'); return; }
+            const rows = lastExportTha.map((item, i) => ({
+                STT: i + 1,
+                'Số QĐTHA': item.so_qd_tha || '',
+                'Ngày nhận': item.ngay_nhan_qd || '',
+                'Người phải THA': item.nguoi_phai_tha || '',
+                'Người được THA': item.nguoi_duoc_tha || '',
+                'Nội dung': item.noi_dung_tha || '',
+                'Tình trạng': item.tinh_trang_tha || '',
+                'Ngày xong': item.ngay_thi_hanh_xong || ''
+            }));
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(rows), 'Thi hanh an');
+            XLSX.writeFile(wb, 'DanhSach_ThiHanhAn_' + new Date().toISOString().slice(0,10) + '.xlsx');
         }
 
         function editRecord(key) {

@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản lý Án Dân sự - VKS Cần Thơ</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script>
         const currentUser = sessionStorage.getItem('vks_logged_in') === 'true' ? localStorage.getItem('vks_user') : null;
         if (!currentUser) {
@@ -200,6 +201,7 @@
                         <button class="btn btn-primary" onclick="doSearch()">🔍 Tìm kiếm</button>
                         <button class="btn" onclick="resetSearch()">Làm mới</button>
                         <button class="btn btn-success" onclick="openAddModal()">Thêm mới</button>
+                        <button class="btn btn-info" onclick="exportExcelList()">Xuất Excel</button>
                         <button class="btn btn-info" id="btn-nhap-an" style="display:none;" onclick="openNhapAnModal()">Nhập án</button>
                         <button class="btn btn-warning" id="btn-tach-an" style="display:none;" onclick="alert('Chức năng Tách án đang được phát triển')">Tách án</button>
                     </div>
@@ -302,6 +304,7 @@
         let selectedGocId = null;
         let selectedNhapId = null;
         let allRecords = [];
+        let lastExportList = [];
         let isAdvanced = true;
         let isThaoTacMode = false;
         
@@ -446,6 +449,7 @@
         }
         
         function renderTable(list) {
+            lastExportList = list;
             const tbody = document.getElementById('table-body');
             document.getElementById('table-info').innerText = `Có ${list.length} bản ghi trong 1 trang`;
             if (list.length === 0) {
@@ -481,6 +485,30 @@
                 </tr>`;
             });
             tbody.innerHTML = html;
+        }
+
+        function exportExcelList() {
+            const list = lastExportList && lastExportList.length ? lastExportList : allRecords;
+            if (!list || !list.length) { alert('Không có dữ liệu để xuất.'); return; }
+            const rows = list.map((r, i) => ({
+                STT: i + 1,
+                'Mã vụ việc': r.ma_vu_viec || r.id || '',
+                'Tên vụ việc': r.ten_vu_an || '',
+                'Cấp xét xử': r.cap_xet_xu || '',
+                'Số thụ lý': r.so_thu_ly || '',
+                'Số bản án': r.so_ban_an || '',
+                'Ngày ban hành': r.ngay_ban_hanh || '',
+                'Nguyên đơn': r.nguyen_don || '',
+                'Bị đơn': r.bi_don || '',
+                'Thẩm phán': r.tham_phan || '',
+                'Kiểm sát viên': r.ksv || '',
+                'Tòa án': r.toa || '',
+                'Tình trạng': r.tinh_trang_gq || '',
+                'Người tạo': r.nguoi_tao || ''
+            }));
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(rows), 'An dan su');
+            XLSX.writeFile(wb, 'DanhSach_AnDanSu_' + new Date().toISOString().slice(0,10) + '.xlsx');
         }
         
         function selectGoc(id, checked) {

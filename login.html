@@ -1,160 +1,352 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="vi" data-theme="light">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đăng nhập hệ thống - VKS Cần Thơ</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Đăng nhập hệ thống - VKSND TP. Cần Thơ</title>
+    <script>
+        (function(){try{var t=localStorage.getItem('vks-dansu-theme');if(t!=='dark'&&t!=='light')t='light';document.documentElement.setAttribute('data-theme',t);document.documentElement.style.colorScheme=t;}catch(e){}})();
+    </script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
-        body { 
-            font-family: 'Segoe UI', Tahoma, sans-serif; 
-            background: linear-gradient(135deg, #0408c5, #5670e6); 
-            height: 100vh; display: flex; justify-content: center; align-items: center; margin: 0; 
+        :root, [data-theme="light"] {
+            --veil: linear-gradient(180deg, rgba(84,20,29,.38) 0%, rgba(84,20,29,.18) 40%, rgba(84,20,29,.62) 100%);
+            --glass: rgba(255,253,248,.92);
+            --ink: #1c1612;
+            --muted: #6d6459;
+            --line: rgba(198,174,114,.38);
+            --crimson: #7a1e2b;
+            --crimson-mid: #922433;
+            --fg: #fff8f0;
+            --brass: #c6ae72;
+            --chip: rgba(16,8,10,.32);
+            --chip-hover: rgba(16,8,10,.45);
+            --switch-bg: rgba(84,20,29,.72);
+            --switch-on: #7a1e2b;
+            --error: #c53030;
         }
-        .login-box { 
-            background: white; 
-            padding: 40px; 
-            border-radius: 15px; 
-            box-shadow: 0 10px 30px rgba(0,0,0,0.25); 
-            width: 380px; 
-            text-align: center; 
+        [data-theme="dark"] {
+            --veil: linear-gradient(180deg, rgba(12,8,10,.55) 0%, rgba(12,8,10,.32) 40%, rgba(12,8,10,.78) 100%);
+            --glass: rgba(26,18,20,.9);
+            --ink: #f4ebe4;
+            --muted: #b9a89a;
+            --line: rgba(198,174,114,.28);
+            --crimson: #c45a66;
+            --crimson-mid: #a33a48;
+            --fg: #fff4ea;
+            --brass: #e8d09a;
+            --chip: rgba(8,6,7,.45);
+            --chip-hover: rgba(8,6,7,.62);
+            --switch-bg: rgba(12,8,10,.78);
+            --switch-on: #54141d;
+            --error: #f87171;
         }
-        h2 { color: #0408c5; margin-bottom: 8px; font-size: 20px; }
-        h3 { color: #555; margin-bottom: 25px; font-size: 15px; font-weight: normal; }
-        input { 
-            width: 100%; 
-            padding: 13px 15px; 
-            margin: 8px 0; 
-            border: 1px solid #ccc; 
-            border-radius: 8px; 
-            box-sizing: border-box; 
-            font-size: 14px;
+        * { box-sizing: border-box; }
+        html, body { margin: 0; min-height: 100%; min-height: 100dvh; }
+        body {
+            font-family: 'Be Vietnam Pro', sans-serif;
+            color: var(--fg);
+            background: #54141d;
         }
-        input:focus {
-            border-color: #5670e6;
-            outline: none;
-            box-shadow: 0 0 0 3px rgba(86,112,230,0.15);
+        .hero { position: relative; min-height: 100dvh; overflow-x: hidden; }
+        .hq-photo {
+            position: absolute; inset: 0; width: 100%; height: 100%;
+            object-fit: cover; object-position: center 38%; pointer-events: none;
         }
-        button { 
-            width: 100%; 
-            padding: 14px; 
-            background: #5670e6; 
-            color: white; 
-            border: none; 
-            border-radius: 8px; 
-            cursor: pointer; 
-            font-weight: bold; 
-            font-size: 16px; 
-            margin-top: 12px;
-            transition: background 0.2s;
+        .hq-veil { position: absolute; inset: 0; background: var(--veil); pointer-events: none; }
+        .tech-grid {
+            position: absolute; inset: 0; pointer-events: none; opacity: .22;
+            background-image:
+                radial-gradient(rgba(232,198,117,.14) 1px, transparent 1px),
+                linear-gradient(to right, rgba(255,255,255,.04) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255,255,255,.04) 1px, transparent 1px);
+            background-size: 32px 32px, 96px 96px, 96px 96px;
         }
-        button:hover { background: #0408c5; }
-        .footer-text { margin-top: 22px; font-size: 12px; color: #888; }
-        .hint {
-            margin-top: 15px;
-            font-size: 12px;
-            color: #666;
-            background: #f5f7ff;
-            padding: 10px;
-            border-radius: 6px;
-            text-align: left;
+        .theme-fab {
+            position: absolute; top: max(12px, env(safe-area-inset-top));
+            right: max(12px, env(safe-area-inset-right)); z-index: 30;
         }
-        .error-msg {
-            color: #d32f2f;
-            font-size: 13px;
-            margin-top: 8px;
-            display: none;
+        .theme-switch {
+            display: inline-flex; height: 44px; overflow: hidden;
+            border: 1px solid rgba(232,198,117,.38); border-radius: 12px;
+            background: var(--switch-bg);
+        }
+        .theme-btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+            min-width: 44px; padding: 0 12px; border: 0; background: transparent;
+            font: inherit; font-size: 12px; font-weight: 700; color: var(--brass); cursor: pointer;
+        }
+        .theme-btn svg { width: 16px; height: 16px; }
+        .theme-btn[aria-pressed="true"] { background: var(--switch-on); color: #fff; }
+        .center {
+            position: relative; z-index: 10;
+            display: flex; flex-direction: column; align-items: center;
+            min-height: 100dvh; padding: 56px 16px 32px;
+        }
+        .logo-wrap {
+            position: relative; width: 160px; height: 160px;
+            display: flex; align-items: center; justify-content: center;
+        }
+        @media (min-width: 640px) { .logo-wrap { width: 200px; height: 200px; } }
+        @keyframes ping-ring {
+            0% { transform: translate(-50%, -50%) scale(.8); opacity: .5; }
+            100% { transform: translate(-50%, -50%) scale(1.8); opacity: 0; }
+        }
+        .ping-ring {
+            position: absolute; top: 50%; left: 50%; border-radius: 50%;
+            pointer-events: none; animation: ping-ring 3.5s ease-out infinite;
+        }
+        .ping-ring:nth-child(1) { width: 280px; height: 280px; border: 3px solid rgba(232,198,117,.38); }
+        .ping-ring:nth-child(2) { width: 220px; height: 220px; border: 2px solid rgba(232,198,117,.28); animation-delay: 1.2s; }
+        .ping-ring:nth-child(3) { width: 180px; height: 180px; border: 2px solid rgba(232,198,117,.22); animation-delay: 2.4s; }
+        .logo { width: 140px; height: 140px; object-fit: contain; position: relative; z-index: 2; }
+        @media (min-width: 640px) { .logo { width: 168px; height: 168px; } }
+        .vks-gold {
+            margin: 10px 0 0; text-align: center; font-weight: 900;
+            letter-spacing: .16em; text-transform: uppercase;
+            font-size: clamp(12px, 3.3vw, 16px); line-height: 1.55; color: #ffe566;
+            text-shadow: 0 1px 0 #fff6c2, 1px 1px 0 #e8c675, 2px 2px 0 #c9952e, 3px 3px 0 #a67c1a, 4px 4px 0 #8a6414, 4px 6px 14px rgba(0,0,0,.5);
+            max-width: 92vw; padding: 0 12px;
+        }
+        .app-title {
+            margin: 8px 0 0; text-align: center; font-size: clamp(22px, 4vw, 32px);
+            font-weight: 800; letter-spacing: .06em; color: #fff;
+        }
+        .app-title span {
+            background: linear-gradient(90deg, #e8c675, #fff6c2);
+            -webkit-background-clip: text; background-clip: text; color: transparent;
+        }
+        .app-sub {
+            margin: 8px 0 0; font-size: 12px; font-weight: 700; letter-spacing: .22em;
+            text-transform: uppercase; color: var(--brass);
+        }
+        .glass {
+            width: min(440px, 100%); margin-top: 22px;
+            border-radius: 18px; border: 1px solid var(--line);
+            background: var(--glass); color: var(--ink);
+            box-shadow: 0 20px 50px -24px rgba(0,0,0,.55);
+            backdrop-filter: blur(14px); padding: 22px 22px 18px;
+        }
+        .glass h2 { margin: 0; font-size: 22px; font-weight: 700; }
+        .glass p.lead { margin: 6px 0 0; font-size: 13px; color: var(--muted); }
+        label.field { display: flex; flex-direction: column; gap: 6px; margin-top: 14px; font-size: 13px; font-weight: 600; }
+        input {
+            height: 44px; border-radius: 8px; border: 1px solid rgba(198,174,114,.35);
+            background: rgba(255,255,255,.7); color: inherit; padding: 0 12px; font: inherit;
+        }
+        [data-theme="dark"] input { background: rgba(8,6,7,.45); border-color: rgba(198,174,114,.22); color: var(--ink); }
+        input:focus { outline: 2px solid rgba(122,30,43,.4); border-color: var(--crimson); }
+        .error { display: none; margin-top: 10px; font-size: 13px; color: var(--error); }
+        .btn-in {
+            width: 100%; height: 48px; margin-top: 14px; border: 0; border-radius: 8px;
+            background: #7a1e2b; color: #fff8f0; font: inherit; font-weight: 800;
+            letter-spacing: .08em; cursor: pointer;
+        }
+        .btn-in:hover { background: #922433; }
+        .hint { margin-top: 16px; font-size: 11px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+        .chips { display: grid; gap: 8px; margin-top: 10px; }
+        @media (min-width: 520px) { .chips { grid-template-columns: 1fr 1fr; } }
+        .chip {
+            display: flex; min-height: 44px; align-items: center; justify-content: space-between; gap: 8px;
+            border-radius: 8px; border: 1px solid var(--line); background: rgba(122,30,43,.06);
+            padding: 10px 12px; text-align: left; color: var(--ink); cursor: pointer; font: inherit;
+        }
+        .chip:hover { border-color: #c6ae72; }
+        .chip b { display: block; font-size: 13px; }
+        .chip small { display: block; font-size: 11px; color: var(--muted); }
+        .chip .u { font-family: ui-monospace, monospace; font-size: 11px; color: #7a1e2b; font-weight: 700; }
+        [data-theme="dark"] .chip .u { color: var(--brass); }
+        .foot { margin-top: 14px; text-align: center; font-size: 11px; color: var(--muted); }
+        @media (prefers-reduced-motion: reduce) {
+            .ping-ring { animation: none; }
         }
     </style>
 </head>
 <body>
-    <div class="login-box">
-        <h2>VIỆN KIỂM SÁT NHÂN DÂN</h2>
-        <h3>Đăng nhập hệ thống quản lý Dân sự</h3>
-        
-        <input type="text" id="username" placeholder="Tên đăng nhập" autocomplete="username">
-        <input type="password" id="password" placeholder="Mật khẩu" autocomplete="current-password">
-        
-        <div class="error-msg" id="error-msg"></div>
-        
-        <button onclick="handleLogin()">ĐĂNG NHẬP</button>
-        
-        <div class="hint">
-            <b>Tài khoản mặc định:</b><br>
-            • admin / admin123<br>
-            • (hoặc tài khoản đã được tạo trong Quản lý tài khoản)
+<div class="hero">
+    <img class="hq-photo" src="static/tru-so-vksnd.jpg" alt="Trụ sở Viện kiểm sát nhân dân thành phố Cần Thơ">
+    <div class="hq-veil"></div>
+    <div class="tech-grid"></div>
+
+    <div class="theme-fab">
+        <div class="theme-switch" role="group" aria-label="Chọn giao diện">
+            <button type="button" class="theme-btn" data-theme-set="light" aria-pressed="true" title="Giao diện sáng">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+                <span>Sáng</span>
+            </button>
+            <button type="button" class="theme-btn" data-theme-set="dark" aria-pressed="false" title="Giao diện tối">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 14.5A8.5 8.5 0 1 1 9.5 3 7 7 0 0 0 21 14.5z"/></svg>
+                <span>Tối</span>
+            </button>
         </div>
-        
-        <div class="footer-text">Hệ thống quản lý nghiệp vụ nội bộ - VKSND TP. Cần Thơ</div>
     </div>
 
-    <script>
-        // Khởi tạo users mặc định nếu chưa có
-        function ensureDefaultUsers() {
-            let usersDB = JSON.parse(localStorage.getItem('vks_users_db') || '{}');
-            
-            // Tạo admin mặc định nếu chưa tồn tại
-            if (!usersDB['admin']) {
-                usersDB['admin'] = {
-                    password: 'admin123',          // plain text cho dễ dùng nội bộ
-                    p_dansu: true,
-                    p_khieuto: true,
-                    p_thihanh: true,
-                    fullname: 'Quản trị viên'
-                };
-                localStorage.setItem('vks_users_db', JSON.stringify(usersDB));
-            }
-            return usersDB;
-        }
+    <div class="center">
+        <div class="logo-wrap">
+            <div class="ping-ring"></div>
+            <div class="ping-ring"></div>
+            <div class="ping-ring"></div>
+            <img class="logo" src="static/logo_moi.png" alt="Phù hiệu Viện kiểm sát nhân dân">
+        </div>
+        <h2 class="vks-gold">Viện kiểm sát nhân dân thành phố Cần Thơ</h2>
+        <h1 class="app-title">QUẢN LÝ <span>PHẦN DÂN SỰ</span></h1>
+        <p class="app-sub">Phục vụ công tác kiểm sát</p>
 
-        function showError(msg) {
-            const el = document.getElementById('error-msg');
-            el.innerText = msg;
-            el.style.display = 'block';
-        }
+        <form class="glass" onsubmit="handleLogin(event)">
+            <h2>Đăng nhập hệ thống</h2>
+            <p class="lead">Tài khoản theo cấp: VKSNDTC · tỉnh/thành · khu vực</p>
+            <label class="field">Tên đăng nhập
+                <input id="username" autocomplete="username" placeholder="vd: vt.cantho">
+            </label>
+            <label class="field">Mật khẩu
+                <input id="password" type="password" autocomplete="current-password" placeholder="Mật khẩu">
+            </label>
+            <div class="error" id="error-msg"></div>
+            <button type="submit" class="btn-in">ĐĂNG NHẬP</button>
+            <p class="hint">Tài khoản dùng thử · mật khẩu 123456</p>
+            <div class="chips" id="quick-accounts"></div>
+            <p class="foot">Hệ thống nghiệp vụ nội bộ · VKSND TP. Cần Thơ</p>
+        </form>
+    </div>
+</div>
 
-        function handleLogin() {
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value.trim();
+<script>
+    var firebaseConfig = {
+        apiKey: "AIzaSyDunRDIeyBTVXTODoO22ywk1Q35cCx2sV8",
+        authDomain: "dansu-vksndtpct.firebaseapp.com",
+        databaseURL: "https://dansu-vksndtpct-default-rtdb.asia-southeast1.firebasedatabase.app",
+        projectId: "dansu-vksndtpct",
+        storageBucket: "dansu-vksndtpct.firebasestorage.app",
+        appId: "1:843158256686:web:eb128d64c8b9bfd7aef3bf"
+    };
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    var db = firebase.database();
 
-            if (!username || !password) {
-                showError('Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu!');
-                return;
-            }
+    var DEFAULTS = [
+        { username: 'admin', password: 'admin123', fullname: 'Quản trị viên', level: 'toi_cao', unit: 'VKSND Tối cao', position: 'Cục trưởng cục Thống kê và CNTT' },
+        { username: 'vt.vksndtc', password: '123456', fullname: 'Nguyễn Văn Thành', level: 'toi_cao', unit: 'VKSND Tối cao', position: 'Viện trưởng' },
+        { username: 'pvt.vksndtc', password: '123456', fullname: 'Nguyễn Thị Hồng Hà', level: 'toi_cao', unit: 'VKSND Tối cao', position: 'Phó viện trưởng phụ trách' },
+        { username: 'ctk.vksndtc', password: '123456', fullname: 'Trần Văn Khoa', level: 'toi_cao', unit: 'VKSND Tối cao', position: 'Cục trưởng cục Thống kê và CNTT' },
+        { username: 'cb.vksndtc', password: '123456', fullname: 'Trần Thị Minh', level: 'toi_cao', unit: 'VKSND Tối cao', position: 'Cán bộ cập nhật dữ liệu' },
+        { username: 'vt.cantho', password: '123456', fullname: 'Lê Hoàng Phúc', level: 'tinh', unit: 'Cần Thơ', position: 'Viện trưởng' },
+        { username: 'pvt.cantho', password: '123456', fullname: 'Ngô Minh Tuấn', level: 'tinh', unit: 'Cần Thơ', position: 'Phó viện trưởng phụ trách' },
+        { username: 'cvp.cantho', password: '123456', fullname: 'Đỗ Thị Lan', level: 'tinh', unit: 'Cần Thơ', position: 'Chánh văn phòng' },
+        { username: 'cb.cantho', password: '123456', fullname: 'Phạm Thị Hương', level: 'tinh', unit: 'Cần Thơ', position: 'Cán bộ cập nhật dữ liệu' }
+    ];
 
-            const usersDB = ensureDefaultUsers();
-            const user = usersDB[username];
-
-            if (!user) {
-                showError('Tài khoản không tồn tại trên hệ thống!');
-                return;
-            }
-
-            if (user.password !== password) {
-                showError('Mật khẩu không chính xác!');
-                return;
-            }
-
-            // Đăng nhập thành công
-            sessionStorage.setItem('vks_logged_in', 'true');
-            localStorage.setItem('vks_user', username);
-
-            // Chuyển về trang chủ
-            window.location.href = 'index.html';
-        }
-
-        // Enter để đăng nhập
-        document.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') handleLogin();
+    function applyTheme(t) {
+        document.documentElement.setAttribute('data-theme', t);
+        document.documentElement.style.colorScheme = t;
+        try { localStorage.setItem('vks-dansu-theme', t); } catch (e) {}
+        document.querySelectorAll('[data-theme-set]').forEach(function (b) {
+            b.setAttribute('aria-pressed', b.getAttribute('data-theme-set') === t ? 'true' : 'false');
         });
+    }
+    document.addEventListener('click', function (e) {
+        var b = e.target.closest && e.target.closest('[data-theme-set]');
+        if (!b) return;
+        applyTheme(b.getAttribute('data-theme-set'));
+    });
+    applyTheme((function () { try { return localStorage.getItem('vks-dansu-theme') || 'light'; } catch (e) { return 'light'; } })());
 
-        // Nếu đã đăng nhập rồi thì chuyển thẳng vào index
-        window.onload = function() {
-            if (sessionStorage.getItem('vks_logged_in') === 'true' && localStorage.getItem('vks_user')) {
-                window.location.href = 'index.html';
+    function rights() {
+        return { p_dansu: true, p_khieuto: true, p_thihanh: true };
+    }
+
+    function seedLocal() {
+        var dbLocal = {};
+        try { dbLocal = JSON.parse(localStorage.getItem('vks_users_db') || '{}') || {}; } catch (e) { dbLocal = {}; }
+        DEFAULTS.forEach(function (u) {
+            if (!dbLocal[u.username]) {
+                dbLocal[u.username] = Object.assign({ password: u.password, fullname: u.fullname, level: u.level, unit: u.unit, position: u.position }, rights());
             }
-            // Focus vào ô username
-            document.getElementById('username').focus();
-        };
-    </script>
+        });
+        localStorage.setItem('vks_users_db', JSON.stringify(dbLocal));
+        return dbLocal;
+    }
+
+    function profileOf(username, extra) {
+        extra = extra || {};
+        var base = DEFAULTS.find(function (u) { return u.username === username; }) || { username: username, fullname: username, level: extra.level || '', unit: extra.unit || '', position: extra.position || '' };
+        return Object.assign({
+            username: username,
+            fullname: extra.fullname || base.fullname,
+            level: extra.level || base.level,
+            unit: extra.unit || base.unit,
+            position: extra.position || base.position
+        }, rights(), extra);
+    }
+
+    function enter(username, extra) {
+        var profile = profileOf(username, extra);
+        sessionStorage.setItem('vks_logged_in', 'true');
+        localStorage.setItem('vks_user', username);
+        localStorage.setItem('vks_username', username);
+        localStorage.setItem('vks_user_profile', JSON.stringify(profile));
+        var local = seedLocal();
+        local[username] = Object.assign({}, local[username] || {}, profile, { password: extra && extra.password ? extra.password : (local[username] && local[username].password) || '123456' });
+        localStorage.setItem('vks_users_db', JSON.stringify(local));
+        window.location.href = 'index.html';
+    }
+
+    function showError(msg) {
+        var el = document.getElementById('error-msg');
+        el.innerText = msg;
+        el.style.display = 'block';
+    }
+
+    function handleLogin(e) {
+        if (e) e.preventDefault();
+        var username = document.getElementById('username').value.trim();
+        var password = document.getElementById('password').value;
+        if (!username || !password) { showError('Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu.'); return; }
+
+        var local = seedLocal();
+        db.ref('users/' + username).once('value').then(function (snap) {
+            var remote = snap.val();
+            if (remote) {
+                if (remote.password !== password) { showError('Mật khẩu không chính xác.'); return; }
+                enter(username, remote);
+                return;
+            }
+            var user = local[username];
+            if (!user) { showError('Tài khoản không tồn tại trên hệ thống.'); return; }
+            if (user.password !== password) { showError('Mật khẩu không chính xác.'); return; }
+            enter(username, user);
+        }).catch(function () {
+            var user = local[username];
+            if (!user || user.password !== password) { showError('Không kết nối được máy chủ. Kiểm tra tài khoản dùng thử hoặc mạng.'); return; }
+            enter(username, user);
+        });
+    }
+
+    function renderQuick() {
+        var box = document.getElementById('quick-accounts');
+        var picks = DEFAULTS.filter(function (u) { return u.username !== 'admin'; }).slice(0, 8);
+        box.innerHTML = picks.map(function (u) {
+            var cap = u.level === 'toi_cao' ? 'Cấp VKSNDTC' : 'Cấp tỉnh';
+            return '<button type="button" class="chip" data-user="' + u.username + '" data-pass="' + u.password + '">' +
+                '<span><b>' + u.fullname + '</b><small>' + cap + ' · ' + u.position + '</small></span>' +
+                '<span class="u">' + u.username + '</span></button>';
+        }).join('');
+        box.addEventListener('click', function (ev) {
+            var b = ev.target.closest('.chip');
+            if (!b) return;
+            document.getElementById('username').value = b.getAttribute('data-user');
+            document.getElementById('password').value = b.getAttribute('data-pass');
+            handleLogin();
+        });
+    }
+
+    window.onload = function () {
+        seedLocal();
+        renderQuick();
+        document.getElementById('username').focus();
+    };
+</script>
 </body>
 </html>

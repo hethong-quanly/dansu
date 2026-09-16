@@ -310,7 +310,27 @@
         }
 
         function exportToExcel() {
-            alert("Chức năng xuất Excel sẽ được bổ sung chi tiết sau.");
+            db.ref('don_khieu_to').once('value').then(snapshot => {
+                const datas = snapshot.val() || {};
+                const rows = Object.keys(datas).map((key, i) => {
+                    const item = datas[key];
+                    return {
+                        STT: i + 1,
+                        'Ngày nhận': item.ngay_nhan || '',
+                        'Nguồn đơn': item.nguon_don || '',
+                        'Người nộp': item.ho_ten || '',
+                        'Địa chỉ': item.dia_chi || '',
+                        'Phân loại': item.phan_loai || '',
+                        'Thẩm quyền': item.tham_quyen || '',
+                        'Nội dung': item.noi_dung || '',
+                        'Cán bộ': item.can_bo_ksv || ''
+                    };
+                });
+                if (!rows.length) { alert('Không có dữ liệu để xuất.'); return; }
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, XLSX.utils.json_to_sheet(rows), 'Khieu to');
+                XLSX.writeFile(wb, 'DanhSach_KhieuTo_' + new Date().toISOString().slice(0,10) + '.xlsx');
+            });
         }
 
         window.onload = () => {

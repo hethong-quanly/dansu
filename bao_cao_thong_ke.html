@@ -179,11 +179,10 @@
         <div class="filter-group">
             <label>Thời gian</label>
             <select id="periodType" onchange="toggleCustomDate()">
-                <option value="all">Tất cả thời gian</option>
-                <option value="today">Hôm nay</option>
+                <option value="week">Tuần này</option>
                 <option value="month">Tháng này</option>
-                <option value="quarter">Quý này</option>
-                <option value="year">Năm nay</option>
+                <option value="half">06 tháng</option>
+                <option value="year" selected>Năm nay</option>
                 <option value="custom">Tùy chọn</option>
             </select>
         </div>
@@ -296,16 +295,19 @@
         const period = document.getElementById('periodType').value;
         const now = new Date();
         let from = 0, to = Infinity;
-        if (period === 'today') {
-            from = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-            to = from + 86400000;
+        if (period === 'week') {
+            const day = now.getDay();
+            const mondayOffset = day === 0 ? -6 : 1 - day;
+            const fromDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + mondayOffset);
+            from = fromDate.getTime();
+            to = from + 7 * 86400000 - 1;
         } else if (period === 'month') {
             from = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
             to = new Date(now.getFullYear(), now.getMonth()+1, 0, 23, 59, 59).getTime();
-        } else if (period === 'quarter') {
-            const q = Math.floor(now.getMonth()/3);
-            from = new Date(now.getFullYear(), q*3, 1).getTime();
-            to = new Date(now.getFullYear(), q*3+3, 0, 23, 59, 59).getTime();
+        } else if (period === 'half') {
+            const first = now.getMonth() < 6;
+            from = new Date(now.getFullYear(), first ? 0 : 6, 1).getTime();
+            to = new Date(now.getFullYear(), first ? 6 : 12, 0, 23, 59, 59).getTime();
         } else if (period === 'year') {
             from = new Date(now.getFullYear(), 0, 1).getTime();
             to = new Date(now.getFullYear(), 11, 31, 23, 59, 59).getTime();
