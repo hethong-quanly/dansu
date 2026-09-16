@@ -16,38 +16,38 @@
         html, body { margin: 0; min-height: 100%; }
         body {
             font-family: 'Be Vietnam Pro', sans-serif;
-            color: #fff8f0;
-            background: #54141d;
+            color: #ee1c25;
+            background: #00275a;
         }
         .hero { position: relative; min-height: 100vh; }
         .hq-photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 38%; }
-        .hq-veil { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(84,20,29,.45) 0%, rgba(28,10,12,.72) 100%); }
-        [data-theme="dark"] .hq-veil { background: linear-gradient(180deg, rgba(12,8,10,.55), rgba(8,5,6,.82)); }
+        .hq-veil { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,61,130,.45) 0%, rgba(0,39,90,.78) 100%); }
+        [data-theme="dark"] .hq-veil { background: linear-gradient(180deg, rgba(0,20,51,.55), rgba(0,12,34,.86)); }
         .wrap { position: relative; z-index: 2; max-width: 1100px; margin: 0 auto; padding: 28px 16px 48px; }
         .top { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
         .brand { display: flex; align-items: center; gap: 12px; }
         .brand img { width: 56px; height: 56px; object-fit: contain; }
-        .brand p { margin: 0; font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: #e8c675; }
-        .brand h1 { margin: 2px 0 0; font-size: 18px; }
-        .user-bar { font-size: 13px; color: #f4ebe4; }
-        .user-bar b { color: #ffe566; }
-        .panel { margin-top: 22px; background: rgba(255,253,248,.92); color: #1c1612; border-radius: 18px; border: 1px solid rgba(198,174,114,.38); padding: 28px; box-shadow: 0 18px 40px -18px rgba(0,0,0,.5); }
-        [data-theme="dark"] .panel { background: rgba(26,18,20,.9); color: #f4ebe4; }
-        .panel h2 { margin: 0 0 6px; text-align: center; font-size: 13px; letter-spacing: .18em; text-transform: uppercase; color: #7a1e2b; }
+        .brand p { margin: 0; font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: #ee1c25; }
+        .brand h1 { margin: 2px 0 0; font-size: 18px; color: #ee1c25; }
+        .user-bar { font-size: 13px; color: #ff4d57; }
+        .user-bar b { color: #ee1c25; }
+        .panel { margin-top: 22px; background: rgba(255,255,255,.94); color: #ee1c25; border-radius: 18px; border: 1px solid rgba(238,28,37,.35); padding: 28px; box-shadow: 0 18px 40px -18px rgba(0,39,90,.5); }
+        [data-theme="dark"] .panel { background: rgba(10,42,82,.9); color: #ff3b45; }
+        .panel h2 { margin: 0 0 6px; text-align: center; font-size: 13px; letter-spacing: .18em; text-transform: uppercase; color: #ee1c25; }
         .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin-top: 18px; }
         @media (max-width: 800px) { .grid { grid-template-columns: 1fr; } }
-        .col h3 { margin: 0 0 12px; font-size: 15px; color: #7a1e2b; border-bottom: 2px solid #c6ae72; padding-bottom: 8px; }
+        .col h3 { margin: 0 0 12px; font-size: 15px; color: #ee1c25; border-bottom: 2px solid #003d82; padding-bottom: 8px; }
         .menu a {
             display: block; padding: 14px 16px; margin-bottom: 10px; border-radius: 10px;
-            background: #7a1e2b; color: #fff8f0; text-decoration: none; font-weight: 700; font-size: 14px; text-align: center;
+            background: #ee1c25; color: #fff; text-decoration: none; font-weight: 700; font-size: 14px; text-align: center;
         }
-        .menu a:hover { background: #922433; }
-        .menu a.report { background: #f7efe4; color: #54141d; border: 1px solid #d8cfc0; }
-        .menu a.report:hover { border-color: #7a1e2b; color: #7a1e2b; }
-        .logout { width: 100%; margin-top: 18px; height: 48px; border: 0; border-radius: 10px; background: #9b2c2c; color: #fff; font: inherit; font-weight: 800; cursor: pointer; }
-        .theme-switch { display: inline-flex; height: 40px; overflow: hidden; border: 1px solid rgba(232,198,117,.38); border-radius: 10px; background: rgba(84,20,29,.72); }
-        .theme-btn { border: 0; background: none; color: #e8c675; font: inherit; font-size: 12px; font-weight: 700; padding: 0 12px; cursor: pointer; }
-        .theme-btn[aria-pressed="true"] { background: #7a1e2b; color: #fff; }
+        .menu a:hover { background: #c8101c; }
+        .menu a.report { background: #e8f2fc; color: #ee1c25; border: 1px solid #7eb3e6; }
+        .menu a.report:hover { border-color: #ee1c25; color: #ee1c25; background: #fff; }
+        .logout { width: 100%; margin-top: 18px; height: 48px; border: 0; border-radius: 10px; background: #003d82; color: #ee1c25; font: inherit; font-weight: 800; cursor: pointer; }
+        .theme-switch { display: inline-flex; height: 40px; overflow: hidden; border: 1px solid rgba(238,28,37,.45); border-radius: 10px; background: rgba(0,39,90,.78); }
+        .theme-btn { border: 0; background: none; color: #ff4d57; font: inherit; font-size: 12px; font-weight: 700; padding: 0 12px; cursor: pointer; }
+        .theme-btn[aria-pressed="true"] { background: #ee1c25; color: #fff; }
     </style>
 </head>
 <body>

@@ -12,26 +12,26 @@
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #7a1e2b;
-            --primary-dark: #03069a;
-            --accent: #fff8f0;
+            --primary: #ee1c25;
+            --primary-dark: #003d82;
+            --accent: #ffffff;
             --green: #16a34a;
             --orange: #ea580c;
             --red: #dc2626;
-            --bg: #f3eee4;
+            --bg: #e8f2fc;
             --white: #ffffff;
             --border: #e2e4f0;
-            --text: #1c1612;
+            --text: #ee1c25;
             --text-muted: #6b7280;
-            --shadow: 0 2px 16px rgba(4,8,197,0.10);
+            --shadow: 0 2px 16px rgba(0,61,130,0.10);
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: 'Be Vietnam Pro', sans-serif; background: var(--bg); color: var(--text); }
 
         header {
-            background: var(--primary); color: var(--accent);
+            background: var(--primary-dark); color: var(--primary);
             padding: 14px 28px; display: flex; align-items: center; gap: 18px;
-            box-shadow: 0 3px 14px rgba(4,8,197,0.3); position: sticky; top: 0; z-index: 100;
+            box-shadow: 0 3px 14px rgba(0,61,130,0.3); position: sticky; top: 0; z-index: 100;
         }
         .btn-back {
             color: white; text-decoration: none; font-size: 13px; font-weight: 600;
@@ -39,7 +39,7 @@
             white-space: nowrap; transition: background 0.2s;
         }
         .btn-back:hover { background: rgba(255,255,255,0.3); }
-        header h1 { font-size: 19px; font-weight: 700; flex: 1; text-align: center; color: var(--accent); }
+        header h1 { font-size: 19px; font-weight: 700; flex: 1; text-align: center; color: var(--primary); }
 
         .container { max-width: 1300px; margin: 0 auto; padding: 28px 22px; }
 
@@ -112,7 +112,7 @@
 
         table { width: 100%; border-collapse: collapse; font-size: 13px; }
         thead th {
-            background: #f3eee4; color: var(--primary); font-weight: 700;
+            background: #e8f2fc; color: var(--primary); font-weight: 700;
             padding: 11px 13px; text-align: left; border-bottom: 2px solid var(--border);
         }
         tbody tr { border-bottom: 1px solid var(--border); transition: background 0.15s; }
@@ -433,7 +433,7 @@
                     labels: ['Án Dân sự', 'Thi hành án', 'Khiếu nại - Tố cáo'],
                     datasets: [{
                         data: [filteredAds.length, filteredTha.length, filteredDkt.length],
-                        backgroundColor: ['#7a1e2b', '#16a34a', '#ea580c'],
+                        backgroundColor: ['#ee1c25', '#16a34a', '#ea580c'],
                         borderWidth: 2, borderColor: '#fff'
                     }]
                 },
@@ -460,7 +460,7 @@
                     datasets: [{
                         label: 'Số vụ',
                         data: Object.values(capCount).length ? Object.values(capCount) : [0],
-                        backgroundColor: ['#7a1e2b', '#6366f1', '#818cf8', '#c7d2fe'],
+                        backgroundColor: ['#ee1c25', '#6366f1', '#818cf8', '#c7d2fe'],
                         borderRadius: 8
                     }]
                 },

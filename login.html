@@ -14,48 +14,48 @@
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root, [data-theme="light"] {
-            --veil: linear-gradient(180deg, rgba(84,20,29,.38) 0%, rgba(84,20,29,.18) 40%, rgba(84,20,29,.62) 100%);
-            --glass: rgba(255,253,248,.92);
-            --ink: #1c1612;
-            --muted: #6d6459;
-            --line: rgba(198,174,114,.38);
-            --crimson: #7a1e2b;
-            --fg: #fff8f0;
-            --brass: #c6ae72;
-            --switch-bg: rgba(84,20,29,.72);
-            --switch-on: #7a1e2b;
-            --error: #c53030;
+            --veil: linear-gradient(180deg, rgba(0,61,130,.42) 0%, rgba(0,61,130,.22) 38%, rgba(0,39,90,.78) 100%);
+            --glass: rgba(255,255,255,.94);
+            --ink: #ee1c25;
+            --muted: #c73a42;
+            --line: rgba(238,28,37,.35);
+            --crimson: #ee1c25;
+            --fg: #ee1c25;
+            --brass: #ee1c25;
+            --switch-bg: rgba(0,39,90,.78);
+            --switch-on: #ee1c25;
+            --error: #ee1c25;
         }
         [data-theme="dark"] {
-            --veil: linear-gradient(180deg, rgba(12,8,10,.55) 0%, rgba(12,8,10,.32) 40%, rgba(12,8,10,.78) 100%);
-            --glass: rgba(26,18,20,.9);
-            --ink: #f4ebe4;
-            --muted: #b9a89a;
-            --line: rgba(198,174,114,.28);
-            --crimson: #c45a66;
-            --fg: #fff4ea;
-            --brass: #e8d09a;
-            --switch-bg: rgba(12,8,10,.78);
-            --switch-on: #54141d;
-            --error: #f87171;
+            --veil: linear-gradient(180deg, rgba(0,20,51,.58) 0%, rgba(0,20,51,.38) 40%, rgba(0,12,34,.86) 100%);
+            --glass: rgba(10,42,82,.9);
+            --ink: #ff3b45;
+            --muted: #ff8086;
+            --line: rgba(238,28,37,.28);
+            --crimson: #ff3b45;
+            --fg: #ff3b45;
+            --brass: #ff4d57;
+            --switch-bg: rgba(0,12,34,.78);
+            --switch-on: #ee1c25;
+            --error: #ff3b45;
         }
         * { box-sizing: border-box; }
         html, body { margin: 0; min-height: 100%; min-height: 100dvh; }
-        body { font-family: 'Be Vietnam Pro', sans-serif; color: var(--fg); background: #54141d; }
+        body { font-family: 'Be Vietnam Pro', sans-serif; color: var(--fg); background: #00275a; }
         .hero { position: relative; min-height: 100dvh; overflow-x: hidden; }
         .hq-photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 38%; pointer-events: none; }
         .hq-veil { position: absolute; inset: 0; background: var(--veil); pointer-events: none; }
         .tech-grid {
             position: absolute; inset: 0; pointer-events: none; opacity: .22;
             background-image:
-                radial-gradient(rgba(232,198,117,.14) 1px, transparent 1px),
-                linear-gradient(to right, rgba(255,255,255,.04) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(255,255,255,.04) 1px, transparent 1px);
+                radial-gradient(rgba(238,28,37,.22) 1px, transparent 1px),
+                linear-gradient(to right, rgba(255,255,255,.05) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255,255,255,.05) 1px, transparent 1px);
             background-size: 32px 32px, 96px 96px, 96px 96px;
         }
         .theme-fab { position: absolute; top: max(12px, env(safe-area-inset-top)); right: max(12px, env(safe-area-inset-right)); z-index: 30; }
-        .theme-switch { display: inline-flex; height: 44px; overflow: hidden; border: 1px solid rgba(232,198,117,.38); border-radius: 12px; background: var(--switch-bg); }
-        .theme-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-width: 44px; padding: 0 12px; border: 0; background: transparent; font: inherit; font-size: 12px; font-weight: 700; color: var(--brass); cursor: pointer; }
+        .theme-switch { display: inline-flex; height: 44px; overflow: hidden; border: 1px solid rgba(238,28,37,.45); border-radius: 12px; background: var(--switch-bg); }
+        .theme-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-width: 44px; padding: 0 12px; border: 0; background: transparent; font: inherit; font-size: 12px; font-weight: 700; color: #ff4d57; cursor: pointer; }
         .theme-btn svg { width: 16px; height: 16px; }
         .theme-btn[aria-pressed="true"] { background: var(--switch-on); color: #fff; }
         .center { position: relative; z-index: 10; display: flex; flex-direction: column; align-items: center; min-height: 100dvh; padding: 56px 16px 32px; }
@@ -63,25 +63,25 @@
         @media (min-width: 640px) { .logo-wrap { width: 200px; height: 200px; } }
         @keyframes ping-ring { 0% { transform: translate(-50%, -50%) scale(.8); opacity: .5; } 100% { transform: translate(-50%, -50%) scale(1.8); opacity: 0; } }
         .ping-ring { position: absolute; top: 50%; left: 50%; border-radius: 50%; pointer-events: none; animation: ping-ring 3.5s ease-out infinite; }
-        .ping-ring:nth-child(1) { width: 280px; height: 280px; border: 3px solid rgba(232,198,117,.38); }
-        .ping-ring:nth-child(2) { width: 220px; height: 220px; border: 2px solid rgba(232,198,117,.28); animation-delay: 1.2s; }
-        .ping-ring:nth-child(3) { width: 180px; height: 180px; border: 2px solid rgba(232,198,117,.22); animation-delay: 2.4s; }
+        .ping-ring:nth-child(1) { width: 280px; height: 280px; border: 3px solid rgba(238,28,37,.45); }
+        .ping-ring:nth-child(2) { width: 220px; height: 220px; border: 2px solid rgba(238,28,37,.32); animation-delay: 1.2s; }
+        .ping-ring:nth-child(3) { width: 180px; height: 180px; border: 2px solid rgba(238,28,37,.22); animation-delay: 2.4s; }
         .logo { width: 140px; height: 140px; object-fit: contain; position: relative; z-index: 2; }
         @media (min-width: 640px) { .logo { width: 168px; height: 168px; } }
-        .vks-gold { margin: 10px 0 0; text-align: center; font-weight: 900; letter-spacing: .16em; text-transform: uppercase; font-size: clamp(12px, 3.3vw, 16px); line-height: 1.55; color: #ffe566; text-shadow: 0 1px 0 #fff6c2, 1px 1px 0 #e8c675, 2px 2px 0 #c9952e, 3px 3px 0 #a67c1a, 4px 4px 0 #8a6414, 4px 6px 14px rgba(0,0,0,.5); max-width: 92vw; padding: 0 12px; }
-        .app-title { margin: 8px 0 0; text-align: center; font-size: clamp(22px, 4vw, 32px); font-weight: 800; letter-spacing: .06em; color: #fff; }
-        .app-title span { background: linear-gradient(90deg, #e8c675, #fff6c2); -webkit-background-clip: text; background-clip: text; color: transparent; }
-        .glass { width: min(440px, 100%); margin-top: 22px; border-radius: 18px; border: 1px solid var(--line); background: var(--glass); color: var(--ink); box-shadow: 0 20px 50px -24px rgba(0,0,0,.55); backdrop-filter: blur(14px); padding: 22px 22px 18px; }
-        .glass h2 { margin: 0; font-size: 22px; font-weight: 700; }
+        .vks-gold { margin: 10px 0 0; text-align: center; font-weight: 900; letter-spacing: .16em; text-transform: uppercase; font-size: clamp(12px, 3.3vw, 16px); line-height: 1.55; color: #ee1c25; text-shadow: 0 1px 0 #ffb3b7, 1px 1px 0 #ff4d57, 2px 2px 0 #c8101c, 3px 3px 0 #8a0c14, 4px 4px 0 #5c080e, 4px 6px 14px rgba(0,0,0,.5); max-width: 92vw; padding: 0 12px; }
+        .app-title { margin: 8px 0 0; text-align: center; font-size: clamp(22px, 4vw, 32px); font-weight: 800; letter-spacing: .06em; color: #ee1c25; text-shadow: 0 2px 12px rgba(0,0,0,.45); }
+        .app-title span { background: linear-gradient(90deg, #ff4d57, #ffd0d2, #ee1c25); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .glass { width: min(440px, 100%); margin-top: 22px; border-radius: 18px; border: 1px solid var(--line); background: var(--glass); color: var(--ink); box-shadow: 0 20px 50px -24px rgba(0,39,90,.55); backdrop-filter: blur(14px); padding: 22px 22px 18px; }
+        .glass h2 { margin: 0; font-size: 22px; font-weight: 700; color: #ee1c25; }
         .glass p.lead { margin: 6px 0 0; font-size: 13px; color: var(--muted); }
         label.field { display: flex; flex-direction: column; gap: 6px; margin-top: 14px; font-size: 13px; font-weight: 600; }
-        input { height: 44px; border-radius: 8px; border: 1px solid rgba(198,174,114,.35); background: rgba(255,255,255,.7); color: inherit; padding: 0 12px; font: inherit; }
-        [data-theme="dark"] input { background: rgba(8,6,7,.45); border-color: rgba(198,174,114,.22); color: var(--ink); }
-        input:focus { outline: 2px solid rgba(122,30,43,.4); border-color: var(--crimson); }
+        input { height: 44px; border-radius: 8px; border: 1px solid rgba(238,28,37,.35); background: rgba(255,255,255,.85); color: inherit; padding: 0 12px; font: inherit; }
+        [data-theme="dark"] input { background: rgba(0,20,51,.45); border-color: rgba(238,28,37,.28); color: var(--ink); }
+        input:focus { outline: 2px solid rgba(238,28,37,.4); border-color: var(--crimson); }
         .error { display: none; margin-top: 10px; font-size: 13px; color: var(--error); }
         .ok { display: none; margin-top: 10px; font-size: 13px; color: #2c6a4a; line-height: 1.5; }
-        .btn-in { width: 100%; height: 48px; margin-top: 14px; border: 0; border-radius: 8px; background: #7a1e2b; color: #fff8f0; font: inherit; font-weight: 800; letter-spacing: .08em; cursor: pointer; }
-        .btn-in:hover { background: #922433; }
+        .btn-in { width: 100%; height: 48px; margin-top: 14px; border: 0; border-radius: 8px; background: #ee1c25; color: #fff; font: inherit; font-weight: 800; letter-spacing: .08em; cursor: pointer; }
+        .btn-in:hover { background: #c8101c; }
         .forgot { display: block; width: 100%; margin-top: 12px; border: 0; background: none; font: inherit; font-size: 13px; font-weight: 600; color: var(--crimson); cursor: pointer; text-align: center; }
         .forgot:hover { text-decoration: underline; }
         .foot { margin-top: 14px; text-align: center; font-size: 11px; color: var(--muted); }
