@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Đăng nhập hệ thống - VKSND TP. Cần Thơ</title>
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="apple-touch-icon" href="static/icon-192.png">
+    <meta name="theme-color" content="#0a2468">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="VKS Dân sự">
     <script>
         (function(){try{var t=localStorage.getItem('vks-dansu-theme');if(t!=='dark'&&t!=='light')t='light';document.documentElement.setAttribute('data-theme',t);document.documentElement.style.colorScheme=t;}catch(e){}})();
     </script>
@@ -14,76 +19,79 @@
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root, [data-theme="light"] {
-            --veil: linear-gradient(180deg, rgba(0,61,130,.42) 0%, rgba(0,61,130,.22) 38%, rgba(0,39,90,.78) 100%);
-            --glass: rgba(255,255,255,.94);
-            --ink: #ee1c25;
-            --muted: #c73a42;
-            --line: rgba(238,28,37,.35);
-            --crimson: #ee1c25;
-            --fg: #ee1c25;
-            --brass: #ee1c25;
-            --switch-bg: rgba(0,39,90,.78);
-            --switch-on: #ee1c25;
-            --error: #ee1c25;
+            --veil: linear-gradient(180deg, rgba(7,26,74,.48) 0%, rgba(10,36,104,.28) 38%, rgba(7,26,74,.82) 100%);
+            --glass: rgba(255,255,255,.96);
+            --ink: #122033;
+            --muted: #5c6b80;
+            --line: rgba(245,215,110,.45);
+            --crimson: #0c3b8c;
+            --fg: #ffffff;
+            --brass: #f5d76e;
+            --switch-bg: rgba(7,26,74,.78);
+            --switch-on: #0c3b8c;
+            --error: #b0000c;
         }
         [data-theme="dark"] {
-            --veil: linear-gradient(180deg, rgba(0,20,51,.58) 0%, rgba(0,20,51,.38) 40%, rgba(0,12,34,.86) 100%);
-            --glass: rgba(10,42,82,.9);
-            --ink: #ff3b45;
-            --muted: #ff8086;
-            --line: rgba(238,28,37,.28);
-            --crimson: #ff3b45;
-            --fg: #ff3b45;
-            --brass: #ff4d57;
-            --switch-bg: rgba(0,12,34,.78);
-            --switch-on: #ee1c25;
-            --error: #ff3b45;
+            --veil: linear-gradient(180deg, rgba(4,14,36,.62) 0%, rgba(6,20,51,.42) 40%, rgba(4,14,36,.9) 100%);
+            --glass: rgba(12,37,84,.92);
+            --ink: #f4f7fb;
+            --muted: #9db0d1;
+            --line: rgba(245,215,110,.35);
+            --crimson: #1a56c4;
+            --fg: #ffffff;
+            --brass: #ffe566;
+            --switch-bg: rgba(4,14,36,.78);
+            --switch-on: #1248ad;
+            --error: #ff6b73;
         }
         * { box-sizing: border-box; }
         html, body { margin: 0; min-height: 100%; min-height: 100dvh; }
-        body { font-family: 'Be Vietnam Pro', sans-serif; color: var(--fg); background: #00275a; }
+        body { font-family: 'Be Vietnam Pro', sans-serif; color: var(--fg); background: #071a4a; }
         .hero { position: relative; min-height: 100dvh; overflow-x: hidden; }
         .hq-photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 38%; pointer-events: none; }
         .hq-veil { position: absolute; inset: 0; background: var(--veil); pointer-events: none; }
         .tech-grid {
-            position: absolute; inset: 0; pointer-events: none; opacity: .22;
+            position: absolute; inset: 0; pointer-events: none; opacity: .2;
             background-image:
-                radial-gradient(rgba(238,28,37,.22) 1px, transparent 1px),
+                radial-gradient(rgba(245,215,110,.28) 1px, transparent 1px),
                 linear-gradient(to right, rgba(255,255,255,.05) 1px, transparent 1px),
                 linear-gradient(to bottom, rgba(255,255,255,.05) 1px, transparent 1px);
             background-size: 32px 32px, 96px 96px, 96px 96px;
         }
         .theme-fab { position: absolute; top: max(12px, env(safe-area-inset-top)); right: max(12px, env(safe-area-inset-right)); z-index: 30; }
-        .theme-switch { display: inline-flex; height: 44px; overflow: hidden; border: 1px solid rgba(238,28,37,.45); border-radius: 12px; background: var(--switch-bg); }
-        .theme-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-width: 44px; padding: 0 12px; border: 0; background: transparent; font: inherit; font-size: 12px; font-weight: 700; color: #ff4d57; cursor: pointer; }
+        .theme-switch { display: inline-flex; height: 44px; overflow: hidden; border: 1px solid rgba(245,215,110,.45); border-radius: 12px; background: var(--switch-bg); }
+        .theme-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-width: 44px; padding: 0 12px; border: 0; background: transparent; font: inherit; font-size: 12px; font-weight: 700; color: #ffe566; cursor: pointer; }
         .theme-btn svg { width: 16px; height: 16px; }
-        .theme-btn[aria-pressed="true"] { background: var(--switch-on); color: #fff; }
+        .theme-btn[aria-pressed="true"] { background: var(--switch-on); color: #ffe566; }
         .center { position: relative; z-index: 10; display: flex; flex-direction: column; align-items: center; min-height: 100dvh; padding: 56px 16px 32px; }
         .logo-wrap { position: relative; width: 160px; height: 160px; display: flex; align-items: center; justify-content: center; }
         @media (min-width: 640px) { .logo-wrap { width: 200px; height: 200px; } }
         @keyframes ping-ring { 0% { transform: translate(-50%, -50%) scale(.8); opacity: .5; } 100% { transform: translate(-50%, -50%) scale(1.8); opacity: 0; } }
         .ping-ring { position: absolute; top: 50%; left: 50%; border-radius: 50%; pointer-events: none; animation: ping-ring 3.5s ease-out infinite; }
-        .ping-ring:nth-child(1) { width: 280px; height: 280px; border: 3px solid rgba(238,28,37,.45); }
-        .ping-ring:nth-child(2) { width: 220px; height: 220px; border: 2px solid rgba(238,28,37,.32); animation-delay: 1.2s; }
-        .ping-ring:nth-child(3) { width: 180px; height: 180px; border: 2px solid rgba(238,28,37,.22); animation-delay: 2.4s; }
+        .ping-ring:nth-child(1) { width: 280px; height: 280px; border: 3px solid rgba(245,215,110,.5); }
+        .ping-ring:nth-child(2) { width: 220px; height: 220px; border: 2px solid rgba(245,215,110,.32); animation-delay: 1.2s; }
+        .ping-ring:nth-child(3) { width: 180px; height: 180px; border: 2px solid rgba(245,215,110,.2); animation-delay: 2.4s; }
         .logo { width: 140px; height: 140px; object-fit: contain; position: relative; z-index: 2; }
         @media (min-width: 640px) { .logo { width: 168px; height: 168px; } }
-        .vks-gold { margin: 10px 0 0; text-align: center; font-weight: 900; letter-spacing: .16em; text-transform: uppercase; font-size: clamp(12px, 3.3vw, 16px); line-height: 1.55; color: #ee1c25; text-shadow: 0 1px 0 #ffb3b7, 1px 1px 0 #ff4d57, 2px 2px 0 #c8101c, 3px 3px 0 #8a0c14, 4px 4px 0 #5c080e, 4px 6px 14px rgba(0,0,0,.5); max-width: 92vw; padding: 0 12px; }
-        .app-title { margin: 8px 0 0; text-align: center; font-size: clamp(22px, 4vw, 32px); font-weight: 800; letter-spacing: .06em; color: #ee1c25; text-shadow: 0 2px 12px rgba(0,0,0,.45); }
-        .app-title span { background: linear-gradient(90deg, #ff4d57, #ffd0d2, #ee1c25); -webkit-background-clip: text; background-clip: text; color: transparent; }
-        .glass { width: min(440px, 100%); margin-top: 22px; border-radius: 18px; border: 1px solid var(--line); background: var(--glass); color: var(--ink); box-shadow: 0 20px 50px -24px rgba(0,39,90,.55); backdrop-filter: blur(14px); padding: 22px 22px 18px; }
-        .glass h2 { margin: 0; font-size: 22px; font-weight: 700; color: #ee1c25; }
+        .vks-gold { margin: 10px 0 0; text-align: center; font-weight: 900; letter-spacing: .16em; text-transform: uppercase; font-size: clamp(12px, 3.3vw, 16px); line-height: 1.55; color: #ffe566; text-shadow: 0 1px 0 #fff6c2, 1px 1px 0 #e8c675, 2px 2px 0 #c9952e, 3px 3px 0 #a67c1a, 4px 4px 0 #8a6414, 4px 6px 14px rgba(0,0,0,.5); max-width: 92vw; padding: 0 12px; }
+        .app-title { margin: 8px 0 0; text-align: center; font-size: clamp(22px, 4vw, 32px); font-weight: 800; letter-spacing: .06em; color: #ffe566; text-shadow: 0 1px 0 #fff6c2, 1px 1px 0 #e8c675, 2px 2px 0 #c9952e, 3px 3px 8px rgba(0,0,0,.45); }
+        .app-title span { background: linear-gradient(90deg, #fff6c2, #ffe566, #e8c675); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .app-title::after { content: ""; display: block; width: 88px; height: 3px; margin: 10px auto 0; border-radius: 99px; background: linear-gradient(90deg, transparent, #ffe566, transparent); box-shadow: 0 6px 0 -3px rgba(201,162,39,.7); }
+        .glass { width: min(440px, 100%); margin-top: 22px; border-radius: 18px; border: 1px solid var(--line); background: var(--glass); color: var(--ink); box-shadow: 0 20px 50px -24px rgba(7,26,74,.55); backdrop-filter: blur(14px); padding: 22px 22px 18px; }
+        .glass h2 { margin: 0; font-size: 22px; font-weight: 700; color: #c9a227; }
+        [data-theme="dark"] .glass h2 { color: #ffe566; }
         .glass p.lead { margin: 6px 0 0; font-size: 13px; color: var(--muted); }
         label.field { display: flex; flex-direction: column; gap: 6px; margin-top: 14px; font-size: 13px; font-weight: 600; }
-        input { height: 44px; border-radius: 8px; border: 1px solid rgba(238,28,37,.35); background: rgba(255,255,255,.85); color: inherit; padding: 0 12px; font: inherit; }
-        [data-theme="dark"] input { background: rgba(0,20,51,.45); border-color: rgba(238,28,37,.28); color: var(--ink); }
-        input:focus { outline: 2px solid rgba(238,28,37,.4); border-color: var(--crimson); }
+        input { height: 44px; border-radius: 8px; border: 1px solid #d5deee; background: rgba(255,255,255,.85); color: inherit; padding: 0 12px; font: inherit; }
+        [data-theme="dark"] input { background: rgba(4,14,36,.45); border-color: #1d4f8c; color: var(--ink); }
+        input:focus { outline: 2px solid rgba(12,59,140,.4); border-color: var(--crimson); }
         .error { display: none; margin-top: 10px; font-size: 13px; color: var(--error); }
         .ok { display: none; margin-top: 10px; font-size: 13px; color: #2c6a4a; line-height: 1.5; }
-        .btn-in { width: 100%; height: 48px; margin-top: 14px; border: 0; border-radius: 8px; background: #ee1c25; color: #fff; font: inherit; font-weight: 800; letter-spacing: .08em; cursor: pointer; }
-        .btn-in:hover { background: #c8101c; }
+        .btn-in { width: 100%; height: 48px; margin-top: 14px; border: 0; border-radius: 8px; background: #0c3b8c; color: #fff; font: inherit; font-weight: 800; letter-spacing: .08em; cursor: pointer; }
+        .btn-in:hover { background: #1248ad; }
         .forgot { display: block; width: 100%; margin-top: 12px; border: 0; background: none; font: inherit; font-size: 13px; font-weight: 600; color: var(--crimson); cursor: pointer; text-align: center; }
         .forgot:hover { text-decoration: underline; }
+        .install { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 44px; margin-top: 10px; border-radius: 8px; border: 1px solid rgba(201,162,39,.55); background: #071a4a; color: #ffe566; font: inherit; font-size: 13px; font-weight: 700; text-decoration: none; }
         .foot { margin-top: 14px; text-align: center; font-size: 11px; color: var(--muted); }
         @media (prefers-reduced-motion: reduce) { .ping-ring { animation: none; } }
     </style>
@@ -127,6 +135,7 @@
             <div class="error" id="error-msg"></div>
             <button type="submit" class="btn-in">ĐĂNG NHẬP</button>
             <button type="button" class="forgot" onclick="showForgot()">Quên mật khẩu?</button>
+            <a class="install" data-install-app href="cai_dat.html">Cài đặt ứng dụng lên điện thoại</a>
             <p class="foot">Hệ thống nghiệp vụ nội bộ · VKSND TP. Cần Thơ</p>
         </form>
 
@@ -301,5 +310,6 @@
         document.getElementById('username').focus();
     };
 </script>
+<script src="static/pwa.js"></script>
 </body>
 </html>

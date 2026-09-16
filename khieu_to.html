@@ -6,6 +6,7 @@
     <title>Quản lý Giải quyết Khiếu nại, Tố cáo</title>
     <link rel="stylesheet" href="static/theme.css">
     <script src="static/rbac.js"></script>
+    <script src="static/pwa.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
@@ -13,7 +14,7 @@
     
     <style>
         body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f5f7fa; }
-        header { background: #00275a; color: #ee1c25; text-align: center; padding: 15px; position: relative; }
+        header { background: #00275a; color: #0c3b8c; text-align: center; padding: 15px; position: relative; }
         .btn-back { position: absolute; left: 20px; top: 20px; color: white; text-decoration: none; font-weight: bold; background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 6px; }
         
         .container { display: flex; padding: 20px; gap: 25px; }
@@ -29,9 +30,9 @@
         
         table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 8px; }
         th, td { border: 1px solid #ddd; padding: 6px; text-align: left; vertical-align: top; }
-        th { background: #e8f2fc; color: #ee1c25; }
+        th { background: #e8f2fc; color: #0c3b8c; }
         
-        .btn-save { background: #c8101c; color: white; padding: 14px; border: none; border-radius: 8px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 15px; }
+        .btn-save { background: #1248ad; color: white; padding: 14px; border: none; border-radius: 8px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 15px; }
         .btn-pdf { background: #4caf50; color: white; padding: 5px 10px; border-radius: 5px; font-size: 12px; }
         .btn-edit, .btn-delete { padding: 4px 10px; border-radius: 5px; font-size: 12px; margin-right: 5px; }
         .btn-edit { background: #ff9800; color: white; }
@@ -145,7 +146,7 @@
         <div class="main-panel">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
                 <h3>DANH SÁCH ĐƠN KHIẾU NẠI, TỐ CÁO</h3>
-                <button onclick="exportToExcel()" style="padding:8px 16px; background:#c8101c; color:white; border:none; border-radius:6px; cursor:pointer;">📊 Xuất Excel</button>
+                <button onclick="exportToExcel()" style="padding:8px 16px; background:#1248ad; color:white; border:none; border-radius:6px; cursor:pointer;">📊 Xuất Excel</button>
             </div>
             <table id="data-table">
                 <thead>

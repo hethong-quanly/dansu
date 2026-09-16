@@ -1,35 +1,37 @@
 :root, [data-theme="light"] {
-  --vks-bg: #003d82;
-  --vks-bg-soft: #e8f2fc;
+  --vks-bg: #0a2468;
+  --vks-bg-soft: #eef3fb;
   --vks-surface: #ffffff;
-  --vks-ink: #ee1c25;
-  --vks-muted: #c73a42;
-  --vks-line: #7eb3e6;
-  --vks-crimson: #ee1c25;
-  --vks-crimson-deep: #00275a;
-  --vks-crimson-mid: #c8101c;
+  --vks-ink: #122033;
+  --vks-muted: #5c6b80;
+  --vks-line: #d5deee;
+  --vks-crimson: #0c3b8c;
+  --vks-crimson-deep: #071a4a;
+  --vks-crimson-mid: #1248ad;
   --vks-fg: #ffffff;
-  --vks-brass: #ee1c25;
+  --vks-brass: #c9a227;
+  --vks-gold: #c9a227;
 }
 [data-theme="dark"] {
-  --vks-bg: #001433;
-  --vks-bg-soft: #0a2a52;
-  --vks-surface: #0a2a52;
-  --vks-ink: #ff3b45;
-  --vks-muted: #ff8086;
+  --vks-bg: #061433;
+  --vks-bg-soft: #0c2554;
+  --vks-surface: #0c2554;
+  --vks-ink: #f4f7fb;
+  --vks-muted: #9db0d1;
   --vks-line: #1d4f8c;
-  --vks-crimson: #ff3b45;
-  --vks-crimson-deep: #000c22;
-  --vks-crimson-mid: #ee1c25;
+  --vks-crimson: #1a56c4;
+  --vks-crimson-deep: #040e24;
+  --vks-crimson-mid: #2a6adf;
   --vks-fg: #ffffff;
-  --vks-brass: #ff4d57;
+  --vks-brass: #ffe566;
+  --vks-gold: #ffe566;
 }
 body.vks-page {
   font-family: "Be Vietnam Pro", "Segoe UI", sans-serif;
   color: var(--vks-ink);
   background-color: var(--vks-bg);
   background-image:
-    linear-gradient(180deg, rgba(0, 61, 130, 0.82), rgba(0, 39, 90, 0.9)),
+    linear-gradient(180deg, rgba(10, 36, 104, 0.82), rgba(7, 26, 74, 0.9)),
     url("tru-so-vksnd.jpg");
   background-size: cover;
   background-position: center 38%;
@@ -38,16 +40,26 @@ body.vks-page {
 }
 [data-theme="dark"] body.vks-page {
   background-image:
-    linear-gradient(180deg, rgba(0, 20, 51, 0.9), rgba(0, 12, 34, 0.94)),
+    linear-gradient(180deg, rgba(6, 20, 51, 0.9), rgba(4, 14, 36, 0.94)),
     url("tru-so-vksnd.jpg");
 }
 body.vks-page header,
 body.vks-page .top-nav {
   background: var(--vks-crimson-deep) !important;
-  color: var(--vks-ink) !important;
+  color: var(--vks-fg) !important;
 }
 body.vks-page header h1,
-body.vks-page header h2 {
+body.vks-page header h2,
+body.vks-page h1,
+body.vks-page h2 {
+  color: var(--vks-gold) !important;
+}
+body.vks-page .container,
+body.vks-page .sidebar,
+body.vks-page .main-panel,
+body.vks-page .panel,
+body.vks-page .card {
+  background: var(--vks-surface) !important;
   color: var(--vks-ink) !important;
 }
 body.vks-page .btn-save,
@@ -58,11 +70,24 @@ body.vks-page .btn-in {
 }
 body.vks-page .section {
   background: var(--vks-bg-soft) !important;
+  color: var(--vks-ink) !important;
 }
 body.vks-page th {
   background: var(--vks-crimson-deep) !important;
-  color: var(--vks-ink) !important;
+  color: var(--vks-gold) !important;
+}
+body.vks-page td {
+  color: var(--vks-ink);
 }
 body.vks-page a {
-  color: var(--vks-ink);
+  color: var(--vks-crimson);
+}
+body.vks-page .sidebar-title {
+  background: var(--vks-crimson-deep) !important;
+  color: var(--vks-gold) !important;
+}
+body.vks-page .btn-icon.active {
+  background: var(--vks-crimson) !important;
+  color: var(--vks-fg) !important;
+  border-color: var(--vks-crimson) !important;
 }

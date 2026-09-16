@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Cài đặt ứng dụng điện thoại — VKS Dân sự</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="apple-touch-icon" href="static/icon-192.png">
+  <meta name="theme-color" content="#0a2468">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="static/theme.css">
+  <style>
+    body { margin: 0; font-family: "Be Vietnam Pro", sans-serif; background: #0a2468; color: #fff; }
+    .wrap { max-width: 560px; margin: 0 auto; padding: 28px 16px 48px; }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand img { width: 56px; height: 56px; }
+    .brand p { margin: 0; font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: #ffe566; }
+    .brand h1 { margin: 4px 0 0; font-size: 20px; color: #ffe566; }
+    .card { margin-top: 22px; background: #fff; color: #122033; border-radius: 18px; padding: 22px; }
+    .card h2 { margin: 0 0 10px; color: #c9a227; font-size: 16px; }
+    .card ol { margin: 0; padding-left: 20px; line-height: 1.7; }
+    .card li { margin: 8px 0; }
+    .back { display: inline-flex; margin-top: 18px; color: #ffe566; font-weight: 700; text-decoration: none; }
+    .hint { margin-top: 12px; font-size: 13px; color: #5c6b80; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="brand">
+      <img src="static/logo_moi.png" alt="Phù hiệu VKS">
+      <div>
+        <p>Viện kiểm sát nhân dân</p>
+        <h1>Cài ứng dụng điện thoại</h1>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Điện thoại Android (Chrome)</h2>
+      <ol>
+        <li>Mở trang đăng nhập bằng Chrome.</li>
+        <li>Bấm biểu tượng menu (ba chấm) góc trên bên phải.</li>
+        <li>Chọn <b>Cài đặt ứng dụng</b> hoặc <b>Thêm vào màn hình chính</b>.</li>
+        <li>Xác nhận. Biểu tượng <b>VKS Dân sự</b> xuất hiện như một ứng dụng.</li>
+      </ol>
+    </div>
+    <div class="card">
+      <h2>iPhone / iPad (Safari)</h2>
+      <ol>
+        <li>Mở trang đăng nhập bằng Safari (không dùng Chrome trên iOS).</li>
+        <li>Bấm nút <b>Chia sẻ</b> (ô vuông có mũi tên lên).</li>
+        <li>Chọn <b>Thêm vào Màn hình chính</b>.</li>
+        <li>Đặt tên <b>VKS Dân sự</b> rồi bấm Thêm.</li>
+      </ol>
+      <p class="hint">Sau khi cài, mở từ màn hình chính để dùng toàn màn hình, không cần gõ địa chỉ mỗi lần.</p>
+    </div>
+    <a class="back" href="login.html">Quay lại đăng nhập</a>
+  </div>
+  <script src="static/pwa.js"></script>
+</body>
+</html>

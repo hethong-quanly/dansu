@@ -5,6 +5,7 @@
     <title>Báo cáo Thống kê Tổng hợp</title>
     <link rel="stylesheet" href="static/theme.css">
     <script src="static/rbac.js"></script>
+    <script src="static/pwa.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -12,7 +13,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #ee1c25;
+            --primary: #0c3b8c;
             --primary-dark: #003d82;
             --accent: #ffffff;
             --green: #16a34a;
@@ -21,7 +22,7 @@
             --bg: #e8f2fc;
             --white: #ffffff;
             --border: #e2e4f0;
-            --text: #ee1c25;
+            --text: #0c3b8c;
             --text-muted: #6b7280;
             --shadow: 0 2px 16px rgba(0,61,130,0.10);
         }
@@ -433,7 +434,7 @@
                     labels: ['Án Dân sự', 'Thi hành án', 'Khiếu nại - Tố cáo'],
                     datasets: [{
                         data: [filteredAds.length, filteredTha.length, filteredDkt.length],
-                        backgroundColor: ['#ee1c25', '#16a34a', '#ea580c'],
+                        backgroundColor: ['#0c3b8c', '#16a34a', '#ea580c'],
                         borderWidth: 2, borderColor: '#fff'
                     }]
                 },
@@ -460,7 +461,7 @@
                     datasets: [{
                         label: 'Số vụ',
                         data: Object.values(capCount).length ? Object.values(capCount) : [0],
-                        backgroundColor: ['#ee1c25', '#6366f1', '#818cf8', '#c7d2fe'],
+                        backgroundColor: ['#0c3b8c', '#6366f1', '#818cf8', '#c7d2fe'],
                         borderRadius: 8
                     }]
                 },
