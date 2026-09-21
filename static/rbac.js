@@ -71,21 +71,34 @@
   }
 
   function deptOf(u) {
-    return (u && (u.department || u.phong)) || "";
+    return (u && (u.department || u.phong || u.departmentId)) || "";
+  }
+
+  function isVtOrPvt(u) {
+    var p = pos(u);
+    if (!p) return false;
+    if (p.indexOf("phó viện") >= 0 || p.indexOf("pho vien") >= 0 || p === "pho_vien_truong") return true;
+    if (p.indexOf("viện trưởng") >= 0 || p.indexOf("vien truong") >= 0 || p === "vien_truong") return true;
+    return false;
+  }
+
+  function isFullModuleAccess(u) {
+    return isAdmin(u) || isVtOrPvt(u);
   }
 
   function moduleOfDept(dept) {
     var d = norm(dept);
-    if (d.indexOf("phòng 9") >= 0 || d.indexOf("phong 9") >= 0) return "dansu";
-    if (d.indexOf("phòng 10") >= 0 || d.indexOf("phong 10") >= 0 || d.indexOf("thanh tra") >= 0 || d.indexOf("khiếu tố") >= 0 || d.indexOf("khieu to") >= 0) return "khieuto";
-    if (d.indexOf("phòng 11") >= 0 || d.indexOf("phong 11") >= 0) return "thads";
+    if (!d) return "all";
+    if (/(vụ|vu)[\s_]*10\b/.test(d) || /(phòng|phong)[\s_]*10\b/.test(d)) return "dansu";
+    if (/(vụ|vu)[\s_]*11\b/.test(d) || /(phòng|phong)[\s_]*11\b/.test(d)) return "thads";
+    if (/(vụ|vu)[\s_]*12\b/.test(d) || d.indexOf("thanh tra") >= 0 || d.indexOf("khiếu tố") >= 0 || d.indexOf("khieu to") >= 0) return "khieuto";
+    if (/(vụ|vu)[\s_]*9\b/.test(d) || /(phòng|phong)[\s_]*9\b/.test(d)) return "dansu";
     return "all";
   }
 
   function canAccessModule(u, mod) {
     if (!u || !u.username) return false;
-    if (isAdmin(u) || (u.level && u.level !== "tinh")) return true;
-    if (isUnitWide(u)) return true;
+    if (isFullModuleAccess(u)) return true;
     var mapped = moduleOfDept(deptOf(u));
     return mapped === "all" || mapped === mod;
   }
@@ -127,9 +140,12 @@
   function sameDept(item, u) {
     var d = deptOf(u);
     if (!d) return true;
-    var id = item.department || item.phong || "";
+    var id = item.department || item.phong || item.departmentId || "";
     if (!id) return true;
-    return norm(id) === norm(d);
+    if (norm(id) === norm(d)) return true;
+    var a = moduleOfDept(d);
+    var b = moduleOfDept(id);
+    return a !== "all" && a === b;
   }
 
   function isMine(item, u) {
@@ -188,8 +204,8 @@
 
   function rightsFor(level, position, department) {
     var all = { p_dansu: true, p_khieuto: true, p_thihanh: true };
-    if (level !== "tinh") return all;
-    if (isUnitWide({ position: position, level: level })) return all;
+    var fake = { position: position, level: level, department: department, username: "x" };
+    if (isVtOrPvt(fake)) return all;
     var mapped = moduleOfDept(department);
     if (mapped === "all") return all;
     return {
@@ -228,6 +244,8 @@
     isLeader: isLeader,
     isTruongPhong: isTruongPhong,
     isUnitWide: isUnitWide,
+    isVtOrPvt: isVtOrPvt,
+    isFullModuleAccess: isFullModuleAccess,
     canManageAccounts: canManageAccounts,
     canAccessModule: canAccessModule,
     canSeeRecord: canSeeRecord,
@@ -236,6 +254,7 @@
     rightsFor: rightsFor,
     stampMeta: stampMeta,
     visibleList: visibleList,
-    deptOf: deptOf
+    deptOf: deptOf,
+    moduleOfDept: moduleOfDept
   };
 })(window);

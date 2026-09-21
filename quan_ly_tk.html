@@ -6,7 +6,7 @@
     <title>Quản lý Tài khoản - VKSNDTC</title>
     <link rel="stylesheet" href="static/theme.css?v=20260921d">
     <!-- tk-edit-20260921 -->
-    <script src="static/rbac.js"></script>
+    <script src="static/rbac.js?v=20260921e"></script>
     <script src="static/pwa.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
@@ -121,12 +121,21 @@
         <!-- Cấp Tối cao -->
         <div id="toicao_group" class="form-group" style="display:none;">
             <label>Chức vụ:</label>
-            <select id="chuc_vu_toicao">
+            <select id="chuc_vu_toicao" onchange="toggleToicaoDept()">
                 <option value="Viện trưởng">Viện trưởng</option>
                 <option value="Phó viện trưởng phụ trách">Phó viện trưởng phụ trách</option>
                 <option value="Cục trưởng cục Thống kê và CNTT">Cục trưởng cục Thống kê và CNTT</option>
                 <option value="Cán bộ phụ trách">Cán bộ phụ trách</option>
             </select>
+            <div id="toicao_dept_wrap" style="display:none;margin-top:12px;">
+                <label>Vụ:</label>
+                <select id="vu_toicao">
+                    <option value="Vụ 9">Vụ 9</option>
+                    <option value="Vụ 10">Vụ 10</option>
+                    <option value="Vụ 11">Vụ 11</option>
+                    <option value="Vụ 12 (khiếu tố)">Vụ 12 (khiếu tố)</option>
+                </select>
+            </div>
         </div>
 
         <button class="btn-save" id="btn-save" onclick="saveUser()">TẠO TÀI KHOẢN MỚI</button>
@@ -242,6 +251,27 @@
         // ================== TOGGLE CẤP TÀI KHOẢN ==================
         const provinces = ["Cần Thơ"];
 
+        function toggleToicaoDept() {
+            const pos = document.getElementById('chuc_vu_toicao').value;
+            const wrap = document.getElementById('toicao_dept_wrap');
+            if (wrap) wrap.style.display = pos === 'Cán bộ phụ trách' ? 'block' : 'none';
+        }
+
+        function departmentIdFromLabel(label) {
+            const d = String(label || '').toLowerCase().normalize('NFC');
+            if (!d) return null;
+            if (/vụ\s*10|vu[\s_]*10/.test(d)) return 'vu_10';
+            if (/vụ\s*11|vu[\s_]*11/.test(d)) return 'vu_11';
+            if (/vụ\s*12|vu[\s_]*12/.test(d)) return 'vu_12';
+            if (/vụ\s*9|vu[\s_]*9/.test(d)) return 'vu_9';
+            if (/phòng\s*10|phong[\s_]*10/.test(d)) return 'phong_10';
+            if (/phòng\s*11|phong[\s_]*11/.test(d)) return 'phong_11';
+            if (/phòng\s*9|phong[\s_]*9/.test(d)) return 'phong_9';
+            if (/thanh tra|khiếu tố|khieu to/.test(d)) return 'thanh_tra';
+            if (/văn phòng|van phong/.test(d)) return 'van_phong';
+            return null;
+        }
+
         function toggleTinhDept() {
             const pos = document.getElementById('chuc_vu_tinh').value;
             const wrap = document.getElementById('tinh_dept_wrap');
@@ -308,6 +338,7 @@
                 document.getElementById('toicao_group').style.display = 'block';
             }
             toggleTinhDept();
+            toggleToicaoDept();
         }
 
         // ================== TẠO / CẬP NHẬT TÀI KHOẢN ==================
@@ -344,6 +375,9 @@
             } else if (level === 'toi_cao') {
                 unit = 'VKSND Tối cao';
                 position = document.getElementById('chuc_vu_toicao').value;
+                if (position === 'Cán bộ phụ trách') {
+                    department = document.getElementById('vu_toicao').value;
+                }
             }
 
             if (level === 'tinh' && !unit) {
@@ -397,6 +431,7 @@
                     level: level,
                     unit: unit,
                     department: department || null,
+                    departmentId: departmentIdFromLabel(department),
                     position: position,
                     rank: rankFromPosition(position),
                     provinceId: level === 'toi_cao' ? null : 'can-tho',
@@ -486,6 +521,8 @@
                     document.getElementById('chuc_vu_khuvuc').value = u.position || 'Kiểm sát viên';
                 } else if (u.level === 'toi_cao') {
                     document.getElementById('chuc_vu_toicao').value = u.position || 'Cán bộ phụ trách';
+                    toggleToicaoDept();
+                    if (u.department) document.getElementById('vu_toicao').value = u.department;
                 }
                 document.getElementById('btn-save').innerText = 'CẬP NHẬT TÀI KHOẢN';
                 document.getElementById('btn-cancel-edit').style.display = 'block';

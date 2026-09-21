@@ -15,6 +15,7 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="static/fb-key.js?v=20260917a"></script>
+    <script src="static/rbac.js?v=20260921e"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -168,6 +169,14 @@
 
     function rights() { return { p_dansu: true, p_khieuto: true, p_thihanh: true }; }
 
+    function rightsFrom(extra) {
+        extra = extra || {};
+        if (window.VksRbac) {
+            return VksRbac.rightsFor(extra.level, extra.position, extra.department || extra.departmentId || extra.phong);
+        }
+        return rights();
+    }
+
     function seedLocal() {
         var dbLocal = {};
         try { dbLocal = JSON.parse(localStorage.getItem('vks_users_db') || '{}') || {}; } catch (e) { dbLocal = {}; }
@@ -221,14 +230,16 @@
 
     function profileOf(username, extra) {
         extra = extra || {};
+        var computed = rightsFrom(extra);
         return Object.assign({
             username: username,
             fullname: extra.fullname || username,
             level: extra.level || '',
             unit: extra.unit || '',
             department: extra.department || extra.phong || '',
+            departmentId: extra.departmentId || '',
             position: extra.position || ''
-        }, rights(), extra);
+        }, extra, computed, { username: username });
     }
 
     function enter(username, extra) {

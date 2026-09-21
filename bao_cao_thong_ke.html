@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Báo cáo Thống kê Tổng hợp</title>
     <link rel="stylesheet" href="static/theme.css?v=20260916c">
-    <script src="static/rbac.js"></script>
+    <script src="static/rbac.js?v=20260921e"></script>
     <script src="static/pwa.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
@@ -286,7 +286,23 @@
             window.location.href = "login.html";
             return false;
         }
+        restrictReportOptions();
         return true;
+    }
+
+    function restrictReportOptions() {
+        var sel = document.getElementById('reportType');
+        if (!sel || !window.VksRbac) return;
+        var u = currentUser;
+        if (VksRbac.isFullModuleAccess(u)) return;
+        var keep = [];
+        if (VksRbac.canAccessModule(u, 'dansu')) keep.push('an_dan_su');
+        if (VksRbac.canAccessModule(u, 'thads')) keep.push('thi_hanh_an');
+        if (VksRbac.canAccessModule(u, 'khieuto')) keep.push('don_khieu_to');
+        Array.from(sel.options).forEach(function (opt) {
+            if (opt.value === 'all' || keep.indexOf(opt.value) < 0) opt.remove();
+        });
+        if (keep.length && keep.indexOf(sel.value) < 0) sel.value = keep[0];
     }
 
     function toggleCustomDate() {
