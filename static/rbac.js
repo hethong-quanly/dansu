@@ -55,6 +55,7 @@
     return p.indexOf("viện trưởng") >= 0 || p.indexOf("vien truong") >= 0 ||
       p.indexOf("cục trưởng") >= 0 || p.indexOf("cuc truong") >= 0 ||
       p.indexOf("chánh văn phòng") >= 0 || p.indexOf("chanh van phong") >= 0 ||
+      p.indexOf("chánh thanh") >= 0 || p.indexOf("chanh thanh") >= 0 ||
       p.indexOf("trưởng phòng") >= 0 || p.indexOf("truong phong") >= 0;
   }
 
@@ -76,7 +77,7 @@
   function moduleOfDept(dept) {
     var d = norm(dept);
     if (d.indexOf("phòng 9") >= 0 || d.indexOf("phong 9") >= 0) return "dansu";
-    if (d.indexOf("phòng 10") >= 0 || d.indexOf("phong 10") >= 0) return "khieuto";
+    if (d.indexOf("phòng 10") >= 0 || d.indexOf("phong 10") >= 0 || d.indexOf("thanh tra") >= 0 || d.indexOf("khiếu tố") >= 0 || d.indexOf("khieu to") >= 0) return "khieuto";
     if (d.indexOf("phòng 11") >= 0 || d.indexOf("phong 11") >= 0) return "thads";
     return "all";
   }
@@ -89,9 +90,32 @@
     return mapped === "all" || mapped === mod;
   }
 
+  function provinceKey(u) {
+    if (u && u.provinceId) return String(u.provinceId).toLowerCase();
+    var unit = String((u && (u.unit || u.unit_label)) || "");
+    if (/cần thơ|can tho/i.test(unit)) return "can-tho";
+    if (/khu\s*vực/i.test(unit)) return "can-tho";
+    return "";
+  }
+
+  function sameProvince(item, u) {
+    if (isAdmin(u) || isNational(u)) return true;
+    var a = provinceKey(u);
+    var b = provinceKey(item);
+    if (a && b) return a === b;
+    if (u && u.level === "tinh") {
+      var iu = String((item && item.unit) || "");
+      var uu = String(u.unit || "");
+      if (/khu\s*vực/i.test(iu)) return !uu || /cần thơ/i.test(uu);
+      if (iu && uu && iu !== uu) return false;
+    }
+    return true;
+  }
+
   function sameUnit(item, u) {
     if (!item) return true;
     if (isNational(u)) return true;
+    if (!sameProvince(item, u)) return false;
     if (u.level === "tinh") {
       if (item.unit && u.unit && item.unit !== u.unit && String(item.unit).indexOf("Khu vực") !== 0) return false;
       return true;
@@ -135,6 +159,8 @@
     if (isAdmin(actor) || actor.level === "toi_cao") return true;
     if (actor.level === "tinh") {
       if (target.level === "toi_cao") return false;
+      if (target.provinceId && actor.provinceId && target.provinceId !== actor.provinceId) return false;
+      if (target.unit && actor.unit && target.level === "tinh" && actor.unit !== target.unit) return false;
       if (isTruongPhong(actor)) {
         var staff = target.position === "Kiểm sát viên" || target.position === "Kiểm tra viên" || target.position === "Chuyên viên";
         return target.level === "tinh" && staff && norm(target.department || "") === norm(deptOf(actor));
@@ -148,6 +174,7 @@
   function canSeeAccount(actor, username, rec) {
     rec = rec || {};
     if (isAdmin(actor) || actor.level === "toi_cao") return true;
+    if (!sameProvince(rec, actor)) return false;
     if (actor.level === "tinh") {
       if (rec.level === "toi_cao") return false;
       if (isTruongPhong(actor)) {

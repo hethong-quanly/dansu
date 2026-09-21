@@ -4,7 +4,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <title>Quản lý Tài khoản - VKSNDTC</title>
-    <link rel="stylesheet" href="static/theme.css?v=20260916c">
+    <link rel="stylesheet" href="static/theme.css?v=20260921d">
+    <!-- tk-edit-20260921 -->
     <script src="static/rbac.js"></script>
     <script src="static/pwa.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -26,6 +27,7 @@
         
         .btn-save { background: #1248ad; color: white; padding: 14px; border: none; border-radius: 8px; cursor: pointer; width: 100%; font-weight: bold; margin-top: 15px; }
         .btn-reset { background: #ff9800; color: white; padding: 8px 14px; border: none; border-radius: 5px; cursor: pointer; }
+        .btn-edit { background: #0c3b8c; color: white; padding: 8px 14px; border: none; border-radius: 5px; cursor: pointer; }
         .btn-delete { background: #d32f2f; color: white; padding: 8px 14px; border: none; border-radius: 5px; cursor: pointer; }
         
         .message { padding: 14px; margin: 15px 0; border-radius: 8px; text-align: center; font-weight: bold; }
@@ -45,7 +47,7 @@
             <h3 style="margin:0 0 8px;color:#8a5a16;">Yêu cầu cấp lại mật khẩu</h3>
             <div id="reset-list"></div>
         </div>
-        <h3>Tạo tài khoản mới</h3>
+        <h3 id="form-title">Tạo / sửa tài khoản</h3>
         <p style="color:#555;font-size:13px;margin-top:-8px;line-height:1.55;">
             <b>VKSNDTC:</b> Viện trưởng, Phó viện trưởng phụ trách, Cục trưởng, tối đa 02 cán bộ phụ trách.<br>
             <b>Cấp tỉnh:</b> Viện trưởng; Phó viện trưởng (có thể nhiều hơn 02); Phòng 9, 10, 11 và Văn phòng — mỗi đơn vị 01 Trưởng phòng/Chánh văn phòng, kiểm tra viên, chuyên viên, kiểm sát viên.<br>
@@ -82,10 +84,12 @@
                 <option value="Kiểm sát viên" selected>Kiểm sát viên</option>
                 <option value="Kiểm tra viên">Kiểm tra viên</option>
                 <option value="Chuyên viên">Chuyên viên</option>
+                <option value="Cán bộ phụ trách">Cán bộ phụ trách</option>
                 <option value="Viện trưởng">Viện trưởng</option>
                 <option value="Phó viện trưởng phụ trách">Phó viện trưởng phụ trách</option>
                 <option value="Trưởng phòng">Trưởng phòng</option>
                 <option value="Chánh văn phòng">Chánh văn phòng</option>
+                <option value="Chánh Thanh tra">Chánh Thanh tra</option>
             </select>
             <div id="tinh_dept_wrap" style="display:none;margin-top:12px;">
                 <label>Phòng / Văn phòng:</label>
@@ -94,6 +98,7 @@
                     <option value="Phòng 10">Phòng 10</option>
                     <option value="Phòng 11">Phòng 11</option>
                     <option value="Văn phòng">Văn phòng</option>
+                    <option value="Thanh tra — Khiếu tố">Thanh tra — Khiếu tố</option>
                 </select>
             </div>
         </div>
@@ -106,6 +111,7 @@
             <select id="chuc_vu_khuvuc">
                 <option value="Viện trưởng">Viện trưởng</option>
                 <option value="Phó viện trưởng phụ trách">Phó viện trưởng phụ trách</option>
+                <option value="Cán bộ phụ trách">Cán bộ phụ trách</option>
                 <option value="Kiểm sát viên">Kiểm sát viên</option>
                 <option value="Kiểm tra viên">Kiểm tra viên</option>
                 <option value="Chuyên viên">Chuyên viên</option>
@@ -123,7 +129,8 @@
             </select>
         </div>
 
-        <button class="btn-save" onclick="createUser()">TẠO TÀI KHOẢN MỚI</button>
+        <button class="btn-save" id="btn-save" onclick="saveUser()">TẠO TÀI KHOẢN MỚI</button>
+        <button type="button" id="btn-cancel-edit" onclick="cancelEdit()" style="display:none;margin-top:8px;width:100%;padding:12px;border:1px solid #ccc;border-radius:8px;background:#fff;cursor:pointer;font-weight:600;">Hủy sửa</button>
     </div>
 
     <div class="container">
@@ -158,6 +165,25 @@
         var db = firebase.database();
 
         let currentUser = null;
+        let editingUsername = null;
+
+        function rankFromPosition(position) {
+            var s = String(position || '').toLowerCase();
+            if (s.indexOf('chánh thanh') >= 0) return 'chanh_thanh_tra';
+            if (s.indexOf('chánh văn') >= 0) return 'chanh_van_phong';
+            if (s.indexOf('trưởng phòng') >= 0) return 'truong_phong';
+            if (s.indexOf('cục trưởng') >= 0) return 'cuc_truong';
+            if (s.indexOf('phó viện') >= 0) return 'pho_vien_truong';
+            if (s.indexOf('viện trưởng') >= 0) return 'vien_truong';
+            if (s.indexOf('cán bộ phụ trách') >= 0) return 'can_bo_phu_trach';
+            if (s.indexOf('kiểm tra') >= 0) return 'kiem_tra_vien';
+            if (s.indexOf('chuyên viên') >= 0) return 'chuyen_vien';
+            return 'kiem_sat_vien';
+        }
+        function regionIdFromUnit(unit) {
+            var m = String(unit || '').match(/khu\s*vực\s*0*(\d+)/i);
+            return m ? ('ct-kv' + Number(m[1])) : '';
+        }
 
         // ================== KIỂM TRA QUYỀN ADMIN ==================
         function parseCurrentUser() {
@@ -214,21 +240,26 @@
         }
 
         // ================== TOGGLE CẤP TÀI KHOẢN ==================
-        const provinces = ["Cần Thơ","Hà Nội","TP. Hồ Chí Minh","Đà Nẵng","Hải Phòng","An Giang","Bạc Liêu","Bến Tre","Cà Mau","Đồng Tháp","Hậu Giang","Kiên Giang","Long An","Sóc Trăng","Tiền Giang","Trà Vinh","Vĩnh Long","Khác"];
+        const provinces = ["Cần Thơ"];
 
         function toggleTinhDept() {
             const pos = document.getElementById('chuc_vu_tinh').value;
             const wrap = document.getElementById('tinh_dept_wrap');
             const sel = document.getElementById('phong_tinh');
-            const need = pos === 'Trưởng phòng' || pos === 'Kiểm tra viên' || pos === 'Chuyên viên' || pos === 'Kiểm sát viên' || pos === 'Chánh văn phòng';
+            const need = pos === 'Trưởng phòng' || pos === 'Kiểm tra viên' || pos === 'Chuyên viên' || pos === 'Kiểm sát viên' || pos === 'Chánh văn phòng' || pos === 'Cán bộ phụ trách' || pos === 'Chánh Thanh tra';
             wrap.style.display = need ? 'block' : 'none';
+            const rooms = '<option value="Phòng 9">Phòng 9</option><option value="Phòng 10">Phòng 10</option><option value="Phòng 11">Phòng 11</option>';
+            const all = rooms + '<option value="Văn phòng">Văn phòng</option><option value="Thanh tra — Khiếu tố">Thanh tra — Khiếu tố</option>';
             if (pos === 'Chánh văn phòng') {
                 sel.innerHTML = '<option value="Văn phòng">Văn phòng</option>';
                 sel.value = 'Văn phòng';
+            } else if (pos === 'Chánh Thanh tra') {
+                sel.innerHTML = '<option value="Thanh tra — Khiếu tố">Thanh tra — Khiếu tố</option>';
+                sel.value = 'Thanh tra — Khiếu tố';
             } else if (pos === 'Trưởng phòng') {
-                sel.innerHTML = '<option value="Phòng 9">Phòng 9</option><option value="Phòng 10">Phòng 10</option><option value="Phòng 11">Phòng 11</option>';
+                sel.innerHTML = rooms;
             } else if (need) {
-                sel.innerHTML = '<option value="Phòng 9">Phòng 9</option><option value="Phòng 10">Phòng 10</option><option value="Phòng 11">Phòng 11</option><option value="Văn phòng">Văn phòng</option>';
+                sel.innerHTML = all;
             }
         }
 
@@ -237,6 +268,7 @@
             if (position === 'Cục trưởng cục Thống kê và CNTT') return 1;
             if (position === 'Chánh văn phòng') return 1;
             if (position === 'Trưởng phòng') return 1;
+            if (position === 'Chánh Thanh tra') return 1;
             if (position === 'Cán bộ phụ trách') return 2;
             if (position === 'Phó viện trưởng phụ trách') return level === 'tinh' ? Infinity : 1;
             return Infinity;
@@ -278,8 +310,8 @@
             toggleTinhDept();
         }
 
-        // ================== TẠO TÀI KHOẢN MỚI ==================
-        function createUser() {
+        // ================== TẠO / CẬP NHẬT TÀI KHOẢN ==================
+        function saveUser() {
             const username = document.getElementById('username').value.trim();
             const fullname = document.getElementById('fullname').value.trim();
             const level = document.getElementById('level').value;
@@ -329,44 +361,59 @@
             }
 
             const path = 'users/' + fbUserKey(username);
-            db.ref(path).once('value').then(snapshot => {
-                if (snapshot.exists()) {
+            const isEdit = !!editingUsername && editingUsername === username;
+            db.ref('users').once('value').then(allSnap => {
+                const users = allSnap.val() || {};
+                const existing = users[fbUserKey(username)] || users[username];
+                if (!isEdit && existing) {
                     document.getElementById('message').innerHTML = `<div class="error">Tài khoản này đã tồn tại!</div>`;
                     return;
                 }
-                return db.ref('users').once('value').then(allSnap => {
-                    const users = allSnap.val() || {};
-                    const limit = slotLimit(level, position);
-                    let count = 0;
-                    Object.keys(users).forEach(key => {
-                        if (key === 'admin') return;
-                        const u = users[key] || {};
-                        if (u.level !== level || (u.position || '') !== position) return;
-                        if (level === 'tinh' && (u.unit || '') !== unit) return;
-                        if (level === 'khuvuc' && (u.unit || '') !== unit) return;
-                        if (position === 'Trưởng phòng' && (u.department || '') !== department) return;
-                        count += 1;
-                    });
-                    if (Number.isFinite(limit) && count >= limit) {
-                        document.getElementById('message').innerHTML = `<div class="error">Đơn vị này đã đủ ${limit} tài khoản «${position}»${position === 'Trưởng phòng' ? ' cho ' + department : ''}.</div>`;
-                        return;
-                    }
-                    const rights = (window.VksRbac && VksRbac.rightsFor(level, position, department)) || { p_dansu: true, p_khieuto: true, p_thihanh: true };
-                    return db.ref(path).set(Object.assign({
-                        username: username,
-                        fullname: fullname,
-                        password: "123456",
-                        level: level,
-                        unit: unit,
-                        department: department || null,
-                        position: position,
-                        createdAt: Date.now()
-                    }, rights)).then(() => {
-                        document.getElementById('message').innerHTML = `<div class="success">Đã tạo tài khoản và lưu Firebase.<br>Tên đăng nhập: <strong>${username}</strong> — mật khẩu mặc định: <strong>123456</strong></div>`;
-                        loadUsers();
-                        document.getElementById('username').value = '';
-                        document.getElementById('fullname').value = '';
-                    });
+                if (isEdit && !existing) {
+                    document.getElementById('message').innerHTML = `<div class="error">Không tìm thấy tài khoản để sửa.</div>`;
+                    return;
+                }
+                const limit = slotLimit(level, position);
+                let count = 0;
+                Object.keys(users).forEach(key => {
+                    if (key === 'admin') return;
+                    const u = users[key] || {};
+                    const uname = (u.username || key.replace(/,/g, '.'));
+                    if (isEdit && uname === username) return;
+                    if (u.level !== level || (u.position || '') !== position) return;
+                    if (level === 'tinh' && (u.unit || '') !== unit) return;
+                    if (level === 'khuvuc' && (u.unit || '') !== unit) return;
+                    if ((position === 'Trưởng phòng' || position === 'Chánh Thanh tra') && (u.department || '') !== department) return;
+                    count += 1;
+                });
+                if (Number.isFinite(limit) && count >= limit) {
+                    document.getElementById('message').innerHTML = `<div class="error">Đơn vị này đã đủ ${limit} tài khoản «${position}»${position === 'Trưởng phòng' ? ' cho ' + department : ''}.</div>`;
+                    return;
+                }
+                const rights = (window.VksRbac && VksRbac.rightsFor(level, position, department)) || { p_dansu: true, p_khieuto: true, p_thihanh: true };
+                const payload = Object.assign({
+                    username: username,
+                    fullname: fullname,
+                    level: level,
+                    unit: unit,
+                    department: department || null,
+                    position: position,
+                    rank: rankFromPosition(position),
+                    provinceId: level === 'toi_cao' ? null : 'can-tho',
+                    regionId: level === 'khuvuc' ? regionIdFromUnit(unit) : null,
+                    updatedAt: Date.now()
+                }, rights);
+                if (!isEdit) {
+                    payload.password = '123456';
+                    payload.createdAt = Date.now();
+                }
+                const op = isEdit ? db.ref(path).update(payload) : db.ref(path).set(payload);
+                return op.then(() => {
+                    document.getElementById('message').innerHTML = isEdit
+                        ? `<div class="success">Đã cập nhật <strong>${username}</strong> (họ tên, chức vụ, đơn vị) và lưu Firebase.</div>`
+                        : `<div class="success">Đã tạo tài khoản và lưu Firebase.<br>Tên đăng nhập: <strong>${username}</strong> — mật khẩu mặc định: <strong>123456</strong></div>`;
+                    cancelEdit();
+                    loadUsers();
                 });
             }).catch(function (err) {
                 document.getElementById('message').innerHTML = `<div class="error">Không ghi được máy chủ Firebase. ${err && err.message ? err.message : ''}</div>`;
@@ -394,6 +441,7 @@
                         <td>${u.department || ''}</td>
                         <td>${u.position || ''}</td>
                         <td>
+                            ${uname !== 'admin' && key !== 'admin' ? `<button class="btn-edit" onclick="startEdit('${uname}')">Sửa</button>` : ''}
                             <button class="btn-reset" onclick="resetPassword('${uname}')">Reset MK</button>
                             ${uname !== 'admin' && key !== 'admin' ? `<button class="btn-delete" onclick="deleteUser('${uname}')">Xóa</button>` : ''}
                         </td>
@@ -403,6 +451,59 @@
                 document.getElementById('table-body').innerHTML = html || 
                     '<tr><td colspan="7" style="text-align:center;color:#999">Không có tài khoản trong phạm vi đơn vị — hoặc chưa kết nối máy chủ.</td></tr>';
             });
+        }
+
+        function startEdit(username) {
+            if (username === 'admin') return;
+            fbUserRef(db, username).once('value').then(function (snap) {
+                var u = snap.val();
+                if (!u) { alert('Không tìm thấy tài khoản trên máy chủ.'); return; }
+                editingUsername = username;
+                document.getElementById('username').value = username;
+                document.getElementById('username').disabled = true;
+                document.getElementById('fullname').value = u.fullname || '';
+                document.getElementById('level').value = u.level || 'tinh';
+                document.getElementById('level').disabled = false;
+                toggleLevel();
+                applyActorLocks();
+                if (u.level === 'tinh') {
+                    var tinh = document.getElementById('tinh_thanh');
+                    if (u.unit && tinh.value !== u.unit) {
+                        var found = false;
+                        for (var i = 0; i < tinh.options.length; i++) if (tinh.options[i].value === u.unit) found = true;
+                        if (!found) {
+                            var opt = document.createElement('option');
+                            opt.value = u.unit; opt.textContent = u.unit;
+                            tinh.appendChild(opt);
+                        }
+                    }
+                    tinh.value = u.unit || 'Cần Thơ';
+                    document.getElementById('chuc_vu_tinh').value = u.position || 'Kiểm sát viên';
+                    toggleTinhDept();
+                    if (u.department) document.getElementById('phong_tinh').value = u.department;
+                } else if (u.level === 'khuvuc') {
+                    document.getElementById('khu_vuc').value = u.unit || '';
+                    document.getElementById('chuc_vu_khuvuc').value = u.position || 'Kiểm sát viên';
+                } else if (u.level === 'toi_cao') {
+                    document.getElementById('chuc_vu_toicao').value = u.position || 'Cán bộ phụ trách';
+                }
+                document.getElementById('btn-save').innerText = 'CẬP NHẬT TÀI KHOẢN';
+                document.getElementById('btn-cancel-edit').style.display = 'block';
+                document.getElementById('form-title').innerText = 'Sửa tài khoản ' + username;
+                document.getElementById('message').innerHTML = '';
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }).catch(function (err) { alert('Không đọc được máy chủ: ' + (err && err.message || '')); });
+        }
+
+        function cancelEdit() {
+            editingUsername = null;
+            var userEl = document.getElementById('username');
+            userEl.disabled = false;
+            userEl.value = '';
+            document.getElementById('fullname').value = '';
+            document.getElementById('btn-save').innerText = 'TẠO TÀI KHOẢN MỚI';
+            document.getElementById('btn-cancel-edit').style.display = 'none';
+            document.getElementById('form-title').innerText = 'Tạo / sửa tài khoản';
         }
 
         function resetPassword(username) {
