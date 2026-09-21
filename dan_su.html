@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản lý Án Dân sự - VKS Cần Thơ</title>
-    <link rel="stylesheet" href="static/theme.css?v=20260916c">
+    <!-- ds-chuyen-an-20260921 -->
+    <link rel="stylesheet" href="static/theme.css?v=20260921c">
     <script src="static/rbac.js"></script>
     <script src="static/pwa.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -368,19 +369,42 @@
             list: { title: 'Danh sách vụ việc' },
             thamphan: { title: 'Phân công danh sách Thẩm phán', help: 'Chọn vụ việc và ghi tên Thẩm phán được phân công xét xử. Lãnh đạo / cán bộ theo dõi được phân công; Kiểm sát viên chỉ xem vụ việc của mình.' },
             ksv: { title: 'Danh sách phân công Kiểm sát viên', help: 'Phân công Kiểm sát viên thụ lý. Mỗi KSV chỉ xem, theo dõi, quản lý và trích xuất vụ việc được phân công cho mình — không xem dữ liệu của tài khoản khác.' },
-            chuyen: { title: 'Chuyển án', help: 'Chuyển hồ sơ sang Viện kiểm sát khác (cấp tỉnh hoặc khu vực). Vụ đã chuyển sẽ xuất hiện ở mục Nhận án để đơn vị nhận xác nhận thụ lý.' },
+            chuyen: { title: 'Chuyển án', help: 'Chuyển hồ sơ sang VKSND tối cao, VKSND TP. Cần Thơ và Khu vực 01–14. Vụ đã chuyển sẽ xuất hiện ở mục Nhận án để đơn vị nhận xác nhận thụ lý.' },
             nhan: { title: 'Nhận án', help: 'Tiếp nhận các vụ việc đã được chuyển đến. Bấm “Nhận án” để xác nhận thụ lý tại đơn vị.' },
             kc: { title: 'Cập nhật kháng cáo quá hạn', help: 'Ghi nhận kháng cáo / kháng nghị quá hạn theo thời hạn Bộ luật Tố tụng dân sự, phục vụ thống kê và theo dõi.' },
             sauxx: { title: 'Cập nhật thông tin sau xét xử', help: 'Cập nhật kết quả xét xử (giữ nguyên, sửa án, hủy án, đình chỉ, công nhận thỏa thuận…) sau khi có bản án / quyết định.' },
             tongdat: { title: 'Đăng văn bản tổng đạt lên cổng thông tin điện tử', help: 'Ghi số, ngày và đường dẫn văn bản đã đăng trên cổng thông tin điện tử của ngành (hoặc liên thông TADT).' }
         };
-        const VKS_UNITS = [
-            'VKSND tối cao', 'VKSND TP. Cần Thơ',
-            'VKSND khu vực 1 – Ninh Kiều', 'VKSND khu vực 2 – Bình Thủy', 'VKSND khu vực 3 – Ô Môn',
-            'VKSND khu vực 4 – Cái Răng', 'VKSND khu vực 5 – Thốt Nốt', 'VKSND khu vực 6 – Phong Điền',
-            'VKSND khu vực 7 – Vị Thanh', 'VKSND khu vực 8 – Ngã Bảy', 'VKSND khu vực 9 – Sóc Trăng',
-            'VKSND khu vực 10 – Vĩnh Châu', 'VKSND tỉnh/thành khác'
-        ];
+        function padKv(n) { return (n < 10 ? '0' : '') + n; }
+        function kvDestLabels(count) {
+            var list = [];
+            for (var i = 1; i <= count; i++) list.push('Khu vực ' + padKv(i));
+            return list;
+        }
+        /* Thí điểm Cần Thơ: 14 KV, không địa danh. Tỉnh khác = REGION_COUNT của tỉnh đó — đang ẩn. */
+        var CAN_THO_KV_COUNT = 14;
+        const VKS_UNITS = ['VKSND tối cao', 'VKSND TP. Cần Thơ'].concat(kvDestLabels(CAN_THO_KV_COUNT));
+        function destUnitIdFromLabel(label) {
+            var s = String(label || '');
+            if (s.indexOf('tối cao') >= 0 || s.indexOf('toi cao') >= 0) return 'toi_cao';
+            if (/cần thơ|can tho/i.test(s) && !/khu\s*vực/i.test(s)) return 'tinh:can-tho';
+            var m = s.match(/khu\s*vực\s*0*(\d+)/i);
+            if (m) return 'kv:ct-kv' + Number(m[1]);
+            return '';
+        }
+        function normalizeChuyenDen(s) {
+            if (!s) return s;
+            if (VKS_UNITS.indexOf(s) >= 0) return s;
+            var mapped = destUnitIdFromLabel(s);
+            if (mapped === 'toi_cao') return 'VKSND tối cao';
+            if (mapped === 'tinh:can-tho') return 'VKSND TP. Cần Thơ';
+            var m = mapped && mapped.match(/^kv:ct-kv(\d+)$/);
+            if (m) {
+                var label = 'Khu vực ' + padKv(Number(m[1]));
+                if (VKS_UNITS.indexOf(label) >= 0) return label;
+            }
+            return s;
+        }
         const SAU_XX = [
             'Giữ nguyên bản án/QĐ sơ thẩm', 'Sửa án', 'Hủy án, chuyển xét xử lại',
             'Hủy án, đình chỉ', 'Đình chỉ xét xử phúc thẩm', 'Công nhận sự thỏa thuận',
@@ -1003,7 +1027,7 @@
                     <div class="form-grid">
                         <div class="form-group full"><label>Vụ việc</label><select id="w_case" onchange="selectWork(parseInt(this.value,10))">${caseOptions(selectedWorkId)}</select></div>
                         <div class="form-group"><label>Chuyển đến</label>
-                            <select id="w_chuyen_den" ${disabled}>${VKS_UNITS.map(u => `<option ${rec && rec.chuyen_den===u?'selected':''}>${esc(u)}</option>`).join('')}</select>
+                            <select id="w_chuyen_den" ${disabled}>${VKS_UNITS.map(u => `<option ${rec && normalizeChuyenDen(rec.chuyen_den)===u?'selected':''}>${esc(u)}</option>`).join('')}</select>
                         </div>
                         <div class="form-group"><label>Ngày chuyển</label><input type="date" id="w_chuyen_ngay" value="${esc((rec && rec.chuyen_ngay) || today())}" ${disabled}></div>
                         <div class="form-group full"><label>Lý do / ghi chú</label><textarea id="w_chuyen_ly_do" ${disabled}>${esc(rec ? rec.chuyen_ly_do : '')}</textarea></div>
@@ -1139,9 +1163,15 @@
             const ngay = document.getElementById('w_chuyen_ngay').value;
             const lyDo = document.getElementById('w_chuyen_ly_do').value.trim();
             if (!den) { showToast('Chọn đơn vị nhận.', true); return; }
+            const denId = destUnitIdFromLabel(den);
             await patchRecord(id, {
                 chuyen_den: den, chuyen_ngay: ngay, chuyen_ly_do: lyDo,
                 chuyen_trang_thai: 'da_chuyen',
+                transferTo: den,
+                transferToUnitId: denId,
+                transferDate: ngay,
+                transferReason: lyDo,
+                transferStatus: 'da_chuyen',
                 tinh_trang_gq: ((allRecords.find(r => r.id === id) || {}).tinh_trang_gq || '') + ' | Đã chuyển ' + den
             });
             selectedWorkId = id;
