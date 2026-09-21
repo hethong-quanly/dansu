@@ -11,8 +11,8 @@
     <script src="static/bmds-export.js?v=20260916d"></script>
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="static/theme.css?v=20260916c">
-    <script src="static/rbac.js?v=20260921e"></script>
-    <script src="static/pwa.js"></script>
+    <script src="static/rbac.js?v=20260921f"></script>
+    <script src="static/pwa.js?v=20260921f"></script>
     <style>
         * { box-sizing: border-box; }
         body { font-family: 'Be Vietnam Pro', sans-serif; margin: 0; }
@@ -58,54 +58,57 @@
             <h3>Nhập việc thi hành án</h3>
 
             <div class="section">
-                <h4>Bản án, quyết định nguồn · TADT</h4>
-                <p class="hint">Khóa đối chiếu Tòa án điện tử: số thụ lý, số bản án/QĐ, mã định danh vụ việc. Cổng tadt.toaan.gov.vn không công bố API công khai — liên thông bằng tệp JSON/Excel.</p>
+                <h4>Bản án, quyết định nguồn</h4>
+                <p class="hint">Số bản án / quyết định của Tòa án làm căn cứ ra QĐTHA.</p>
                 <div class="row2">
-                    <div class="form-group"><label>Số thụ lý Tòa án</label><input id="so_thu_ly_ta"></div>
+                    <div class="form-group" style="display:none"><label>Số thụ lý Tòa án</label><input id="so_thu_ly_ta"></div>
                     <div class="form-group"><label>Số bản án / QĐ</label><input id="so_ban_an"></div>
                     <div class="form-group"><label>Ngày tuyên / ban hành</label><input type="date" id="ngay_ban_an"></div>
                     <div class="form-group"><label>Tòa án ra bản án</label><input id="toa_an_nguon"></div>
-                    <div class="form-group"><label>Mã định danh TADT</label><input id="ma_tadt" placeholder="Mã vụ trên TADT"></div>
-                    <div class="form-group"><label>Liên kết TADT / công bố</label><input id="link_tadt" placeholder="https://"></div>
-                </div>
-                <div class="toolbar">
-                    <button type="button" onclick="document.getElementById('tadt_file').click()">Nhập JSON TADT</button>
-                    <input type="file" id="tadt_file" accept="application/json,.json" hidden onchange="importTadt(event)">
-                    <button type="button" class="ghost" onclick="exportTadtCurrent()">Xuất JSON mẫu</button>
-                    <a href="https://tadt.toaan.gov.vn/dashboard" target="_blank" rel="noreferrer">Mở TADT</a>
+                    <div class="form-group" style="display:none"><label>Mã định danh TADT</label><input id="ma_tadt"></div>
+                    <div class="form-group" style="display:none"><label>Liên kết TADT / công bố</label><input id="link_tadt"></div>
                 </div>
             </div>
 
             <div class="section">
                 <h4>Quyết định thi hành án</h4>
-                <p class="hint">Điều 29 Luật 106: QĐ về THA gửi VKS trong 03 ngày làm việc kể từ ngày ra quyết định.</p>
+                <p class="hint">Điều 29 Luật 106: QĐ về THA gửi VKS trong 03 ngày làm việc kể từ ngày ra quyết định. Chỉ Cơ quan THADS tỉnh/thành phố ban hành QĐTHA.</p>
                 <div class="row2">
                     <div class="form-group"><label>Số QĐTHA</label><input id="so_qd_tha"></div>
                     <div class="form-group"><label>Ngày ra QĐ</label><input type="date" id="ngay_ban_hanh_qd"></div>
                     <div class="form-group"><label>Ngày VKS nhận</label><input type="date" id="ngay_nhan_qd"></div>
-                    <div class="form-group"><label>Ngày gửi VKS</label><input type="date" id="ngay_gui_vks"></div>
+                    <div class="form-group" style="display:none"><label>Ngày gửi VKS</label><input type="date" id="ngay_gui_vks"></div>
                     <div class="form-group"><label>Loại quyết định</label>
                         <select id="loai_qd">
                             <option value="theo_don">Theo đơn yêu cầu</option>
                             <option value="chu_dong">Chủ động</option>
-                            <option value="vp_thads">Văn phòng THADS / Thừa hành viên (NĐ 151)</option>
                         </select>
                     </div>
-                    <div class="form-group"><label>Cơ quan THA</label>
-                        <select id="loai_co_quan">
-                            <option value="cqthads">Cơ quan THADS tỉnh, thành phố</option>
-                            <option value="phong_thads_kv">Phòng THADS khu vực</option>
-                            <option value="vp_thads">Văn phòng THADS (Thừa hành viên)</option>
+                    <div class="form-group">
+                        <label>Cơ quan THA</label>
+                        <input id="ten_co_quan_tha" value="Cơ quan THADS TP. Cần Thơ" readonly>
+                        <select id="loai_co_quan" style="display:none">
+                            <option value="cqthads" selected>Cơ quan THADS tỉnh, thành phố</option>
                         </select>
                     </div>
                 </div>
-                <div class="form-group"><label>Tên cơ quan / văn phòng THA</label><input id="ten_co_quan_tha"></div>
                 <div class="form-group">
-                    <label>Chấp hành viên / Thừa hành viên</label>
+                    <label>Chấp hành viên</label>
                     <div id="chap_hanh_vien_list"></div>
                     <button class="btn-add" type="button" onclick="addChapHanhVien()">+ Thêm</button>
                 </div>
                 <div class="checks"><label><input type="checkbox" id="gui_tre_3ngay"> Gửi QĐTHA cho VKS quá 03 ngày làm việc</label></div>
+                <div class="checks"><label><input type="checkbox" id="nhan_uy_thac" onchange="toggleUyThac()"> Nhận ủy thác đến — việc THA do Cơ quan THADS khác ủy thác</label></div>
+                <div id="uy_thac_den_box" style="display:none;margin-top:10px;padding:12px;border:1px solid #f5d76e;border-radius:8px;background:#fffbeb">
+                    <h4 style="margin:0 0 8px">Nhận ủy thác đến</h4>
+                    <div class="row2">
+                        <div class="form-group"><label>Số QĐ ủy thác</label><input id="so_qd_uy_thac_den"></div>
+                        <div class="form-group"><label>Ngày ban hành QĐ ủy thác</label><input type="date" id="ngay_qd_uy_thac_den"></div>
+                    </div>
+                    <div class="form-group"><label>Nơi ủy thác</label><select id="noi_uy_thac_id"></select></div>
+                    <div class="form-group"><label>Nội dung ủy thác</label><textarea id="noi_dung_uy_thac_den" rows="2" placeholder="Phần nghĩa vụ được ủy thác đến…"></textarea></div>
+                    <input type="hidden" id="noi_uy_thac">
+                </div>
             </div>
 
             <div class="form-group"><label>Quyết định phân công KSV số</label><input id="qd_phan_cong_ksv_so"></div>
@@ -214,7 +217,34 @@
                 </div>
             </div>
 
-            <div class="form-group"><label>Ngày thi hành xong</label><input type="date" id="ngay_thi_hanh_xong"></div>
+            <div class="section">
+                <h4>Ngày thi hành xong hoặc ngày ủy thác đi</h4>
+                <p class="hint">Chọn một: thi hành xong tại đơn vị, hoặc ủy thác phần còn phải thi hành cho THADS tỉnh/thành khác.</p>
+                <div class="form-group"><label>Kết thúc việc THA</label>
+                    <select id="ket_thuc_tha" onchange="toggleUyThac()">
+                        <option value="">— Chưa kết thúc —</option>
+                        <option value="xong">Thi hành xong</option>
+                        <option value="uy_thac_di">Ủy thác đi</option>
+                    </select>
+                </div>
+                <div class="form-group" id="ngay_ket_thuc_wrap" style="display:none">
+                    <label id="ngay_ket_thuc_label">Ngày thi hành xong</label>
+                    <input type="date" id="ngay_thi_hanh_xong">
+                </div>
+                <div id="uy_thac_di_box" style="display:none;margin-top:10px;overflow:auto;border:1px solid #f5d76e;border-radius:8px">
+                    <table style="width:100%;border-collapse:collapse;background:#fff">
+                        <thead><tr style="background:#071a4a;color:#ffe566"><th colspan="2" style="text-align:left;padding:8px 12px">Ủy thác đi</th></tr></thead>
+                        <tbody>
+                            <tr><td style="width:180px;padding:8px 12px;color:#5c6b80">Số QĐ ủy thác</td><td style="padding:8px 12px"><input id="so_qd_uy_thac_di"></td></tr>
+                            <tr><td style="padding:8px 12px;color:#5c6b80">Ngày ban hành</td><td style="padding:8px 12px"><input type="date" id="ngay_qd_uy_thac_di"></td></tr>
+                            <tr><td style="padding:8px 12px;color:#5c6b80">Nơi nhận ủy thác</td><td style="padding:8px 12px"><select id="noi_nhan_uy_thac_id"></select></td></tr>
+                            <tr><td style="padding:8px 12px;color:#5c6b80">Đã thi hành</td><td style="padding:8px 12px"><textarea id="da_thi_hanh_uy_thac" rows="2" placeholder="Nếu đã thi hành phần nào thì nhập vào…"></textarea></td></tr>
+                            <tr><td style="padding:8px 12px;color:#5c6b80">Nội dung ủy thác</td><td style="padding:8px 12px"><textarea id="noi_dung_uy_thac_di" rows="2" placeholder="Phần ủy thác — mục còn phải thi hành"></textarea></td></tr>
+                        </tbody>
+                    </table>
+                    <input type="hidden" id="noi_nhan_uy_thac">
+                </div>
+            </div>
             <div class="form-group"><label>Đính kèm File PDF</label><input type="file" id="pdf_file" accept=".pdf"></div>
             <button class="btn-save" onclick="saveData()" id="btn-save">LƯU HỒ SƠ THI HÀNH ÁN</button>
         </div>
@@ -224,7 +254,6 @@
                 <h3>Danh sách việc thi hành án</h3>
                 <div class="toolbar">
                     <button onclick="exportExcelList()">Xuất Excel</button>
-                    <button class="ghost" onclick="exportTadtList()">Xuất JSON TADT</button>
                 </div>
             </div>
             <table id="data-table">
@@ -262,8 +291,42 @@
     var lastExportTha = [];
     var lastExportKeys = [];
 
-    var FIELD_IDS = ['so_thu_ly_ta','so_ban_an','ngay_ban_an','toa_an_nguon','ma_tadt','link_tadt','so_qd_tha','ngay_ban_hanh_qd','ngay_nhan_qd','ngay_gui_vks','loai_qd','loai_co_quan','ten_co_quan_tha','qd_phan_cong_ksv_so','ngay_phan_cong_ksv','nguoi_phai_tha','dia_chi_phai_tha','nguoi_duoc_tha','dia_chi_duoc_tha','nguoi_lien_quan','loai_nghia_vu','noi_dung_tha','so_tien_tha','tai_san_tha','ngay_xac_minh','ket_qua_xac_minh','tinh_trang_tha','ngay_thi_hanh_xong','cong_ty_tham_dinh','gia_tri_tai_san','ngay_dau_gia_lan1','ket_qua_dau_gia_lan1','bp_bao_dam','bp_cuong_che'];
-    var CHECK_IDS = ['gui_tre_3ngay','xac_minh_lai','tb_ket_thuc_thang','tb_ket_thuc_vks','ke_bien','xac_dinh_gia','ban_tai_san','kh_cuong_che_vks','truc_tiep_ks','kien_nghi','kien_nghi_chap_nhan','khang_nghi','khang_nghi_chap_nhan','y_kien_mien_giam','khieu_nai_tha'];
+    var FIELD_IDS = ['so_thu_ly_ta','so_ban_an','ngay_ban_an','toa_an_nguon','ma_tadt','link_tadt','so_qd_tha','ngay_ban_hanh_qd','ngay_nhan_qd','ngay_gui_vks','loai_qd','loai_co_quan','ten_co_quan_tha','qd_phan_cong_ksv_so','ngay_phan_cong_ksv','nguoi_phai_tha','dia_chi_phai_tha','nguoi_duoc_tha','dia_chi_duoc_tha','nguoi_lien_quan','loai_nghia_vu','noi_dung_tha','so_tien_tha','tai_san_tha','ngay_xac_minh','ket_qua_xac_minh','tinh_trang_tha','ngay_thi_hanh_xong','cong_ty_tham_dinh','gia_tri_tai_san','ngay_dau_gia_lan1','ket_qua_dau_gia_lan1','bp_bao_dam','bp_cuong_che','so_qd_uy_thac_den','ngay_qd_uy_thac_den','noi_uy_thac','noi_uy_thac_id','noi_dung_uy_thac_den','ket_thuc_tha','so_qd_uy_thac_di','ngay_qd_uy_thac_di','noi_nhan_uy_thac','noi_nhan_uy_thac_id','da_thi_hanh_uy_thac','noi_dung_uy_thac_di'];
+    var CHECK_IDS = ['gui_tre_3ngay','xac_minh_lai','tb_ket_thuc_thang','tb_ket_thuc_vks','ke_bien','xac_dinh_gia','ban_tai_san','kh_cuong_che_vks','truc_tiep_ks','kien_nghi','kien_nghi_chap_nhan','khang_nghi','khang_nghi_chap_nhan','y_kien_mien_giam','khieu_nai_tha','nhan_uy_thac'];
+    var THADS_PLACES = [
+        ['can-tho','Cần Thơ',1],['ha-noi','Hà Nội',1],['hcm','Hồ Chí Minh',1],['hai-phong','Hải Phòng',1],['da-nang','Đà Nẵng',1],['hue','Huế',1],
+        ['an-giang','An Giang',0],['bac-ninh','Bắc Ninh',0],['ca-mau','Cà Mau',0],['cao-bang','Cao Bằng',0],['dak-lak','Đắk Lắk',0],
+        ['dien-bien','Điện Biên',0],['dong-nai','Đồng Nai',0],['dong-thap','Đồng Tháp',0],['gia-lai','Gia Lai',0],['ha-tinh','Hà Tĩnh',0],
+        ['hung-yen','Hưng Yên',0],['khanh-hoa','Khánh Hòa',0],['lai-chau','Lai Châu',0],['lam-dong','Lâm Đồng',0],['lang-son','Lạng Sơn',0],
+        ['lao-cai','Lào Cai',0],['nghe-an','Nghệ An',0],['ninh-binh','Ninh Bình',0],['phu-tho','Phú Thọ',0],['quang-ngai','Quảng Ngãi',0],
+        ['quang-ninh','Quảng Ninh',0],['quang-tri','Quảng Trị',0],['son-la','Sơn La',0],['tay-ninh','Tây Ninh',0],['thai-nguyen','Thái Nguyên',0],
+        ['thanh-hoa','Thanh Hóa',0],['tuyen-quang','Tuyên Quang',0],['vinh-long','Vĩnh Long',0]
+    ];
+    function thadsOptionHtml() {
+        return '<option value="">— Chọn THADS tỉnh/thành —</option>' + THADS_PLACES.map(function (p) {
+            var label = p[2] ? ('Cơ quan THADS TP. ' + p[1]) : ('Cơ quan THADS tỉnh ' + p[1]);
+            return '<option value="agency:' + p[0] + ':thads">' + label + '</option>';
+        }).join('');
+    }
+    function fillThadsSelects() {
+        var html = thadsOptionHtml();
+        var a = document.getElementById('noi_uy_thac_id');
+        var b = document.getElementById('noi_nhan_uy_thac_id');
+        if (a) a.innerHTML = html;
+        if (b) b.innerHTML = html;
+    }
+    function toggleUyThac() {
+        var den = document.getElementById('nhan_uy_thac');
+        var boxDen = document.getElementById('uy_thac_den_box');
+        if (boxDen) boxDen.style.display = den && den.checked ? 'block' : 'none';
+        var k = (document.getElementById('ket_thuc_tha') || {}).value || '';
+        var boxDi = document.getElementById('uy_thac_di_box');
+        var wrap = document.getElementById('ngay_ket_thuc_wrap');
+        var lab = document.getElementById('ngay_ket_thuc_label');
+        if (boxDi) boxDi.style.display = k === 'uy_thac_di' ? 'block' : 'none';
+        if (wrap) wrap.style.display = k ? 'block' : 'none';
+        if (lab) lab.textContent = k === 'uy_thac_di' ? 'Ngày ủy thác đi' : 'Ngày thi hành xong';
+    }
 
     function parseCurrentUser() {
         const raw = localStorage.getItem('vks_user');
@@ -326,8 +389,21 @@
             ksv: collectList('ksv_list')
         };
         if (window.VksRbac) VksRbac.stampMeta(data, currentUser);
-        FIELD_IDS.forEach(function (id) { data[id] = document.getElementById(id).value; });
-        CHECK_IDS.forEach(function (id) { data[id] = document.getElementById(id).checked; });
+        FIELD_IDS.forEach(function (id) { data[id] = document.getElementById(id) ? document.getElementById(id).value : ''; });
+        CHECK_IDS.forEach(function (id) { data[id] = !!(document.getElementById(id) && document.getElementById(id).checked); });
+        data.loai_co_quan = 'cqthads';
+        data.ten_co_quan_tha = data.ten_co_quan_tha || 'Cơ quan THADS TP. Cần Thơ';
+        var denSel = document.getElementById('noi_uy_thac_id');
+        if (denSel && denSel.selectedIndex >= 0) data.noi_uy_thac = denSel.options[denSel.selectedIndex].text || '';
+        var diSel = document.getElementById('noi_nhan_uy_thac_id');
+        if (diSel && diSel.selectedIndex >= 0) data.noi_nhan_uy_thac = diSel.options[diSel.selectedIndex].text || '';
+        if (data.ket_thuc_tha === 'uy_thac_di') {
+            data.ngay_qd_uy_thac_di = data.ngay_qd_uy_thac_di || data.ngay_thi_hanh_xong;
+            data.ngay_thi_hanh_xong = data.ngay_qd_uy_thac_di || data.ngay_thi_hanh_xong;
+        }
+        if (data.ket_thuc_tha === 'xong') data.tinh_trang_tha = 'Da thi hanh xong';
+        data.inboundEntrust = !!data.nhan_uy_thac;
+        data.endKind = data.ket_thuc_tha || '';
         return data;
     }
     function fillForm(item) {
@@ -337,11 +413,16 @@
         CHECK_IDS.forEach(function (id) {
             if (document.getElementById(id)) document.getElementById(id).checked = !!item[id];
         });
+        if (item.inboundEntrust && document.getElementById('nhan_uy_thac')) document.getElementById('nhan_uy_thac').checked = true;
+        if (item.endKind && document.getElementById('ket_thuc_tha') && !item.ket_thuc_tha) document.getElementById('ket_thuc_tha').value = item.endKind;
+        if (item.inboundEntrustNo && !item.so_qd_uy_thac_den) document.getElementById('so_qd_uy_thac_den').value = item.inboundEntrustNo;
+        if (item.outboundEntrustNo && !item.so_qd_uy_thac_di) document.getElementById('so_qd_uy_thac_di').value = item.outboundEntrustNo;
         document.getElementById('chap_hanh_vien_list').innerHTML = '';
         document.getElementById('ksv_list').innerHTML = '';
         (item.chap_hanh_vien || '').split(';').map(function (s) { return s.trim(); }).filter(Boolean).forEach(addChapHanhVien);
         (item.ksv || '').split(';').map(function (s) { return s.trim(); }).filter(Boolean).forEach(addKSV);
         toggleDinhGiaFields();
+        toggleUyThac();
     }
     function saveData() {
         if (!checkLogin()) return;
@@ -465,14 +546,20 @@
         document.getElementById('chap_hanh_vien_list').innerHTML = '';
         document.getElementById('ksv_list').innerHTML = '';
         document.getElementById('tinh_trang_tha').value = 'Co dieu kien';
+        document.getElementById('loai_co_quan').value = 'cqthads';
+        document.getElementById('ten_co_quan_tha').value = 'Cơ quan THADS TP. Cần Thơ';
+        document.getElementById('ket_thuc_tha').value = '';
         document.getElementById('pdf_file').value = '';
         toggleDinhGiaFields();
+        toggleUyThac();
         editingKey = null;
         document.getElementById('btn-save').innerText = 'LƯU HỒ SƠ THI HÀNH ÁN';
     }
     window.onload = function () {
         if (!checkLogin()) return;
+        fillThadsSelects();
         toggleDinhGiaFields();
+        toggleUyThac();
         if (window.VksRbac && VksRbac.isKsv(currentUser)) {
             if (!document.querySelector('#ksv_list input')) addKSV(currentUser.fullname || currentUser.username || '');
         }
