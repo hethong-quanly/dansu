@@ -4,7 +4,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <title>Quản lý Giải quyết Khiếu nại, Tố cáo</title>
-    <link rel="stylesheet" href="static/theme.css?v=20260916c">
+    <!-- v=20260921-kt: đề xuất xử lý theo thẩm quyền kiểm sát / không thuộc -->
+    <link rel="stylesheet" href="static/theme.css?v=20260921a">
     <script src="static/rbac.js"></script>
     <script src="static/pwa.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
@@ -38,6 +39,9 @@
         .btn-edit, .btn-delete { padding: 4px 10px; border-radius: 5px; font-size: 12px; margin-right: 5px; }
         .btn-edit { background: #ff9800; color: white; }
         .btn-delete { background: #d32f2f; color: white; }
+        .section-ks { background: #fff6e0; border: 1px solid #d4a017; }
+        .section-out { background: #eef6ff; border: 1px solid #1248ad; }
+        .hint { font-size: 12px; color: #555; font-weight: 500; margin: 4px 0 0; }
     </style>
 </head>
 <body class="vks-page">
@@ -96,6 +100,7 @@
                     <option value="Thuộc thẩm quyền kiểm sát">Thuộc thẩm quyền kiểm sát</option>
                     <option value="Không thuộc thẩm quyền giải quyết">Không thuộc thẩm quyền giải quyết</option>
                 </select>
+                <p class="hint">Chọn thẩm quyền kiểm sát hoặc không thuộc để hiện đề xuất xử lý và nơi nhận đơn.</p>
             </div>
 
             <!-- Phần chỉ hiển thị khi thuộc thẩm quyền giải quyết -->
@@ -134,6 +139,77 @@
                 <div class="form-group"><label>Quyết định giải quyết / Kết luận tố cáo số:</label><input type="text" id="qd_giai_quyet_so"></div>
                 <div class="form-group"><label>Ngày ban hành Quyết định / Kết luận:</label><input type="date" id="ngay_ban_hanh_qd_giai_quyet"></div>
                 <div class="form-group"><label>Nội dung Quyết định / Kết luận:</label><textarea id="noi_dung_qd_giai_quyet" rows="4"></textarea></div>
+            </div>
+
+            <!-- Thuộc thẩm quyền kiểm sát: đề xuất chuyển đơn → Phòng 1,2,7,8,9,10,11,15 + kết quả -->
+            <div id="kiem_sat_fields" class="section section-ks" style="display:none;">
+                <p style="margin:0 0 10px;font-weight:700;color:#8a6a00;">Đề xuất xử lý — thẩm quyền kiểm sát</p>
+                <div class="form-group">
+                    <label>Đề xuất xử lý:</label>
+                    <select id="de_xuat_ks">
+                        <option value="chuyen_don">Chuyển đơn</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Chuyển đến:</label>
+                    <select id="chuyen_den_ks">
+                        <option value="phong:can-tho:1">Phòng 1</option>
+                        <option value="phong:can-tho:2">Phòng 2</option>
+                        <option value="phong:can-tho:7">Phòng 7</option>
+                        <option value="phong:can-tho:8">Phòng 8</option>
+                        <option value="phong:can-tho:9">Phòng 9</option>
+                        <option value="phong:can-tho:10">Phòng 10</option>
+                        <option value="phong:can-tho:11">Phòng 11</option>
+                        <option value="phong:can-tho:15">Phòng 15</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Ngày chuyển đơn:</label><input type="date" id="ngay_chuyen_ks"></div>
+                <div class="form-group"><label>Kết quả giải quyết — ngày:</label><input type="date" id="ket_qua_ngay"></div>
+                <div class="form-group"><label>Nội dung giải quyết:</label><textarea id="ket_qua_noi_dung" rows="3" placeholder="Nội dung giải quyết..."></textarea></div>
+            </div>
+
+            <!-- Không thuộc thẩm quyền: đề xuất chuyển đơn → TAND / CQCSĐT / THADS / khác -->
+            <div id="khong_thuoc_fields" class="section section-out" style="display:none;">
+                <p style="margin:0 0 10px;font-weight:700;color:#0c3b8c;">Đề xuất xử lý — không thuộc thẩm quyền giải quyết</p>
+                <div class="form-group">
+                    <label>Đề xuất xử lý:</label>
+                    <select id="de_xuat_kt" onchange="toggleKhongThuocChuyen()">
+                        <option value="chuyen_don">Chuyển đơn</option>
+                        <option value="thong_bao">Thông báo chỉ dẫn</option>
+                        <option value="tra_don">Trả đơn</option>
+                        <option value="luu_don">Lưu đơn</option>
+                    </select>
+                </div>
+                <div id="khong_thuoc_chuyen">
+                    <div class="form-group">
+                        <label>Chuyển đến:</label>
+                        <select id="chuyen_den_kt" onchange="toggleKhacAgency()">
+                            <option value="agency:can-tho:tand">TAND TP.CT</option>
+                            <option value="tandkv:ct-kv1">TAND KV1 Ninh Kiều</option>
+                            <option value="tandkv:ct-kv2">TAND KV2 Bình Thủy</option>
+                            <option value="tandkv:ct-kv3">TAND KV3 Phong Điền</option>
+                            <option value="tandkv:ct-kv4">TAND KV4 Cờ Đỏ</option>
+                            <option value="tandkv:ct-kv5">TAND KV5 Sóc Trăng</option>
+                            <option value="tandkv:ct-kv6">TAND KV6 Phú Tâm</option>
+                            <option value="tandkv:ct-kv7">TAND KV7 Ngã Năm</option>
+                            <option value="tandkv:ct-kv8">TAND KV8 Hòa Tú</option>
+                            <option value="tandkv:ct-kv9">TAND KV9 Long Phú</option>
+                            <option value="tandkv:ct-kv10">TAND KV10 Kế Sách</option>
+                            <option value="tandkv:ct-kv11">TAND KV11 Vị Thanh</option>
+                            <option value="tandkv:ct-kv12">TAND KV12 Vĩnh Viễn</option>
+                            <option value="tandkv:ct-kv13">TAND KV13 Hiệp Hưng</option>
+                            <option value="tandkv:ct-kv14">TAND KV14 Châu Thành</option>
+                            <option value="agency:can-tho:cqdt">CQCSĐT CA TP.CT</option>
+                            <option value="agency:can-tho:thads">THADS TP.CT</option>
+                            <option value="agency:can-tho:khac">Các cơ quan, tổ chức khác</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="khac_agency_wrap" style="display:none;">
+                        <label>Tên cơ quan, tổ chức nhận đơn:</label>
+                        <input type="text" id="chuyen_den_khac" placeholder="Nhập tên cơ quan, tổ chức">
+                    </div>
+                    <div class="form-group"><label>Ngày chuyển đơn:</label><input type="date" id="ngay_chuyen_kt"></div>
+                </div>
             </div>
 
             <div class="form-group">
@@ -184,40 +260,174 @@
 
         let editingKey = null;
 
+        function todayStr() {
+            const d = new Date();
+            const m = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return d.getFullYear() + '-' + m + '-' + day;
+        }
+
+        function val(id) {
+            const el = document.getElementById(id);
+            return el ? el.value : '';
+        }
+
+        function setVal(id, v) {
+            const el = document.getElementById(id);
+            if (el) el.value = v == null ? '' : v;
+        }
+
+        function show(id, on) {
+            const el = document.getElementById(id);
+            if (el) el.style.display = on ? 'block' : 'none';
+        }
+
+        function optionText(id) {
+            const el = document.getElementById(id);
+            if (!el || el.selectedIndex < 0) return '';
+            return el.options[el.selectedIndex].text;
+        }
+
+        function kindCode(v) {
+            v = (v || '').toLowerCase();
+            if (v.indexOf('tố cáo') >= 0 || v.indexOf('to cao') >= 0) return 'to_cao';
+            if (v.indexOf('kiến nghị') >= 0 || v.indexOf('kien nghi') >= 0) return 'kien_nghi';
+            if (v.indexOf('tin báo') >= 0 || v.indexOf('tgtp') >= 0) return 'tin_bao';
+            return 'khieu_nai';
+        }
+
+        function sourceCode(v) {
+            v = (v || '').toLowerCase();
+            if (v.indexOf('bưu') >= 0 || v.indexOf('buu') >= 0) return 'buu_dien';
+            if (v.indexOf('tiếp') >= 0 || v.indexOf('công dân') >= 0 || v.indexOf('cong dan') >= 0) return 'tiep_cong_dan';
+            if (v.indexOf('báo') >= 0 || v.indexOf('bao chi') >= 0) return 'bao_chi';
+            if (v.indexOf('cơ quan') >= 0 || v.indexOf('co quan') >= 0) return 'co_quan';
+            return 'khac';
+        }
+
+        function authorityCode(v) {
+            if (v === 'Thuộc thẩm quyền kiểm sát') return 'kiem_sat';
+            if (v === 'Không thuộc thẩm quyền giải quyết') return 'khong_thuoc';
+            return 'giai_quyet';
+        }
+
+        function toggleKhacAgency() {
+            show('khac_agency_wrap', val('chuyen_den_kt') === 'agency:can-tho:khac');
+        }
+
+        function toggleKhongThuocChuyen() {
+            const on = val('de_xuat_kt') === 'chuyen_don' || val('de_xuat_kt') === 'chuyen_phong';
+            show('khong_thuoc_chuyen', on);
+            if (on) toggleKhacAgency();
+        }
+
         function toggleThamQuyen() {
-            const thamQuyen = document.getElementById('tham_quyen').value;
-            document.getElementById('tham_quyen_fields').style.display = (thamQuyen === "Thuộc thẩm quyền giải quyết") ? "block" : "none";
+            const thamQuyen = val('tham_quyen');
+            show('tham_quyen_fields', thamQuyen === 'Thuộc thẩm quyền giải quyết');
+            show('kiem_sat_fields', thamQuyen === 'Thuộc thẩm quyền kiểm sát');
+            show('khong_thuoc_fields', thamQuyen === 'Không thuộc thẩm quyền giải quyết');
+            if (thamQuyen === 'Thuộc thẩm quyền kiểm sát') {
+                if (!val('de_xuat_ks')) setVal('de_xuat_ks', 'chuyen_don');
+                if (!val('ngay_chuyen_ks')) setVal('ngay_chuyen_ks', todayStr());
+            }
+            if (thamQuyen === 'Không thuộc thẩm quyền giải quyết') {
+                if (!val('de_xuat_kt')) setVal('de_xuat_kt', 'chuyen_don');
+                if (!val('ngay_chuyen_kt')) setVal('ngay_chuyen_kt', todayStr());
+                toggleKhongThuocChuyen();
+            }
         }
 
         function saveData() {
             const file = document.getElementById('pdf_file').files[0];
+            const thamQuyen = val('tham_quyen');
+            const auth = authorityCode(thamQuyen);
+            const profile = window.VksRbac ? VksRbac.parseProfile() : {};
 
             const data = {
-                ngay_nhan: document.getElementById('ngay_nhan').value,
-                nguon_don: document.getElementById('nguon_don').value,
-                ho_ten: document.getElementById('ho_ten').value,
-                dia_chi: document.getElementById('dia_chi').value,
-                noi_dung: document.getElementById('noi_dung').value,
-                phan_loai: document.getElementById('phan_loai').value,
-                tham_quyen: document.getElementById('tham_quyen').value,
-                timestamp: Date.now()
+                ngay_nhan: val('ngay_nhan'),
+                nguon_don: val('nguon_don'),
+                ho_ten: val('ho_ten'),
+                dia_chi: val('dia_chi'),
+                noi_dung: val('noi_dung'),
+                phan_loai: val('phan_loai'),
+                tham_quyen: thamQuyen,
+                timestamp: Date.now(),
+                petitioner: val('ho_ten'),
+                address: val('dia_chi'),
+                content: val('noi_dung'),
+                receivedDate: val('ngay_nhan'),
+                source: sourceCode(val('nguon_don')),
+                kind: kindCode(val('phan_loai')),
+                authority: auth,
+                provinceId: profile.provinceId || 'can-tho',
+                createdBy: profile.username || '',
+                assignedToName: val('can_bo_ksv'),
+                can_bo_ksv: val('can_bo_ksv')
             };
             if (window.VksRbac) VksRbac.stampMeta(data);
 
-            // Nếu thuộc thẩm quyền giải quyết thì lưu thêm các trường
-            if (data.tham_quyen === "Thuộc thẩm quyền giải quyết") {
-                data.ngay_thu_ly_giai_quyet = document.getElementById('ngay_thu_ly_giai_quyet').value;
-                data.phan_loai_khieu_to = document.getElementById('phan_loai_khieu_to').value;
-                data.qd_thu_ly_so = document.getElementById('qd_thu_ly_so').value;
-                data.ngay_ban_hanh_qd_thu_ly = document.getElementById('ngay_ban_hanh_qd_thu_ly').value;
-                data.qd_phan_cong_so = document.getElementById('qd_phan_cong_so').value;
-                data.ngay_ban_hanh_qd_phan_cong = document.getElementById('ngay_ban_hanh_qd_phan_cong').value;
-                data.can_bo_ksv = document.getElementById('can_bo_ksv').value;
-                data.ngay_xac_minh = document.getElementById('ngay_xac_minh').value;
-                data.de_xuat = document.getElementById('de_xuat').value;
-                data.qd_giai_quyet_so = document.getElementById('qd_giai_quyet_so').value;
-                data.ngay_ban_hanh_qd_giai_quyet = document.getElementById('ngay_ban_hanh_qd_giai_quyet').value;
-                data.noi_dung_qd_giai_quyet = document.getElementById('noi_dung_qd_giai_quyet').value;
+            if (thamQuyen === 'Thuộc thẩm quyền giải quyết') {
+                data.ngay_thu_ly_giai_quyet = val('ngay_thu_ly_giai_quyet');
+                data.phan_loai_khieu_to = val('phan_loai_khieu_to');
+                data.qd_thu_ly_so = val('qd_thu_ly_so');
+                data.ngay_ban_hanh_qd_thu_ly = val('ngay_ban_hanh_qd_thu_ly');
+                data.qd_phan_cong_so = val('qd_phan_cong_so');
+                data.ngay_ban_hanh_qd_phan_cong = val('ngay_ban_hanh_qd_phan_cong');
+                data.can_bo_ksv = val('can_bo_ksv');
+                data.ngay_xac_minh = val('ngay_xac_minh');
+                data.de_xuat = val('de_xuat');
+                data.proposal = val('de_xuat');
+                data.qd_giai_quyet_so = val('qd_giai_quyet_so');
+                data.ngay_ban_hanh_qd_giai_quyet = val('ngay_ban_hanh_qd_giai_quyet');
+                data.noi_dung_qd_giai_quyet = val('noi_dung_qd_giai_quyet');
+                data.decisionNo = val('qd_giai_quyet_so');
+                data.decisionDate = val('ngay_ban_hanh_qd_giai_quyet');
+                data.decisionContent = val('noi_dung_qd_giai_quyet');
+                data.status = 'moi_nhan';
+            }
+
+            if (thamQuyen === 'Thuộc thẩm quyền kiểm sát') {
+                const dest = val('chuyen_den_ks') || 'phong:can-tho:1';
+                const ngay = val('ngay_chuyen_ks') || todayStr();
+                data.de_xuat = val('de_xuat_ks') || 'chuyen_don';
+                data.proposal = 'chuyen_phong';
+                data.chuyen_den = dest;
+                data.chuyen_den_ten = optionText('chuyen_den_ks');
+                data.ngay_chuyen = ngay;
+                data.transferToUnitId = dest;
+                data.transferTo = optionText('chuyen_den_ks');
+                data.transferDate = ngay;
+                data.transferStatus = 'da_chuyen';
+                data.ket_qua_ngay = val('ket_qua_ngay');
+                data.ket_qua_noi_dung = val('ket_qua_noi_dung');
+                data.decisionDate = val('ket_qua_ngay');
+                data.decisionContent = val('ket_qua_noi_dung');
+                data.status = 'dang_xac_minh';
+            }
+
+            if (thamQuyen === 'Không thuộc thẩm quyền giải quyết') {
+                const proposal = val('de_xuat_kt') || 'chuyen_don';
+                data.de_xuat = proposal;
+                data.proposal = proposal;
+                if (proposal === 'chuyen_don' || proposal === 'chuyen_phong') {
+                    const dest = val('chuyen_den_kt') || 'agency:can-tho:tand';
+                    if (dest === 'agency:can-tho:khac' && !val('chuyen_den_khac').trim()) {
+                        alert('Nhập tên cơ quan, tổ chức nhận đơn.');
+                        return;
+                    }
+                    const ngay = val('ngay_chuyen_kt') || todayStr();
+                    const ten = dest === 'agency:can-tho:khac' ? val('chuyen_den_khac').trim() : optionText('chuyen_den_kt');
+                    data.chuyen_den = dest;
+                    data.chuyen_den_ten = ten;
+                    data.ngay_chuyen = ngay;
+                    data.transferToUnitId = dest;
+                    data.transferTo = ten;
+                    data.transferDate = ngay;
+                    data.transferStatus = 'da_chuyen';
+                    data.status = 'chuyen_di';
+                } else {
+                    data.status = 'moi_nhan';
+                }
             }
 
             if (file) {
@@ -227,6 +437,8 @@
                         data.pdf_url = url;
                         saveToDatabase(data);
                     });
+                }).catch(function (err) {
+                    alert('Không tải được file: ' + (err && err.message ? err.message : err));
                 });
             } else {
                 saveToDatabase(data);
@@ -234,29 +446,52 @@
         }
 
         function saveToDatabase(data) {
+            const fail = function (err) {
+                alert("Không lưu được lên máy chủ: " + (err && err.message ? err.message : err));
+            };
             if (editingKey) {
                 db.ref('don_khieu_to/' + editingKey).update(data).then(() => {
                     alert("Cập nhật hồ sơ thành công!");
                     resetForm();
-                });
+                }).catch(fail);
             } else {
                 db.ref('don_khieu_to').push(data).then(() => {
                     alert("Lưu đơn thành công!");
                     resetForm();
-                });
+                }).catch(fail);
             }
         }
 
         function resetForm() {
-            document.getElementById('ngay_nhan').value = '';
-            document.getElementById('nguon_don').value = 'Bưu điện';
-            document.getElementById('ho_ten').value = '';
-            document.getElementById('dia_chi').value = '';
-            document.getElementById('noi_dung').value = '';
-            document.getElementById('phan_loai').value = 'Khiếu nại';
-            document.getElementById('tham_quyen').value = 'Thuộc thẩm quyền giải quyết';
+            setVal('ngay_nhan', '');
+            setVal('nguon_don', 'Bưu điện');
+            setVal('ho_ten', '');
+            setVal('dia_chi', '');
+            setVal('noi_dung', '');
+            setVal('phan_loai', 'Khiếu nại');
+            setVal('tham_quyen', 'Thuộc thẩm quyền giải quyết');
+            setVal('de_xuat', '');
+            setVal('de_xuat_ks', 'chuyen_don');
+            setVal('de_xuat_kt', 'chuyen_don');
+            setVal('chuyen_den_ks', 'phong:can-tho:1');
+            setVal('chuyen_den_kt', 'agency:can-tho:tand');
+            setVal('chuyen_den_khac', '');
+            setVal('ngay_chuyen_ks', '');
+            setVal('ngay_chuyen_kt', '');
+            setVal('ket_qua_ngay', '');
+            setVal('ket_qua_noi_dung', '');
+            setVal('ngay_thu_ly_giai_quyet', '');
+            setVal('qd_thu_ly_so', '');
+            setVal('ngay_ban_hanh_qd_thu_ly', '');
+            setVal('qd_phan_cong_so', '');
+            setVal('ngay_ban_hanh_qd_phan_cong', '');
+            setVal('can_bo_ksv', '');
+            setVal('ngay_xac_minh', '');
+            setVal('qd_giai_quyet_so', '');
+            setVal('ngay_ban_hanh_qd_giai_quyet', '');
+            setVal('noi_dung_qd_giai_quyet', '');
             toggleThamQuyen();
-            document.getElementById('pdf_file').value = '';
+            setVal('pdf_file', '');
             editingKey = null;
             document.getElementById('btn-save').innerText = 'LƯU HỒ SƠ';
         }
@@ -279,7 +514,7 @@
                             <td>${item.nguon_don || ''}</td>
                             <td>${item.ho_ten || ''}</td>
                             <td>${item.phan_loai || ''}</td>
-                            <td>${item.tham_quyen || ''}</td>
+                            <td>${item.tham_quyen || ''}${item.chuyen_den_ten || item.transferTo ? `<br><small>${item.chuyen_den_ten || item.transferTo}</small>` : ''}</td>
                             <td>${tomTat}</td>
                             <td>${item.can_bo_ksv || ''}</td>
                             <td>${pdfLink}</td>
@@ -296,14 +531,39 @@
 
         function editRecord(key) {
             db.ref('don_khieu_to/' + key).once('value').then(snapshot => {
-                const item = snapshot.val();
-                document.getElementById('ngay_nhan').value = item.ngay_nhan || '';
-                document.getElementById('nguon_don').value = item.nguon_don || 'Bưu điện';
-                document.getElementById('ho_ten').value = item.ho_ten || '';
-                document.getElementById('dia_chi').value = item.dia_chi || '';
-                document.getElementById('noi_dung').value = item.noi_dung || '';
-                document.getElementById('phan_loai').value = item.phan_loai || 'Khiếu nại';
-                document.getElementById('tham_quyen').value = item.tham_quyen || 'Thuộc thẩm quyền giải quyết';
+                const item = snapshot.val() || {};
+                setVal('ngay_nhan', item.ngay_nhan || item.receivedDate);
+                setVal('nguon_don', item.nguon_don || 'Bưu điện');
+                setVal('ho_ten', item.ho_ten || item.petitioner);
+                setVal('dia_chi', item.dia_chi || item.address);
+                setVal('noi_dung', item.noi_dung || item.content);
+                setVal('phan_loai', item.phan_loai || 'Khiếu nại');
+                const tq = item.tham_quyen
+                    || (item.authority === 'kiem_sat' ? 'Thuộc thẩm quyền kiểm sát'
+                        : item.authority === 'khong_thuoc' ? 'Không thuộc thẩm quyền giải quyết'
+                        : 'Thuộc thẩm quyền giải quyết');
+                setVal('tham_quyen', tq);
+                setVal('ngay_thu_ly_giai_quyet', item.ngay_thu_ly_giai_quyet);
+                setVal('phan_loai_khieu_to', item.phan_loai_khieu_to || 'Khiếu nại');
+                setVal('qd_thu_ly_so', item.qd_thu_ly_so);
+                setVal('ngay_ban_hanh_qd_thu_ly', item.ngay_ban_hanh_qd_thu_ly);
+                setVal('qd_phan_cong_so', item.qd_phan_cong_so);
+                setVal('ngay_ban_hanh_qd_phan_cong', item.ngay_ban_hanh_qd_phan_cong);
+                setVal('can_bo_ksv', item.can_bo_ksv || item.assignedToName);
+                setVal('ngay_xac_minh', item.ngay_xac_minh);
+                setVal('de_xuat', item.de_xuat || item.proposal || '');
+                setVal('qd_giai_quyet_so', item.qd_giai_quyet_so || item.decisionNo);
+                setVal('ngay_ban_hanh_qd_giai_quyet', item.ngay_ban_hanh_qd_giai_quyet || item.decisionDate);
+                setVal('noi_dung_qd_giai_quyet', item.noi_dung_qd_giai_quyet || item.decisionContent);
+                setVal('de_xuat_ks', 'chuyen_don');
+                setVal('chuyen_den_ks', item.chuyen_den || item.transferToUnitId || 'phong:can-tho:1');
+                setVal('ngay_chuyen_ks', item.ngay_chuyen || item.transferDate);
+                setVal('ket_qua_ngay', item.ket_qua_ngay || item.decisionDate);
+                setVal('ket_qua_noi_dung', item.ket_qua_noi_dung || item.decisionContent);
+                setVal('de_xuat_kt', item.de_xuat || item.proposal || 'chuyen_don');
+                setVal('chuyen_den_kt', item.chuyen_den || item.transferToUnitId || 'agency:can-tho:tand');
+                setVal('chuyen_den_khac', (item.chuyen_den || item.transferToUnitId) === 'agency:can-tho:khac' ? (item.chuyen_den_ten || item.transferTo || '') : '');
+                setVal('ngay_chuyen_kt', item.ngay_chuyen || item.transferDate);
                 toggleThamQuyen();
                 editingKey = key;
                 document.getElementById('btn-save').innerText = 'CẬP NHẬT';

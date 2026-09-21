@@ -1,4 +1,4 @@
-const CACHE = "vks-dansu-app-v1";
+const CACHE = "vks-dansu-app-v20260921";
 const PRECACHE = [
   "./",
   "./index.html",
@@ -29,6 +29,22 @@ self.addEventListener("activate", function (event) {
 self.addEventListener("fetch", function (event) {
   const req = event.request;
   if (req.method !== "GET") return;
+  const url = req.url || "";
+  const isHtml = req.mode === "navigate" || /\.html(\?|$)/.test(url);
+  if (isHtml) {
+    event.respondWith(
+      fetch(req).then(function (res) {
+        if (res && res.status === 200) {
+          const copy = res.clone();
+          caches.open(CACHE).then(function (cache) { cache.put(req, copy); });
+        }
+        return res;
+      }).catch(function () {
+        return caches.match(req).then(function (cached) { return cached || caches.match("./login.html"); });
+      })
+    );
+    return;
+  }
   event.respondWith(
     caches.match(req).then(function (cached) {
       const fetched = fetch(req).then(function (res) {
