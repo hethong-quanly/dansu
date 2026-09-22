@@ -6,7 +6,7 @@
   <title>Ra Quyết định phân công KSV — VKSND TP. Cần Thơ</title>
   <link rel="stylesheet" href="static/theme.css?v=20260922a" />
   <script src="static/rbac.js?v=20260922a"></script>
-  <script src="static/pwa.js?v=20260922a"></script>
+  <script src="static/pwa.js?v=20260922b"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;800&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet" />
@@ -188,6 +188,10 @@
     document.getElementById('soQd').value = r.assignmentNo||r.qd_phan_cong_so||r.qd_phan_cong_ksv_so||document.getElementById('soQd').value;
     document.getElementById('ngayQd').value = r.assignmentDate||r.ngay_phan_cong||r.ngay_phan_cong_ksv||r.ngay_ban_hanh_qd_phan_cong||document.getElementById('ngayQd').value;
     document.getElementById('vienTruong').value = r.signerName||r.nguoi_ky_qd||document.getElementById('vienTruong').value;
+    if (!document.getElementById('soQd').value) {
+      var nos = (cache[kind]||[]).map(function(x){ return x.assignmentNo||x.qd_phan_cong_so||x.qd_phan_cong_ksv_so||''; });
+      document.getElementById('soQd').value = nextNo(nos);
+    }
     document.getElementById('loaded').hidden = false;
     document.getElementById('loaded').textContent = 'Đã nạp hồ sơ — rà soát trước khi trình ký.';
     refresh();
@@ -209,6 +213,10 @@
       var v = snap.val()||{};
       cache[kind] = Object.keys(v).map(function(id){ var r=v[id]||{}; r.id=r.id||id; return r; });
       renderSel();
+      if (!document.getElementById('soQd').value) {
+        document.getElementById('soQd').value = nextNo(cache[kind].map(function(x){ return x.assignmentNo||x.qd_phan_cong_so||x.qd_phan_cong_ksv_so||''; }));
+        refresh();
+      }
       if (recId) {
         var hit = cache[kind].filter(function(r){return r.id===recId;})[0];
         if (hit) fillFrom(kind, hit);
@@ -218,6 +226,14 @@
   function today(){
     var n=new Date();
     document.getElementById('ngayQd').value = n.getFullYear()+'-'+('0'+(n.getMonth()+1)).slice(-2)+'-'+('0'+n.getDate()).slice(-2);
+  }
+  function nextNo(list){
+    var max=0;
+    (list||[]).forEach(function(raw){
+      var m=String(raw||'').match(/^(\d+)/);
+      if(m && Number(m[1])>max) max=Number(m[1]);
+    });
+    return ('0'+(max+1)).slice(-2)+'/'+new Date().getFullYear();
   }
   function save(){
     if (!recId) { alert('Chọn hồ sơ đã nhập để lưu số QĐ phân công.'); return; }
@@ -241,6 +257,8 @@
     if (first) khau = first.id;
   }
   renderKhau(); today();
+  if (profile.fullname) document.getElementById('vienTruong').value = profile.fullname;
+  if (profile.rank === 'pho_vien_truong') document.getElementById('chucDanh').value = 'PHÓ VIỆN TRƯỞNG';
   if (params.get('so')) document.getElementById('soNguon').value = params.get('so');
   if (params.get('ten')) document.getElementById('noiDung').value = params.get('ten');
   if (params.get('ksv')) document.getElementById('ksv').value = params.get('ksv');
