@@ -53,6 +53,7 @@
     var p = pos(u);
     if (!p) return false;
     return p.indexOf("viện trưởng") >= 0 || p.indexOf("vien truong") >= 0 ||
+      p.indexOf("quản trị") >= 0 || p.indexOf("quan tri") >= 0 || p === "quan_tri" ||
       p.indexOf("cục trưởng") >= 0 || p.indexOf("cuc truong") >= 0 ||
       p.indexOf("chánh văn phòng") >= 0 || p.indexOf("chanh van phong") >= 0 ||
       p.indexOf("chánh thanh") >= 0 || p.indexOf("chanh thanh") >= 0 ||

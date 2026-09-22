@@ -11,7 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="static/theme.css?v=20260916c">
     <script src="static/rbac.js?v=20260921e"></script>
-    <script src="static/pwa.js?v=20260922b"></script>
+    <script src="static/pwa.js?v=20260922c"></script>
     <style>
         * { box-sizing: border-box; }
         html, body { margin: 0; min-height: 100%; }
@@ -116,20 +116,22 @@
         var profile = window.VksRbac ? VksRbac.parseProfile() : {};
         try {
             var usersDB = JSON.parse(localStorage.getItem('vks_users_db') || '{}');
-            if (usersDB.admin && /cục trưởng cục thống kê/i.test(usersDB.admin.position || '')) {
+            if (usersDB.admin) {
                 usersDB.admin.position = 'Quản trị hệ thống';
+                usersDB.admin.rank = 'quan_tri';
                 localStorage.setItem('vks_users_db', JSON.stringify(usersDB));
             }
             var stored = JSON.parse(localStorage.getItem('vks_user_profile') || 'null');
-            if (stored && (stored.username === 'admin' || user === 'admin') && /cục trưởng cục thống kê/i.test(stored.position || '')) {
+            if (stored && (stored.username === 'admin' || user === 'admin')) {
                 stored.position = 'Quản trị hệ thống';
+                stored.rank = 'quan_tri';
                 localStorage.setItem('vks_user_profile', JSON.stringify(stored));
             }
             if (window.VksRbac) profile = VksRbac.parseProfile();
         } catch (e) {}
         var name = (profile.fullname || user) + ' (' + (profile.username || user) + ')';
         var pos = profile.position || '';
-        if (pos && !/cục trưởng cục thống kê/i.test(pos) && pos !== 'Quản trị hệ thống') name += ' · ' + pos;
+        if (pos && !/cục trưởng cục thống kê/i.test(pos)) name += ' · ' + pos;
         if (profile.department) name += ' · ' + profile.department;
         document.getElementById('display_user').innerText = name;
         function hide(id) {

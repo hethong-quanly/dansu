@@ -185,10 +185,11 @@
         });
         dbLocal.admin = Object.assign({}, dbLocal.admin || {}, {
             password: ADMIN_PW,
-            fullname: (dbLocal.admin && dbLocal.admin.fullname) || 'Quản trị viên',
+            fullname: (dbLocal.admin && dbLocal.admin.fullname) || 'Quản trị hệ thống',
             level: 'toi_cao',
             unit: 'VKSND Tối cao',
-            position: 'Quản trị hệ thống'
+            position: 'Quản trị hệ thống',
+            rank: 'quan_tri'
         }, rights());
         localStorage.setItem('vks_users_db', JSON.stringify(dbLocal));
         return dbLocal;
@@ -199,10 +200,11 @@
             var v = snap.val() || {};
             db.ref('users/admin').update(Object.assign({
                 password: ADMIN_PW,
-                fullname: v.fullname || 'Quản trị viên',
+                fullname: v.fullname && !/viện trưởng|cục trưởng/i.test(v.fullname) ? v.fullname : 'Quản trị hệ thống',
                 level: v.level || 'toi_cao',
                 unit: v.unit || 'VKSND Tối cao',
-                position: 'Quản trị hệ thống'
+                position: 'Quản trị hệ thống',
+                rank: 'quan_tri'
             }, rights()));
         }).catch(function () {});
         TRIAL.forEach(function (u) {
@@ -321,6 +323,6 @@
         document.getElementById('username').focus();
     };
 </script>
-<script src="static/pwa.js?v=20260922b"></script>
+<script src="static/pwa.js?v=20260922c"></script>
 </body>
 </html>
