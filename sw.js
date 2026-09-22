@@ -1,4 +1,4 @@
-const CACHE = "vks-dansu-app-v20260921f";
+const CACHE = "vks-dansu-app-v20260922a";
 const PRECACHE = [
   "./",
   "./index.html",

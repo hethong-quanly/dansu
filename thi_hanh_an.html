@@ -12,7 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="static/theme.css?v=20260916c">
     <script src="static/rbac.js?v=20260921f"></script>
-    <script src="static/pwa.js?v=20260921f"></script>
+    <script src="static/pwa.js?v=20260922a"></script>
     <style>
         * { box-sizing: border-box; }
         body { font-family: 'Be Vietnam Pro', sans-serif; margin: 0; }
@@ -247,6 +247,7 @@
             </div>
             <div class="form-group"><label>Đính kèm File PDF</label><input type="file" id="pdf_file" accept=".pdf"></div>
             <button class="btn-save" onclick="saveData()" id="btn-save">LƯU HỒ SƠ THI HÀNH ÁN</button>
+            <button class="btn-save" type="button" style="background:#071a4a;margin-top:8px" onclick="openQdPhanCong()">RA QUYẾT ĐỊNH PHÂN CÔNG KSV</button>
         </div>
 
         <div class="main-panel">
@@ -443,6 +444,13 @@
         const done = function () { alert(editingKey ? "Cập nhật thành công!" : "Lưu hồ sơ thành công!"); resetForm(); loadData(); };
         if (editingKey) db.ref('thi_hanh_an/' + editingKey).update(data).then(done);
         else db.ref('thi_hanh_an').push(data).then(done);
+    }
+    function openQdPhanCong() {
+        var q = new URLSearchParams({ kind: 'thads' });
+        if (editingKey) q.set('id', editingKey);
+        var so = document.getElementById('so_qd_tha');
+        if (so && so.value) q.set('so', so.value);
+        location.href = 'soan_qd_phan_cong.html?' + q.toString();
     }
     function loadData() {
         if (!checkLogin()) return;

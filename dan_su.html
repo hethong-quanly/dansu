@@ -1019,7 +1019,10 @@
                             <input id="w_ksv" placeholder="Nhập tên Kiểm sát viên" style="margin-top:6px;display:none" ${disabled}>
                         </div>
                     </div>
-                    <div style="margin-top:12px;text-align:right"><button class="btn btn-primary" ${disabled} onclick="saveKsv()">💾 Lưu phân công</button></div>
+                    <div style="margin-top:12px;text-align:right;display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap">
+                        <button class="btn btn-primary" ${disabled} onclick="saveKsv()">💾 Lưu phân công</button>
+                        <button class="btn" onclick="openQdPhanCong()">Ra QĐ phân công</button>
+                    </div>
                     ${lock ? '<p style="margin:8px 0 0;color:#b45309;font-size:12px;">Kiểm sát viên chỉ xem vụ việc được phân công, không phân công lại.</p>' : ''}`;
                 thead = `<tr><th>STT</th><th>Vụ việc</th><th>Kiểm sát viên</th><th>Thẩm phán</th><th></th></tr>`;
             } else if (currentModule === 'chuyen') {
@@ -1155,6 +1158,17 @@
             if (!name) { showToast('Nhập hoặc chọn Kiểm sát viên.', true); return; }
             await patchRecord(id, { ksv: name, can_bo_ksv: name, assignedTo: name });
             selectedWorkId = id;
+        }
+        function openQdPhanCong() {
+            const rec = allRecords.find(r => r.id === workCaseId()) || {};
+            const q = new URLSearchParams({ kind: 'dansu' });
+            if (rec.id) q.set('id', String(rec.id));
+            if (rec.so_thu_ly) q.set('so', rec.so_thu_ly);
+            if (rec.ten_vu_an) q.set('ten', rec.ten_vu_an);
+            if (rec.ksv) q.set('ksv', rec.ksv);
+            if (rec.nguyen_don) q.set('nd', rec.nguyen_don);
+            if (rec.bi_don) q.set('bd', rec.bi_don);
+            location.href = 'soan_qd_phan_cong.html?' + q.toString();
         }
         async function saveChuyen() {
             const id = workCaseId(); if (!id) return;

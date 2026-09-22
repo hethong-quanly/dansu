@@ -218,6 +218,7 @@
             </div>
 
             <button class="btn-save" onclick="saveData()" id="btn-save">LƯU HỒ SƠ</button>
+            <button class="btn-save" type="button" style="background:#071a4a;margin-top:8px" onclick="openQdPhanCong()">RA QUYẾT ĐỊNH PHÂN CÔNG KSV</button>
         </div>
 
         <div class="main-panel">
@@ -335,6 +336,18 @@
                 if (!val('ngay_chuyen_kt')) setVal('ngay_chuyen_kt', todayStr());
                 toggleKhongThuocChuyen();
             }
+        }
+
+        function openQdPhanCong() {
+            var q = new URLSearchParams({ kind: 'khieuto' });
+            if (typeof editingKey !== 'undefined' && editingKey) q.set('id', editingKey);
+            var so = document.getElementById('qd_phan_cong_so');
+            var ksv = document.getElementById('can_bo_ksv');
+            var ten = document.getElementById('ho_ten');
+            if (so && so.value) q.set('so', so.value);
+            if (ksv && ksv.value) q.set('ksv', ksv.value);
+            if (ten && ten.value) q.set('ten', ten.value);
+            location.href = 'soan_qd_phan_cong.html?' + q.toString();
         }
 
         function saveData() {

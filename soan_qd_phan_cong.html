@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ra Quyết định phân công KSV — VKSND TP. Cần Thơ</title>
+  <link rel="stylesheet" href="static/theme.css?v=20260922a" />
+  <script src="static/rbac.js?v=20260922a"></script>
+  <script src="static/pwa.js?v=20260922a"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;800&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap" rel="stylesheet" />
+  <style>
+    body { margin:0; font-family:"Be Vietnam Pro",sans-serif; background:#eef3fb; color:#122033; }
+    header { background:#071a4a; color:#fff; padding:14px 20px; display:flex; align-items:center; gap:12px; }
+    header a { color:#ffe566; text-decoration:none; font-weight:700; font-size:13px; background:rgba(255,255,255,.15); padding:7px 14px; border-radius:6px; }
+    header h1 { margin:0; font-size:18px; } header p { margin:2px 0 0; font-size:11px; letter-spacing:.12em; text-transform:uppercase; color:rgba(255,255,255,.7); }
+    .wrap { max-width:1080px; margin:0 auto; padding:18px 14px 48px; }
+    .card { background:#fff; border:1px solid #d5deee; border-radius:14px; padding:16px; margin-top:12px; }
+    .kicker { font-size:11px; font-weight:800; letter-spacing:.14em; color:#0c3b8c; text-transform:uppercase; margin:0 0 8px; }
+    .grid { display:grid; gap:8px; } @media(min-width:720px){ .g2{grid-template-columns:1fr 1fr;} .g3{grid-template-columns:1fr 1fr 1fr;} }
+    .khau { border:1px solid #d5deee; background:#f8fafc; border-radius:12px; padding:12px; text-align:left; font:inherit; min-height:72px; cursor:pointer; }
+    .khau.on { background:#071a4a; color:#fff; border-color:#071a4a; }
+    .khau small { display:block; opacity:.75; margin-top:4px; font-size:11px; }
+    label { display:block; font-size:12px; font-weight:600; color:#5c6b80; margin:8px 0 4px; }
+    input, textarea, select { width:100%; min-height:40px; border:1px solid #d5deee; border-radius:8px; padding:8px 10px; font:inherit; font-size:14px; background:#f8fafc; }
+    textarea { min-height:88px; }
+    .row { display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+    .btn { display:inline-flex; align-items:center; justify-content:center; min-height:40px; padding:0 14px; border-radius:8px; border:1px solid transparent; font:inherit; font-weight:700; font-size:13px; cursor:pointer; }
+    .btn-primary { background:#0c3b8c; color:#fff; } .btn-ghost { background:#fff; border-color:#d5deee; }
+    .preview { white-space:pre-wrap; font-family:"Times New Roman",serif; font-size:13.5px; line-height:1.5; max-height:520px; overflow:auto; background:#fbf8f1; padding:16px; border-radius:10px; }
+    table { width:100%; border-collapse:collapse; font-size:12.5px; }
+    th { background:#071a4a; color:#fff; text-align:left; padding:8px 10px; } td { padding:8px 10px; border-bottom:1px solid #eee; }
+    .muted { color:#5c6b80; font-size:13px; line-height:1.55; }
+    .ok { color:#1f6b4a; font-size:12px; font-weight:600; }
+  </style>
+</head>
+<body>
+<header>
+  <a href="index.html">← Trang chủ</a>
+  <div>
+    <h1>Ra Quyết định phân công Kiểm sát viên</h1>
+    <p>Mẫu 71/HS — Thông tư 03/2026/TT-VKSTC · VKSND TP. Cần Thơ</p>
+  </div>
+</header>
+<div class="wrap">
+  <p class="muted">Chọn khâu, chọn hồ sơ (hoặc điền tay), rà soát rồi lưu vào hồ sơ, in hoặc tải Word. Áp dụng cho kiểm sát vụ án, kiểm sát QĐTHA và giải quyết khiếu nại, tố cáo.</p>
+  <div class="card">
+    <p class="kicker">1. Chọn khâu</p>
+    <div class="grid g3" id="khauBox"></div>
+  </div>
+  <div class="card">
+    <p class="kicker">2. Hồ sơ nguồn</p>
+    <div class="grid g2">
+      <div><label>Chọn hồ sơ đã nhập</label><select id="recSel"><option value="">— Điền tay / chọn hồ sơ —</option></select></div>
+      <div><label>Tìm</label><input id="q" placeholder="Số thụ lý, đương sự, người gửi đơn…" /></div>
+    </div>
+    <p class="ok" id="loaded" hidden></p>
+  </div>
+  <div class="card">
+    <p class="kicker">3. Nội dung vụ việc</p>
+    <div class="grid g2">
+      <div><label>Số văn bản nguồn</label><input id="soNguon" /></div>
+      <div><label>Ngày văn bản nguồn</label><input id="ngayNguon" type="date" /></div>
+      <div class="g2" style="grid-column:1/-1"><label>Đối tượng / đương sự / người gửi đơn</label><input id="doiTuong" /></div>
+      <div style="grid-column:1/-1"><label>Nội dung vụ việc (dùng trong Điều 1)</label><textarea id="noiDung"></textarea></div>
+    </div>
+  </div>
+  <div class="card">
+    <p class="kicker">4. Phân công</p>
+    <div class="grid g2">
+      <div><label>Số quyết định</label><input id="soQd" placeholder="01/2026" /></div>
+      <div><label>Ngày ký</label><input id="ngayQd" type="date" /></div>
+      <div><label>Kiểm sát viên thụ lý chính</label><input id="ksv" /></div>
+      <div><label>Chức vụ KSV</label><input id="chucVu" value="Kiểm sát viên" /></div>
+      <div><label>KSV phối hợp (nếu có)</label><input id="ksvPhu" /></div>
+      <div><label>Người ký</label><select id="chucDanh"><option>VIỆN TRƯỞNG</option><option>PHÓ VIỆN TRƯỞNG</option></select></div>
+      <div style="grid-column:1/-1"><label>Họ tên người ký</label><input id="vienTruong" /></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="row" style="justify-content:space-between">
+      <p class="kicker" style="margin:0">Quyết định</p>
+      <div class="row" style="margin:0">
+        <button class="btn btn-ghost" type="button" id="btnCopy">Sao chép</button>
+        <button class="btn btn-ghost" type="button" id="btnPrint">In</button>
+        <button class="btn btn-ghost" type="button" id="btnDoc">Tải Word</button>
+        <button class="btn btn-primary" type="button" id="btnSave">Lưu vào hồ sơ</button>
+      </div>
+    </div>
+    <div class="preview" id="preview"></div>
+  </div>
+  <p class="muted" style="text-align:center;margin-top:16px">Công cụ hỗ trợ soạn thảo, không thay thế việc kiểm tra của lãnh đạo Viện.</p>
+</div>
+<script>
+(function(){
+  var logged = sessionStorage.getItem('vks_logged_in') === 'true' && localStorage.getItem('vks_user');
+  if (!logged) { alert('Vui lòng đăng nhập!'); location.href = 'login.html'; return; }
+  var profile = window.VksRbac ? VksRbac.parseProfile() : {};
+  var firebaseConfig = {
+    apiKey: "AIzaSyDunRDIeyBTVXTODoO22ywk1Q35cCx2sV8",
+    authDomain: "dansu-vksndtpct.firebaseapp.com",
+    databaseURL: "https://dansu-vksndtpct-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "dansu-vksndtpct",
+    storageBucket: "dansu-vksndtpct.firebasestorage.app",
+    appId: "1:843158256686:web:eb128d64c8b9bfd7aef3bf"
+  };
+  if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+  var db = firebase.database();
+
+  var KHAU = [
+    {id:'dansu', short:'KSXX DS', label:'Kiểm sát viên kiểm sát vụ án', so:'DS', nv:'kiểm sát việc giải quyết vụ án',
+      title:'Phân công Kiểm sát viên kiểm sát việc giải quyết vụ án', mod:'dansu', path:'an_dan_su',
+      cc:['Luật Tổ chức Viện kiểm sát nhân dân năm 2014 (sửa đổi, bổ sung)','Bộ luật Tố tụng dân sự năm 2015 (sửa đổi, bổ sung)','Thông tư số 03/2026/TT-VKSTC (Mẫu số 71/HS)']},
+    {id:'thads', short:'KSTHA DS', label:'Kiểm sát viên kiểm sát QĐTHA', so:'THADS', nv:'kiểm sát việc thi hành án dân sự',
+      title:'Phân công Kiểm sát viên kiểm sát quyết định thi hành án dân sự', mod:'thads', path:'thi_hanh_an',
+      cc:['Luật Tổ chức Viện kiểm sát nhân dân năm 2014 (sửa đổi, bổ sung)','Luật Thi hành án dân sự năm 2008 (sửa đổi, bổ sung) và Luật số 106/2025/QH15','Quyết định số 810/QĐ-VKSTC']},
+    {id:'khieuto', short:'KN-TC', label:'Kiểm sát viên giải quyết khiếu nại, tố cáo', so:'KT', nv:'giải quyết khiếu nại, tố cáo',
+      title:'Phân công Kiểm sát viên giải quyết khiếu nại, tố cáo', mod:'khieuto', path:'don_khieu_to',
+      cc:['Luật Tổ chức Viện kiểm sát nhân dân năm 2014 (sửa đổi, bổ sung)','Luật Khiếu nại năm 2011 (sửa đổi, bổ sung)','Luật Tố cáo năm 2018']}
+  ];
+  var params = new URLSearchParams(location.search);
+  var khau = params.get('kind') === 'thads' ? 'thads' : params.get('kind') === 'khieuto' ? 'khieuto' : 'dansu';
+  var recId = params.get('id') || '';
+  var cache = { dansu:[], thads:[], khieuto:[] };
+
+  function meta(){ return KHAU.filter(function(k){return k.id===khau;})[0]; }
+  function canMod(id){ return !window.VksRbac || VksRbac.canAccessModule(profile, id); }
+  function isoToLong(iso, place){
+    var p=(iso||'').split('-');
+    if(p.length!==3) return (place||'Cần Thơ')+', ngày … tháng … năm …';
+    return (place||'Cần Thơ')+', ngày '+Number(p[2])+' tháng '+Number(p[1])+' năm '+p[0];
+  }
+  function letterhead(){
+    var unit = (profile.unit_label || profile.unit || 'VKSND TP. Cần Thơ')+'';
+    var kv = /khu vực\s*(\d+)/i.exec(unit);
+    if (profile.level === 'toi_cao') return {l1:'VIỆN KIỂM SÁT NHÂN DÂN', l2:'TỐI CAO', place:'Hà Nội', full:'Viện kiểm sát nhân dân tối cao'};
+    if (kv || profile.level === 'khuvuc') {
+      var n = kv ? kv[1] : '';
+      return {l1:'VIỆN KIỂM SÁT NHÂN DÂN', l2:'KHU VỰC '+(n?('0'+n).slice(-2):''), place:'Cần Thơ', full:'Viện kiểm sát nhân dân khu vực '+(n||'')+' thành phố Cần Thơ'};
+    }
+    return {l1:'VIỆN KIỂM SÁT NHÂN DÂN', l2:'THÀNH PHỐ CẦN THƠ', place:'Cần Thơ', full:'Viện kiểm sát nhân dân thành phố Cần Thơ'};
+  }
+  function val(id){ return (document.getElementById(id).value||'').trim(); }
+  function draft(){
+    var k=meta(), h=letterhead();
+    var so = val('soQd') || '…';
+    var num = so.indexOf('/QĐ-VKS')>=0 ? so : so+'/QĐ-VKS-'+k.so;
+    var ksv = val('ksv')||'…';
+    var chuc = val('chucVu')||'Kiểm sát viên';
+    var phu = val('ksvPhu') ? '\nPhân công đồng chí '+val('ksvPhu')+' phối hợp, hỗ trợ Kiểm sát viên thụ lý chính.' : '';
+    var nguon = [val('soNguon'), val('ngayNguon'), val('doiTuong')].filter(Boolean).join(' — ');
+    var subject = val('noiDung') || '…';
+    return h.l1+'\n'+h.l2+'\nSố: '+num+'\n\nCỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM\nĐộc lập - Tự do - Hạnh phúc\n\n'+isoToLong(val('ngayQd'), h.place)+'\n\nQUYẾT ĐỊNH\n'+k.title+'\n\n'+val('chucDanh')+' '+h.full.toUpperCase()+'\n\nCăn cứ:\n'+k.cc.map(function(c){return '- '+c+';';}).join('\n')+'\n\nXét đề nghị phân công'+(nguon?': '+nguon:'')+';\n\nQUYẾT ĐỊNH:\n\nĐiều 1. Phân công đồng chí '+ksv+', '+chuc+', '+k.nv+' '+subject+'.'+phu+'\nĐồng chí được phân công là Kiểm sát viên thụ lý chính, chịu trách nhiệm lập, quản lý hồ sơ kiểm sát và báo cáo tiến độ theo quy chế công tác.\n\nĐiều 2. Đồng chí có tên tại Điều 1 chịu trách nhiệm thi hành Quyết định này.\n\nĐiều 3. Quyết định này có hiệu lực kể từ ngày ký.\n\nNơi nhận:                                      '+val('chucDanh')+'\n- Như Điều 1;                                  '+h.full+'\n- Lưu: VT, hồ sơ kiểm sát.                     (đã ký)\n\n                                               '+(val('vienTruong')||'…')+'\n';
+  }
+  function refresh(){ document.getElementById('preview').textContent = draft(); }
+  function renderKhau(){
+    document.getElementById('khauBox').innerHTML = KHAU.filter(function(k){return canMod(k.mod);}).map(function(k){
+      return '<button type="button" class="khau'+(k.id===khau?' on':'')+'" data-id="'+k.id+'"><strong>'+k.short+'</strong><div>'+k.label+'</div><small>'+k.so+'</small></button>';
+    }).join('');
+  }
+  function labelOf(kind, r){
+    if(kind==='dansu') return (r.caseCode||r.ten_vu||r.caseName||'')+' — '+(r.caseName||r.ten_vu||r.so_thu_ly||r.receiptNo||r.id);
+    if(kind==='thads') return (r.so_qd_tha||r.decisionNo||'')+' — '+(r.nguoi_phai_tha||r.debtor||'');
+    return (r.ho_ten||r.petitioner||'')+' — '+(r.phan_loai||r.kind||'');
+  }
+  function fillFrom(kind, r){
+    recId = r.id || recId;
+    if(kind==='dansu'){
+      document.getElementById('soNguon').value = r.receiptNo||r.so_thu_ly||'';
+      document.getElementById('ngayNguon').value = r.receiptDate||r.ngay_thu_ly||'';
+      document.getElementById('doiTuong').value = [r.plaintiff||r.nguyen_don, r.defendant||r.bi_don].filter(Boolean).join(' / ');
+      document.getElementById('noiDung').value = 'vụ án thụ lý số '+(r.receiptNo||r.so_thu_ly||'…')+(r.caseName||r.ten_vu?' về “'+(r.caseName||r.ten_vu)+'”':'');
+      document.getElementById('ksv').value = r.prosecutorName||r.ksv||'';
+    } else if(kind==='thads'){
+      document.getElementById('soNguon').value = r.decisionNo||r.so_qd_tha||'';
+      document.getElementById('ngayNguon').value = r.issuedDate||r.ngay_ban_hanh_qd||'';
+      document.getElementById('doiTuong').value = r.debtor||r.nguoi_phai_tha||'';
+      document.getElementById('noiDung').value = 'việc thi hành án dân sự theo Quyết định số '+(r.decisionNo||r.so_qd_tha||'…')+' đối với người phải thi hành án '+(r.debtor||r.nguoi_phai_tha||'…');
+      document.getElementById('ksv').value = r.prosecutors||r.ksv||'';
+    } else {
+      document.getElementById('soNguon').value = r.decisionNo||'';
+      document.getElementById('ngayNguon').value = r.receivedDate||r.ngay_nhan||'';
+      document.getElementById('doiTuong').value = r.petitioner||r.ho_ten||'';
+      document.getElementById('noiDung').value = 'đơn của '+(r.petitioner||r.ho_ten||'…')+(r.content||r.noi_dung?' về việc '+(r.content||r.noi_dung):'');
+      document.getElementById('ksv').value = r.assignedToName||r.can_bo_ksv||'';
+    }
+    document.getElementById('soQd').value = r.assignmentNo||r.qd_phan_cong_so||r.qd_phan_cong_ksv_so||document.getElementById('soQd').value;
+    document.getElementById('ngayQd').value = r.assignmentDate||r.ngay_phan_cong||r.ngay_phan_cong_ksv||r.ngay_ban_hanh_qd_phan_cong||document.getElementById('ngayQd').value;
+    document.getElementById('vienTruong').value = r.signerName||r.nguoi_ky_qd||document.getElementById('vienTruong').value;
+    document.getElementById('loaded').hidden = false;
+    document.getElementById('loaded').textContent = 'Đã nạp hồ sơ — rà soát trước khi trình ký.';
+    refresh();
+  }
+  function renderSel(){
+    var q = (document.getElementById('q').value||'').toLowerCase();
+    var list = cache[khau]||[];
+    var opts = ['<option value="">— Điền tay / chọn hồ sơ —</option>'];
+    list.forEach(function(r){
+      var lab = labelOf(khau, r);
+      if (q && lab.toLowerCase().indexOf(q)<0) return;
+      opts.push('<option value="'+(r.id||'')+'"'+(r.id===recId?' selected':'')+'>'+lab.replace(/[<>]/g,'')+'</option>');
+    });
+    document.getElementById('recSel').innerHTML = opts.join('');
+  }
+  function loadKind(kind){
+    var k = KHAU.filter(function(x){return x.id===kind;})[0];
+    db.ref(k.path).once('value').then(function(snap){
+      var v = snap.val()||{};
+      cache[kind] = Object.keys(v).map(function(id){ var r=v[id]||{}; r.id=r.id||id; return r; });
+      renderSel();
+      if (recId) {
+        var hit = cache[kind].filter(function(r){return r.id===recId;})[0];
+        if (hit) fillFrom(kind, hit);
+      }
+    });
+  }
+  function today(){
+    var n=new Date();
+    document.getElementById('ngayQd').value = n.getFullYear()+'-'+('0'+(n.getMonth()+1)).slice(-2)+'-'+('0'+n.getDate()).slice(-2);
+  }
+  function save(){
+    if (!recId) { alert('Chọn hồ sơ đã nhập để lưu số QĐ phân công.'); return; }
+    var k = meta();
+    var patch = {
+      assignmentNo: val('soQd'), assignmentDate: val('ngayQd'),
+      assignmentTitle: val('chucVu'), assignmentDeputy: val('ksvPhu'),
+      signerName: val('vienTruong'),
+      qd_phan_cong_so: val('soQd'), qd_phan_cong_ksv_so: val('soQd'),
+      ngay_phan_cong: val('ngayQd'), ngay_phan_cong_ksv: val('ngayQd'), ngay_ban_hanh_qd_phan_cong: val('ngayQd'),
+      nguoi_ky_qd: val('vienTruong'), ksv_chuc_vu: val('chucVu'), ksv_phoi_hop: val('ksvPhu')
+    };
+    if (khau==='dansu') { patch.ksv = val('ksv'); patch.prosecutorName = val('ksv'); }
+    if (khau==='thads') { patch.prosecutors = val('ksv'); }
+    if (khau==='khieuto') { patch.can_bo_ksv = val('ksv'); patch.assignedToName = val('ksv'); }
+    db.ref(k.path+'/'+recId).update(patch).then(function(){ alert('Đã lưu quyết định phân công vào hồ sơ.'); }).catch(function(e){ alert('Không lưu được: '+(e.message||e)); });
+  }
+
+  if (!canMod(meta().mod)) {
+    var first = KHAU.filter(function(k){return canMod(k.mod);})[0];
+    if (first) khau = first.id;
+  }
+  renderKhau(); today();
+  if (params.get('so')) document.getElementById('soNguon').value = params.get('so');
+  if (params.get('ten')) document.getElementById('noiDung').value = params.get('ten');
+  if (params.get('ksv')) document.getElementById('ksv').value = params.get('ksv');
+  if (params.get('nd') || params.get('bd')) document.getElementById('doiTuong').value = [params.get('nd'), params.get('bd')].filter(Boolean).join(' / ');
+  refresh();
+  loadKind(khau);
+
+  document.getElementById('khauBox').addEventListener('click', function(e){
+    var b=e.target.closest('[data-id]'); if(!b) return;
+    khau=b.getAttribute('data-id'); recId=''; renderKhau(); loadKind(khau); refresh();
+  });
+  ['soQd','ngayQd','ksv','chucVu','ksvPhu','chucDanh','vienTruong','soNguon','ngayNguon','doiTuong','noiDung'].forEach(function(id){
+    document.getElementById(id).addEventListener('input', refresh);
+    document.getElementById(id).addEventListener('change', refresh);
+  });
+  document.getElementById('q').addEventListener('input', renderSel);
+  document.getElementById('recSel').addEventListener('change', function(){
+    recId = this.value;
+    var hit = (cache[khau]||[]).filter(function(r){return r.id===recId;})[0];
+    if (hit) fillFrom(khau, hit);
+  });
+  document.getElementById('btnCopy').onclick = function(){ navigator.clipboard.writeText(draft()).then(function(){ alert('Đã sao chép.'); }); };
+  document.getElementById('btnPrint').onclick = function(){
+    var w=window.open('',''); if(!w) return;
+    w.document.write('<pre style="font-family:Times New Roman;font-size:13.5pt;white-space:pre-wrap">'+draft().replace(/</g,'<')+'</pre>');
+    w.document.close(); w.print();
+  };
+  document.getElementById('btnDoc').onclick = function(){
+    var blob = new Blob(['\ufeff','<html><body><pre style="font-family:Times New Roman;font-size:13.5pt">'+draft().replace(/</g,'<')+'</pre></body></html>'], {type:'application/msword'});
+    var a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='QD-phan-cong-KSV.doc'; a.click();
+  };
+  document.getElementById('btnSave').onclick = save;
+})();
+</script>
+</body>
+</html>

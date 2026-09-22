@@ -30,7 +30,7 @@
   }
 
   if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("sw.js?v=20260921f").catch(function () {});
+    navigator.serviceWorker.register("sw.js?v=20260922a").catch(function () {});
   }
 
   var deferred = null;
