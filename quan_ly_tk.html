@@ -81,15 +81,15 @@
             
             <label>Chức vụ:</label>
             <select id="chuc_vu_tinh" onchange="toggleTinhDept()">
-                <option value="Kiểm sát viên" selected>Kiểm sát viên</option>
-                <option value="Kiểm tra viên">Kiểm tra viên</option>
-                <option value="Chuyên viên">Chuyên viên</option>
-                <option value="Cán bộ phụ trách">Cán bộ phụ trách</option>
-                <option value="Viện trưởng">Viện trưởng</option>
+               <option value="Viện trưởng">Viện trưởng</option>
                 <option value="Phó viện trưởng phụ trách">Phó viện trưởng phụ trách</option>
                 <option value="Trưởng phòng">Trưởng phòng</option>
+                <option value="Phó Trưởng phòng">Phó Trưởng phòng</option>
                 <option value="Chánh văn phòng">Chánh văn phòng</option>
                 <option value="Chánh Thanh tra">Chánh Thanh tra</option>
+                 <option value="Kiểm sát viên" selected>Kiểm sát viên</option>
+                <option value="Kiểm tra viên">Kiểm tra viên</option>
+                <option value="Chuyên viên">Chuyên viên</option>
             </select>
             <div id="tinh_dept_wrap" style="display:none;margin-top:12px;">
                 <label>Phòng / Văn phòng:</label>
@@ -111,7 +111,6 @@
             <select id="chuc_vu_khuvuc">
                 <option value="Viện trưởng">Viện trưởng</option>
                 <option value="Phó viện trưởng phụ trách">Phó viện trưởng phụ trách</option>
-                <option value="Cán bộ phụ trách">Cán bộ phụ trách</option>
                 <option value="Kiểm sát viên">Kiểm sát viên</option>
                 <option value="Kiểm tra viên">Kiểm tra viên</option>
                 <option value="Chuyên viên">Chuyên viên</option>
@@ -124,8 +123,8 @@
             <select id="chuc_vu_toicao" onchange="toggleToicaoDept()">
                 <option value="Viện trưởng">Viện trưởng</option>
                 <option value="Phó viện trưởng phụ trách">Phó viện trưởng phụ trách</option>
-                <option value="Cục trưởng cục Thống kê và CNTT">Cục trưởng cục Thống kê và CNTT</option>
-                <option value="Cán bộ phụ trách">Cán bộ phụ trách</option>
+                <option value="Cục trưởng Cục Thống kê và CNTT">Cục trưởng Cục Thống kê và CNTT</option>
+                 <option value="Phó Cục trưởng Cục Thống kê và CNTT">Phó Cục trưởng Cục Thống kê và CNTT</option>
             </select>
             <div id="toicao_dept_wrap" style="display:none;margin-top:12px;">
                 <label>Vụ:</label>
@@ -181,7 +180,9 @@
             if (s.indexOf('chánh thanh') >= 0) return 'chanh_thanh_tra';
             if (s.indexOf('chánh văn') >= 0) return 'chanh_van_phong';
             if (s.indexOf('trưởng phòng') >= 0) return 'truong_phong';
+            if (s.indexOf('phó trưởng') >= 0) return 'pho_truong_phong';
             if (s.indexOf('cục trưởng') >= 0) return 'cuc_truong';
+            if (s.indexOf('phó cục') >= 0) return 'pho_cuc_truong';
             if (s.indexOf('phó viện') >= 0) return 'pho_vien_truong';
             if (s.indexOf('viện trưởng') >= 0) return 'vien_truong';
             if (s.indexOf('cán bộ phụ trách') >= 0) return 'can_bo_phu_trach';
