@@ -8,7 +8,7 @@
     <!-- ds-chuyen-an-20260921 -->
     <link rel="stylesheet" href="static/theme.css?v=20260921c">
     <script src="static/rbac.js?v=20260921e"></script>
-    <script src="static/pwa.js?v=20260924a"></script>
+    <script src="static/pwa.js?v=20260924b"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="static/bmds-export.js?v=20260916d"></script>
     <script>
@@ -157,6 +157,7 @@
                 <li data-mod="chuyen" onclick="openModule('chuyen', this)"><span class="folder">📁</span> Chuyển án</li>
                 <li data-mod="nhan" onclick="openModule('nhan', this)"><span class="folder">📁</span> Nhận án</li>
                 <li data-mod="kc" onclick="openModule('kc', this)"><span class="folder">📁</span> Cập nhật kháng cáo quá hạn</li>
+                <li data-mod="khangnghi" onclick="openModule('khangnghi', this)"><span class="folder">📁</span> Danh sách các vụ án có Kháng nghị của VKS</li>
                 <li data-mod="sauxx" onclick="openModule('sauxx', this)"><span class="folder">📁</span> Cập nhật thông tin sau xét xử</li>
                 <li data-mod="tongdat" onclick="openModule('tongdat', this)"><span class="folder">📁</span> Đăng văn bản tổng đạt lên cổng thông tin điện tử</li>
             </ul>
@@ -183,14 +184,14 @@
                                 <option value="">-- Tất cả --</option>
                                 <option value="Sơ thẩm">Sơ thẩm</option>
                                 <option value="Phúc thẩm">Phúc thẩm</option>
+                                <option value="Giám đốc thẩm">Giám đốc thẩm</option>
+                                <option value="Tái thẩm">Tái thẩm</option>
                             </select>
                         </div>
                         <div class="form-row">
-                            <label>Tòa xx sơ thẩm</label>
+                            <label>Tòa án giải quyết</label>
                             <select id="f_toa">
                                 <option value="">-- Tất cả --</option>
-                                <option value="Tòa án nhân dân thành phố Vũng Tàu">Tòa án nhân dân thành phố Vũng Tàu</option>
-                                <option value="Tòa án nhân dân TP. Cần Thơ">Tòa án nhân dân TP. Cần Thơ</option>
                             </select>
                         </div>
                     </div>
@@ -288,7 +289,7 @@
                             <option value="BPXLHC">Biện pháp xử lý hành chính</option>
                         </select>
                     </div>
-                    <div class="form-group"><label>Cấp xét xử *</label><select id="m_cap_xet_xu"><option value="Sơ thẩm">Sơ thẩm</option><option value="Phúc thẩm">Phúc thẩm</option></select></div>
+                    <div class="form-group"><label>Cấp xét xử *</label><select id="m_cap_xet_xu"><option value="Sơ thẩm">Sơ thẩm</option><option value="Phúc thẩm">Phúc thẩm</option><option value="Giám đốc thẩm">Giám đốc thẩm</option><option value="Tái thẩm">Tái thẩm</option></select></div>
                     <div class="form-group"><label>Số Thụ lý</label><input type="text" id="m_so_thu_ly" placeholder="VD: 07"></div>
                     <div class="form-group"><label>Số Bản án / Quyết định *</label><input type="text" id="m_so_ban_an" placeholder="VD: 02104011"></div>
                     <div class="form-group"><label>Mã định danh TADT</label><input type="text" id="m_ma_tadt" placeholder="Mã vụ Tòa án điện tử"></div>
@@ -299,7 +300,12 @@
                     <div class="form-group full"><label>Bị đơn</label><textarea id="m_bi_don" placeholder="Họ tên bị đơn..."></textarea></div>
                     <div class="form-group"><label>Thẩm phán được phân công giải quyết</label><input type="text" id="m_tham_phan"></div>
                     <div class="form-group"><label>KSV thụ lý</label><input type="text" id="m_ksv"></div>
-                    <div class="form-group"><label>Tòa án</label><select id="m_toa"><option value="Tòa án nhân dân thành phố Vũng Tàu">Tòa án nhân dân thành phố Vũng Tàu</option><option value="Tòa án nhân dân TP. Cần Thơ">Tòa án nhân dân TP. Cần Thơ</option></select></div>
+                    <div class="form-group"><label>Tòa án giải quyết</label><select id="m_toa"></select></div>
+                    <div class="form-group"><label>Loại kháng nghị của VKS</label><select id="m_kn_loai"><option value="">— Chưa ban hành —</option><option value="Phúc thẩm">Kháng nghị phúc thẩm</option><option value="Giám đốc thẩm">Kháng nghị giám đốc thẩm</option><option value="Tái thẩm">Kháng nghị tái thẩm</option></select></div>
+                    <div class="form-group"><label>Số kháng nghị</label><input id="m_kn_so" placeholder="01/QĐ-VKS-DS"></div>
+                    <div class="form-group"><label>Ngày ban hành kháng nghị</label><input type="date" id="m_kn_ngay"></div>
+                    <div class="form-group"><label>VKS ban hành</label><input id="m_kn_vks"></div>
+                    <div class="form-group full"><label>Nội dung kháng nghị</label><textarea id="m_kn_noi_dung" placeholder="Yêu cầu xét lại bản án, quyết định"></textarea></div>
                     <div class="form-group"><label>Mã vụ việc</label><input type="text" id="m_ma_vu_viec" placeholder="Tự sinh nếu để trống"></div>
                     <div class="form-group full"><label>Đính kèm PDF Bản án/Quyết định</label><input type="file" id="m_pdf_file" accept=".pdf"></div>
                 </div>
@@ -326,7 +332,7 @@
                     <div class="search-body">
                         <div class="search-grid" style="grid-template-columns: 1fr 1fr 1fr auto;">
                             <div class="form-row"><label>Đương sự / Tên vụ án</label><input type="text" id="nhap_f_duong_su" placeholder="Nhập tên để tìm..."></div>
-                            <div class="form-row"><label>Cấp xét xử</label><select id="nhap_f_cap"><option value="">-- Tất cả --</option><option value="Sơ thẩm">Sơ thẩm</option><option value="Phúc thẩm">Phúc thẩm</option></select></div>
+                            <div class="form-row"><label>Cấp xét xử</label><select id="nhap_f_cap"><option value="">-- Tất cả --</option><option value="Sơ thẩm">Sơ thẩm</option><option value="Phúc thẩm">Phúc thẩm</option><option value="Giám đốc thẩm">Giám đốc thẩm</option><option value="Tái thẩm">Tái thẩm</option></select></div>
                             <div class="form-row"><label>Số Thụ lý / Số BA</label><input type="text" id="nhap_f_so"></div>
                             <div class="form-row" style="justify-content:flex-end;"><label>&nbsp;</label><button class="btn btn-primary" onclick="searchForNhap()">🔍 Tìm kiếm</button></div>
                         </div>
@@ -372,11 +378,46 @@
             ksv: { title: 'Danh sách phân công Kiểm sát viên', help: 'Phân công Kiểm sát viên thụ lý. Mỗi KSV chỉ xem, theo dõi, quản lý và trích xuất vụ việc được phân công cho mình — không xem dữ liệu của tài khoản khác.' },
             chuyen: { title: 'Chuyển án', help: 'Chuyển hồ sơ sang VKSND tối cao, VKSND TP. Cần Thơ và Khu vực 01–14. Vụ đã chuyển sẽ xuất hiện ở mục Nhận án để đơn vị nhận xác nhận thụ lý.' },
             nhan: { title: 'Nhận án', help: 'Tiếp nhận các vụ việc đã được chuyển đến. Bấm “Nhận án” để xác nhận thụ lý tại đơn vị.' },
-            kc: { title: 'Cập nhật kháng cáo quá hạn', help: 'Ghi nhận kháng cáo / kháng nghị quá hạn theo thời hạn Bộ luật Tố tụng dân sự, phục vụ thống kê và theo dõi.' },
+            kc: { title: 'Cập nhật kháng cáo quá hạn', help: 'Ghi nhận kháng cáo của đương sự hoặc kháng nghị quá hạn theo Bộ luật Tố tụng dân sự.' },
+            khangnghi: { title: 'Danh sách các vụ án có Kháng nghị của VKS', help: 'Nhập số, ngày ban hành, Viện kiểm sát ban hành và nội dung kháng nghị. Tài khoản đơn vị nào đang đăng nhập thì mặc định đơn vị đó ban hành. Phúc thẩm: VKS cùng cấp 15 ngày, VKS cấp trên trực tiếp 01 tháng. Giám đốc thẩm và tái thẩm theo thẩm quyền Viện trưởng VKS có thẩm quyền.' },
             sauxx: { title: 'Cập nhật thông tin sau xét xử', help: 'Cập nhật kết quả xét xử (giữ nguyên, sửa án, hủy án, đình chỉ, công nhận thỏa thuận…) sau khi có bản án / quyết định.' },
             tongdat: { title: 'Đăng văn bản tổng đạt lên cổng thông tin điện tử', help: 'Ghi số, ngày và đường dẫn văn bản đã đăng trên cổng thông tin điện tử của ngành (hoặc liên thông TADT).' }
         };
         function padKv(n) { return (n < 10 ? '0' : '') + n; }
+        function courtNames() {
+            var list = [];
+            for (var i = 1; i <= 14; i++) list.push('Tòa án nhân dân khu vực ' + (i < 10 ? '0' : '') + i);
+            list.push('Tòa án nhân dân thành phố Cần Thơ');
+            return list;
+        }
+        function fillCourtSelects() {
+            var names = courtNames();
+            var f = document.getElementById('f_toa');
+            var m = document.getElementById('m_toa');
+            if (f && f.options.length < 2) {
+                f.innerHTML = '<option value="">-- Tất cả --</option>' + names.map(function (n) { return '<option value="' + n + '">' + n + '</option>'; }).join('');
+            }
+            if (m && !m.options.length) {
+                m.innerHTML = names.map(function (n) { return '<option value="' + n + '">' + n + '</option>'; }).join('');
+            }
+        }
+        function myVksName() {
+            var p = window.__vksProfile || (window.VksRbac && VksRbac.parseProfile && VksRbac.parseProfile()) || {};
+            var raw = String(p.unit_label || p.unit || '');
+            var m = raw.match(/khu\s*vực\s*0*(\d+)/i) || String(p.regionId || p.kv || '').match(/kv\s*0*(\d+)/i);
+            if (p.level === 'khuvuc' || /khu\s*vực/i.test(raw)) {
+                var n = m ? Number(m[1]) : 0;
+                if (n) return 'VKSND khu vực ' + (n < 10 ? '0' : '') + n;
+                return raw || 'VKSND khu vực';
+            }
+            var dept = String(p.department || p.phong || p.departmentId || '');
+            var dm = dept.match(/(phong|phòng|vu|vụ)[_\s]*(\d+)/i);
+            var deptLabel = dm ? ((/vu|vụ/i.test(dm[1]) ? 'Vụ ' : 'Phòng ') + dm[2]) : (/thanh tra/i.test(dept) ? 'Thanh tra' : '');
+            var base = raw || (p.level === 'toi_cao' ? 'VKSND tối cao' : 'VKSND TP. Cần Thơ');
+            if (deptLabel && base.indexOf(deptLabel) < 0) return base + ' · ' + deptLabel;
+            return base;
+        }
+        fillCourtSelects();
         function kvDestLabels(count) {
             var list = [];
             for (var i = 1; i <= count; i++) list.push('Khu vực ' + padKv(i));
@@ -678,7 +719,7 @@
             editingId = null;
             document.getElementById('modal-add-title').innerText = '➕ Thêm mới vụ việc';
             document.getElementById('btn-save-modal').innerText = '💾 Lưu hồ sơ';
-            ['m_cap_xet_xu','m_so_thu_ly','m_so_ban_an','m_ngay_ban_hanh','m_ten_vu_an','m_nguyen_don','m_bi_don','m_tham_phan','m_ksv','m_toa','m_ma_vu_viec','m_ma_tadt','m_link_tadt'].forEach(id => {
+            ['m_cap_xet_xu','m_so_thu_ly','m_so_ban_an','m_ngay_ban_hanh','m_ten_vu_an','m_nguyen_don','m_bi_don','m_tham_phan','m_ksv','m_toa','m_ma_vu_viec','m_ma_tadt','m_link_tadt','m_kn_loai','m_kn_so','m_kn_ngay','m_kn_noi_dung'].forEach(id => {
                 const el = document.getElementById(id);
                 if (!el) return;
                 if (el.tagName === 'SELECT') el.selectedIndex = 0;
@@ -686,6 +727,7 @@
             });
             document.getElementById('m_linh_vuc').value = currentLinhVuc || 'DS';
             document.getElementById('m_pdf_file').value = '';
+            if (document.getElementById('m_kn_vks')) document.getElementById('m_kn_vks').value = myVksName();
             if (window.VksRbac && VksRbac.isKsv(window.__vksProfile || VksRbac.parseProfile())) {
                 const p = window.__vksProfile || VksRbac.parseProfile();
                 document.getElementById('m_ksv').value = p.fullname || currentUser || '';
@@ -722,10 +764,15 @@
                 } else {
                     document.getElementById('m_ksv').readOnly = false;
                 }
-                document.getElementById('m_toa').value = r.toa || 'Tòa án nhân dân thành phố Vũng Tàu';
+                document.getElementById('m_toa').value = r.toa || 'Tòa án nhân dân khu vực 01';
                 document.getElementById('m_ma_vu_viec').value = r.ma_vu_viec || '';
                 if (document.getElementById('m_ma_tadt')) document.getElementById('m_ma_tadt').value = r.ma_tadt || '';
                 if (document.getElementById('m_link_tadt')) document.getElementById('m_link_tadt').value = r.link_tadt || '';
+                if (document.getElementById('m_kn_loai')) document.getElementById('m_kn_loai').value = r.kn_loai || '';
+                if (document.getElementById('m_kn_so')) document.getElementById('m_kn_so').value = r.kn_so || '';
+                if (document.getElementById('m_kn_ngay')) document.getElementById('m_kn_ngay').value = r.kn_ngay || '';
+                if (document.getElementById('m_kn_vks')) document.getElementById('m_kn_vks').value = r.kn_vks || myVksName();
+                if (document.getElementById('m_kn_noi_dung')) document.getElementById('m_kn_noi_dung').value = r.kn_noi_dung || '';
                 document.getElementById('modal-add').classList.add('show');
             };
         }
@@ -746,6 +793,11 @@
                 tham_phan: document.getElementById('m_tham_phan').value.trim(),
                 ksv: document.getElementById('m_ksv').value.trim(),
                 toa: document.getElementById('m_toa').value,
+                kn_loai: document.getElementById('m_kn_loai') ? document.getElementById('m_kn_loai').value : '',
+                kn_so: document.getElementById('m_kn_so') ? document.getElementById('m_kn_so').value.trim() : '',
+                kn_ngay: document.getElementById('m_kn_ngay') ? document.getElementById('m_kn_ngay').value : '',
+                kn_vks: document.getElementById('m_kn_vks') ? document.getElementById('m_kn_vks').value.trim() : '',
+                kn_noi_dung: document.getElementById('m_kn_noi_dung') ? document.getElementById('m_kn_noi_dung').value.trim() : '',
                 ma_vu_viec: document.getElementById('m_ma_vu_viec').value.trim() || soBA,
                 ma_tadt: document.getElementById('m_ma_tadt').value.trim(),
                 link_tadt: document.getElementById('m_link_tadt').value.trim(),
@@ -972,6 +1024,9 @@
             if (currentModule === 'nhan') {
                 return visibleCases().filter(r => r.chuyen_trang_thai === 'da_chuyen' || r.chuyen_trang_thai === 'da_nhan');
             }
+            if (currentModule === 'khangnghi') {
+                return visibleCases().filter(r => r.kn_so || r.kn_noi_dung || r.kn_loai);
+            }
             return visibleCases();
         }
 
@@ -1109,6 +1164,25 @@
                     </div>
                     <div style="margin-top:12px;text-align:right"><button class="btn btn-primary" onclick="saveTongDat()">💾 Lưu & đánh dấu đã đăng</button></div>`;
                 thead = `<tr><th>STT</th><th>Vụ việc</th><th>Số VB</th><th>Ngày</th><th>Trạng thái</th><th></th></tr>`;
+            } else if (currentModule === 'khangnghi') {
+                form = `<h3>Kháng nghị của Viện kiểm sát</h3>
+                    <div class="form-grid">
+                        <div class="form-group full"><label>Vụ việc</label><select id="w_case" onchange="selectWork(parseInt(this.value,10))">${caseOptions(selectedWorkId)}</select></div>
+                        <div class="form-group"><label>Loại kháng nghị</label>
+                            <select id="w_kn_loai">
+                                <option value="" ${!rec || !rec.kn_loai ? 'selected' : ''}>— Chưa ban hành —</option>
+                                <option ${rec && rec.kn_loai==='Phúc thẩm'?'selected':''}>Phúc thẩm</option>
+                                <option ${rec && rec.kn_loai==='Giám đốc thẩm'?'selected':''}>Giám đốc thẩm</option>
+                                <option ${rec && rec.kn_loai==='Tái thẩm'?'selected':''}>Tái thẩm</option>
+                            </select>
+                        </div>
+                        <div class="form-group"><label>Số kháng nghị</label><input id="w_kn_so" value="${esc(rec ? rec.kn_so : '')}"></div>
+                        <div class="form-group"><label>Ngày ban hành</label><input type="date" id="w_kn_ngay" value="${esc((rec && rec.kn_ngay) || today())}"></div>
+                        <div class="form-group"><label>VKS ban hành</label><input id="w_kn_vks" value="${esc((rec && rec.kn_vks) || myVksName())}"></div>
+                        <div class="form-group full"><label>Nội dung kháng nghị</label><textarea id="w_kn_noi_dung">${esc(rec ? rec.kn_noi_dung : '')}</textarea></div>
+                    </div>
+                    <div style="margin-top:12px;text-align:right"><button class="btn btn-primary" onclick="saveKhangNghi()">💾 Lưu kháng nghị</button></div>`;
+                thead = `<tr><th>STT</th><th>Vụ việc</th><th>Loại</th><th>Số / ngày</th><th>VKS ban hành</th><th></th></tr>`;
             }
 
             document.getElementById('work-roster').innerHTML = roster;
@@ -1139,6 +1213,8 @@
                     cells = `<td>${esc(r.sau_xx_ket_qua || '—')}</td><td>${esc(r.sau_xx_ngay || '—')}</td><td>${esc((r.sau_xx_ghi_chu || '').slice(0, 40))}</td>`;
                 } else if (currentModule === 'tongdat') {
                     cells = `<td>${esc(r.tong_dat_so || '—')}</td><td>${esc(r.tong_dat_ngay || '—')}</td><td>${r.tong_dat_trang_thai==='da_dang'?'<span class="pill pill-ok">Đã đăng</span>':'<span class="pill pill-muted">Chưa đăng</span>'}</td>`;
+                } else if (currentModule === 'khangnghi') {
+                    cells = `<td>${esc(r.kn_loai || '—')}</td><td>${esc(r.kn_so || '—')} · ${esc(r.kn_ngay || '—')}</td><td>${esc(r.kn_vks || '—')}</td>`;
                 }
                 return `<tr class="${sel}" onclick="selectWork(${r.id})">
                     <td>${idx + 1}</td>
@@ -1255,7 +1331,19 @@
             selectedWorkId = id;
         }
 
-        window.onload = () => { seedSampleData(); };
+        async function saveKhangNghi() {
+            const id = workCaseId(); if (!id) return;
+            const loai = document.getElementById('w_kn_loai').value;
+            const so = document.getElementById('w_kn_so').value.trim();
+            const ngay = document.getElementById('w_kn_ngay').value;
+            const vks = document.getElementById('w_kn_vks').value.trim() || myVksName();
+            const noiDung = document.getElementById('w_kn_noi_dung').value.trim();
+            if (!loai && !so && !noiDung) { showToast('Nhập loại, số hoặc nội dung kháng nghị.', true); return; }
+            await patchRecord(id, { kn_loai: loai, kn_so: so, kn_ngay: ngay, kn_vks: vks, kn_noi_dung: noiDung });
+            selectedWorkId = id;
+        }
+
+        window.onload = () => { fillCourtSelects(); seedSampleData(); };
     </script>
 </body>
 </html>
