@@ -7,7 +7,7 @@
     <!-- v=20260921-kt: đề xuất xử lý theo thẩm quyền kiểm sát / không thuộc -->
     <link rel="stylesheet" href="static/theme.css?v=20260921a">
     <script src="static/rbac.js?v=20260921e"></script>
-    <script src="static/pwa.js?v=20260924b"></script>
+    <script src="static/pwa.js?v=20260924c"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
@@ -85,11 +85,13 @@
 
             <div class="form-group">
                 <label>Phân loại:</label>
-                <select id="phan_loai">
+                <select id="phan_loai" onchange="onPhanLoai()">
                     <option value="Khiếu nại">Khiếu nại</option>
                     <option value="Tố cáo">Tố cáo</option>
                     <option value="Kiến nghị/Phản ánh">Kiến nghị/Phản ánh</option>
                     <option value="Tin báo tội phạm">Tin báo tội phạm (TGTP)</option>
+                    <option value="Yêu cầu Giám đốc thẩm">Yêu cầu Giám đốc thẩm</option>
+                    <option value="Yêu cầu bồi thường oan sai">Yêu cầu bồi thường oan sai</option>
                 </select>
             </div>
 
@@ -291,10 +293,23 @@
 
         function kindCode(v) {
             v = (v || '').toLowerCase();
+            if (v.indexOf('oan sai') >= 0) return 'boi_thuong_oan_sai';
+            if (v.indexOf('yêu cầu giám đốc') >= 0 || v.indexOf('yeu cau giam doc') >= 0) return 'yeu_cau_gdt';
             if (v.indexOf('tố cáo') >= 0 || v.indexOf('to cao') >= 0) return 'to_cao';
             if (v.indexOf('kiến nghị') >= 0 || v.indexOf('kien nghi') >= 0) return 'kien_nghi';
             if (v.indexOf('tin báo') >= 0 || v.indexOf('tgtp') >= 0) return 'tin_bao';
+            if (v.indexOf('giám đốc') >= 0 || v.indexOf('gđt') >= 0 || v.indexOf('gdt') >= 0) return 'de_nghi_gdt';
+            if (v.indexOf('bồi thường') >= 0 || v.indexOf('boi thuong') >= 0) return 'boi_thuong';
             return 'khieu_nai';
+        }
+
+        function onPhanLoai() {
+            var v = val('phan_loai');
+            if (v === 'Yêu cầu Giám đốc thẩm' || v === 'Yêu cầu bồi thường oan sai') {
+                var sel = document.getElementById('tham_quyen');
+                if (sel) sel.value = 'Thuộc thẩm quyền giải quyết';
+                toggleThamQuyen();
+            }
         }
 
         function sourceCode(v) {

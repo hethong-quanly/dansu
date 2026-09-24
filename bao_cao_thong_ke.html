@@ -5,7 +5,7 @@
     <title>Báo cáo Thống kê Tổng hợp</title>
     <link rel="stylesheet" href="static/theme.css?v=20260916c">
     <script src="static/rbac.js?v=20260921e"></script>
-    <script src="static/pwa.js?v=20260924b"></script>
+    <script src="static/pwa.js?v=20260924c"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -411,15 +411,6 @@
     function renderKpi287(ads, tha, dkt) {
         var level = (currentUser.level === 'toi_cao' || currentUser.level === 'khuvuc' || currentUser.level === 'tinh') ? currentUser.level : 'tinh';
         var cur = null;
-        function itemLevel(x) {
-            var lv = String((x && (x.ownerLevel || x.level)) || '');
-            if (lv === 'toi_cao' || lv === 'tinh' || lv === 'khuvuc') return lv;
-            var unit = String((x && (x.unit_label || x.unit || x.department || x.departmentId)) || '');
-            if (/khu vực|KV\s*\d|kv\d/i.test(unit)) return 'khuvuc';
-            if (/tối cao|vu_9|vu_10|vu_11|vu_12/i.test(unit)) return 'toi_cao';
-            if (x && x.regionId && !x.departmentId) return 'khuvuc';
-            return level;
-        }
         function band(tc, tinh, kv) {
             var lv = itemLevel(cur || {});
             if (lv === 'toi_cao') return tc;
@@ -436,34 +427,79 @@
         var groups = {};
         function deptPretty(d) {
             var s = String(d || '');
+            if (/thanh tra|phòng\s*12|phong_12/i.test(s)) return 'Phòng 12';
             var m = s.match(/(phong|phòng|vu|vụ)[_\s]*(\d+)/i);
             if (m) return (/vu|vụ/i.test(m[1]) ? 'Vụ ' : 'Phòng ') + m[2];
-            if (/thanh tra/i.test(s)) return 'Thanh tra';
             return s;
         }
-        function unitMeta(x) {
-            var lv = itemLevel(x);
-            var unit = String((x && (x.unit_label || x.unit)) || '');
-            var dept = String((x && (x.department || x.phong || x.departmentId)) || '');
-            var viewer = currentUser || {};
-            var viewerWide = window.VksRbac && VksRbac.isUnitWide ? VksRbac.isUnitWide(viewer) : (viewer.level === 'toi_cao' || viewer.username === 'admin');
-            if (!dept && !viewerWide && viewer.level !== 'khuvuc') dept = String(viewer.department || viewer.phong || viewer.departmentId || '');
-            if (!unit) {
-                if (lv === 'khuvuc') unit = String(viewer.unit || viewer.unit_label || 'VKSND khu vực');
-                else if (lv === 'toi_cao') unit = 'VKSND tối cao';
-                else unit = 'VKSND TP. Cần Thơ';
+        function pad2(n) { return n < 10 ? '0' + n : String(n); }
+        function classifyPilot(blob, regionId) {
+            var text = String(blob || '');
+            var kv = String(regionId || '').match(/kv(\d+)/i);
+            if (!kv) kv = text.match(/khu\s*vực\s*0*(\d+)/i);
+            if (!kv) kv = text.match(/\bkv\s*0*(\d+)\b/i);
+            if (kv) {
+                var n = parseInt(kv[1], 10);
+                if (n >= 1 && n <= 14) return { key: 'kv-' + n, label: 'VKSND khu vực ' + pad2(n), order: 20 + n, level: 'khuvuc' };
             }
-            var label = unit;
-            if (lv !== 'khuvuc' && dept && !/khu\s*vực/i.test(unit)) label = unit + ' · ' + deptPretty(dept);
-            return { key: lv + '|' + label, label: label, level: lv };
+            if (/tối cao|toi_cao|\bvu_|\bvụ\s/i.test(text) && !/phòng|phong_|thanh tra/i.test(text)) return null;
+            if (/phong_12|phòng\s*12|phong\s*12|thanh_tra|thanh tra|\bttkt\b|\bctt\./i.test(text)) return { key: 'p12', label: 'Phòng 12', order: 4, level: 'tinh' };
+            if (/phong_11|phòng\s*11|phong\s*11|\btp11\b/i.test(text)) return { key: 'p11', label: 'Phòng 11', order: 3, level: 'tinh' };
+            if (/phong_10|phòng\s*10|phong\s*10|\btp10\b/i.test(text)) return { key: 'p10', label: 'Phòng 10', order: 2, level: 'tinh' };
+            if (/phong_9|phòng\s*9|phong\s*9|\btp9\b/i.test(text)) return { key: 'p9', label: 'Phòng 9', order: 1, level: 'tinh' };
+            return null;
+        }
+        function recordBlob(x) {
+            x = x || {};
+            return [x.createdBy, x.nguoi_nhap, x.nguoi_tao, x.departmentId, x.department, x.phong, x.unit, x.unit_label, x.regionId, x.ownerLevel, x.level].join(' ');
+        }
+        function pilotSlot(x) {
+            if (!x) return null;
+            if ((x.ownerLevel === 'toi_cao' || x.level === 'toi_cao') && !/phòng|phong_|thanh/i.test(recordBlob(x))) return null;
+            return classifyPilot(recordBlob(x), x.regionId);
+        }
+        function viewerSlot() {
+            var u = currentUser || {};
+            return classifyPilot([u.username, u.department, u.departmentId, u.phong, u.unit, u.unit_label, u.level].join(' '), u.regionId);
+        }
+        function viewerSeesAll() {
+            var u = currentUser || {};
+            if (u.username === 'admin' || u.level === 'toi_cao') return true;
+            if (u.level === 'khuvuc') return false;
+            var slot = viewerSlot();
+            if (slot && slot.key.indexOf('kv-') === 0) return false;
+            if (slot && window.VksRbac && VksRbac.isUnitWide && !VksRbac.isUnitWide(u)) return false;
+            return true;
+        }
+        function pilotRoster() {
+            var list = [
+                { key: 'p9', label: 'Phòng 9', order: 1, level: 'tinh' },
+                { key: 'p10', label: 'Phòng 10', order: 2, level: 'tinh' },
+                { key: 'p11', label: 'Phòng 11', order: 3, level: 'tinh' },
+                { key: 'p12', label: 'Phòng 12', order: 4, level: 'tinh' }
+            ];
+            for (var i = 1; i <= 14; i++) list.push({ key: 'kv-' + i, label: 'VKSND khu vực ' + pad2(i), order: 20 + i, level: 'khuvuc' });
+            return list;
+        }
+        function itemLevel(x) {
+            var slot = pilotSlot(x);
+            if (slot) return slot.level;
+            var mine = viewerSlot();
+            return mine ? mine.level : 'tinh';
         }
         function ensureGroup(x) {
-            var meta = unitMeta(x);
-            if (!groups[meta.key]) groups[meta.key] = { label: meta.label, level: meta.level, lines: {} };
+            var meta = pilotSlot(x) || viewerSlot();
+            if (!meta) return null;
+            if (!viewerSeesAll()) {
+                var mine = viewerSlot();
+                if (mine && meta.key !== mine.key) return null;
+            }
+            if (!groups[meta.key]) groups[meta.key] = { label: meta.label, level: meta.level, order: meta.order, lines: {} };
             return groups[meta.key];
         }
         function add(id, label, hint, times, pts) {
             var g = ensureGroup(cur || {});
+            if (!g) return;
             if (!g.lines[id]) g.lines[id] = { id: id, label: label, hint: hint, count: 0, points: 0 };
             if (times > 0) { g.lines[id].count += times; g.lines[id].points += pts * times; }
         }
@@ -525,7 +561,7 @@
             if (num(x.reviewRounds)) add('V.3', 'Phúc tra THADS', '200/120/60', num(x.reviewRounds), band(200, 120, 60));
             if (num(x.monthlyReports)) add('V.4', 'Số liệu chuyên đề THADS', '100/60/30 mỗi tháng', num(x.monthlyReports), band(100, 60, 30));
             else if (on(x.monthlyNoticeSent)) {
-                var key = unitMeta(x).key + '|' + String(x.receivedDate || x.ngay_nhan || '').slice(0, 7);
+                var key = (pilotSlot(x) || { key: 'na' }).key + '|' + String(x.receivedDate || x.ngay_nhan || '').slice(0, 7);
                 if (!months[key]) { months[key] = 1; add('V.4', 'Số liệu chuyên đề THADS', '100/60/30 mỗi tháng', 1, band(100, 60, 30)); }
             }
             if (on(x.kienNghi)) add('VII.3', 'Kiến nghị theo vụ việc', '100/80/60', 1, band(100, 80, 60));
@@ -534,10 +570,16 @@
             return String(s || '').replace(/&/g, '&' + 'amp;').replace(/</g, '<').replace(/>/g, '>');
         }
         var order = ['II.1','II.2','II.3a','II.3b','II.3c','III.1','III.2','III.3','V.1','V.2','V.3','V.4','VI.1.1','VI.1.2','VI.2.1','VI.2.2','VI.2.3','VI.3.1','VI.3.2','VII.1','VII.2','VII.3','VII.4','VII.5','VII.6','VII.7'];
-        var keys = Object.keys(groups).sort(function (a, b) { return groups[a].label.localeCompare(groups[b].label, 'vi'); });
+        var keys = Object.keys(groups).sort(function (a, b) { return (groups[a].order || 0) - (groups[b].order || 0); });
+        if (viewerSeesAll()) {
+            pilotRoster().forEach(function (slot) {
+                if (!groups[slot.key]) groups[slot.key] = { label: slot.label, level: slot.level, order: slot.order, lines: {} };
+            });
+            keys = pilotRoster().map(function (slot) { return slot.key; });
+        }
         if (!keys.length) keys = ['__empty'];
         document.getElementById('kpi287-card').style.display = 'block';
-        document.getElementById('kpi287').innerHTML = '<p style="margin:0 0 8px;font-size:13px;">Mỗi đơn vị được chấm riêng trên hồ sơ do chính đơn vị nhập. Phòng 9 không cộng điểm với Phòng 10 hay khu vực. Hồ sơ chưa chọn mức phức tạp được tính mức 1. Mục I hình sự và mục IV giam giữ, thi hành án hình sự không chấm cho dân sự, THADS, khiếu tố.</p>' +
+        document.getElementById('kpi287').innerHTML = '<p style="margin:0 0 8px;font-size:13px;">Thí điểm VKSND TP. Cần Thơ: chỉ đánh giá Phòng 9, Phòng 10, Phòng 11, Phòng 12 và VKSND khu vực 01–14. VKSND tối cao không đưa vào đánh giá. Mỗi đơn vị chỉ tính hồ sơ của đơn vị đó.</p>' +
             keys.map(function (key) {
                 var g = groups[key] || { label: (currentUser.unit_label || currentUser.unit || 'Đơn vị'), lines: {} };
                 var rows = order.filter(function (id) { return g.lines[id]; }).map(function (id) { return g.lines[id]; });

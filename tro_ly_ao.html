@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>TRỢ LÝ ẢO</title>
     <link rel="stylesheet" href="static/theme.css?v=20260916c">
-    <script src="static/pwa.js?v=20260924b"></script>
+    <script src="static/pwa.js?v=20260924c"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -165,7 +165,7 @@
             const key = snap.val();
 
             if (!key) {
-                setStatus('ok', 'Trợ lý hướng dẫn phần mềm · không cần API');
+                setStatus('ok', 'Hướng dẫn phần mềm · AI miễn phí');
                 document.getElementById('user-input').disabled = false;
                 document.getElementById('user-input').placeholder = 'Hỏi cách dùng phần mềm...';
                 document.getElementById('send-btn').disabled = false;
@@ -187,7 +187,7 @@
             }
 
             GEMINI_KEY = key;
-            setStatus('ok', 'Groq AI đang hoạt động · Kết nối dữ liệu thật');
+            setStatus('ok', 'Hướng dẫn phần mềm · AI miễn phí');
 
             // Kích hoạt toàn bộ giao diện
             document.getElementById('user-input').disabled = false;
@@ -250,11 +250,57 @@
     // ===== GEMINI API =====
     // ===== GROQ API (miễn phí, hỗ trợ Việt Nam, cực nhanh) =====
     async function callGemini(question, context = '') {
-        if (!GEMINI_KEY) throw new Error('Chưa có API Key. Admin vui lòng cấu hình trong trang Cài đặt.');
+        const systemPrompt = `Bạn là Trợ lý ảo của Hệ thống Quản lý phần Dân sự — VKSND TP. Cần Thơ.
+Trả lời tiếng Việt, ngắn, đúng thao tác trên phần mềm. Không bịa menu.
+Thí điểm: Tòa án khu vực 01–14 và TAND TP. Cần Thơ. KPI chỉ Phòng 9, 10, 11, 12 và VKS khu vực 01–14, không chấm VKSND tối cao.
+Yêu cầu Giám đốc thẩm và Yêu cầu bồi thường oan sai mặc định thuộc thẩm quyền giải quyết.
+QĐ phân công KSV soạn trên hồ sơ theo Mẫu 71/HS.
+Hướng dẫn:
+- Đăng nhập bằng tài khoản được cấp. KSV do lãnh đạo tạo theo họ tên.
+- Án dân sự: Thụ lý mới. Bốn cấp: sơ thẩm, phúc thẩm, giám đốc thẩm, tái thẩm.
+- Danh sách thẩm phán được phân công giải quyết: nhập tên rồi lọc.
+- Kháng nghị của VKS: số, ngày ban hành, VKS ban hành mặc định đơn vị đang đăng nhập, nội dung.
+- THADS: QĐ của cơ quan THADS tỉnh/thành; nhận ủy thác đến; ủy thác đi.
+- Khiếu tố: phân loại đơn rồi chọn thẩm quyền. Chuyển đơn không tính trùng.
+- Báo cáo: Biểu 18–25, thẻ KPI QĐ 287.
+${context ? '\nSố lượng hồ sơ trong phạm vi tài khoản:\n' + context : ''}`;
 
-        const systemPrompt = `Bạn là Trợ lý ảo của Viện Kiểm sát Nhân dân, chuyên nghiệp về kiểm sát dân sự.
-Trả lời bằng tiếng Việt, ngắn gọn, chính xác. Trích dẫn điều luật cụ thể khi cần (BLTTDS 2015, BLDS 2015, Luật THADS...).
-${context ? '\n===DỮ LIỆU HỆ THỐNG===\n' + context + '\n===================' : ''}`;
+        async function readChat(res) {
+            if (!res.ok) throw new Error('AI ' + res.status);
+            const data = await res.json();
+            const text = data?.choices?.[0]?.message?.content;
+            if (!text) throw new Error('AI không trả lời');
+            return text;
+        }
+
+        const payload = {
+            messages: [
+                { role: 'system', content: systemPrompt },
+                { role: 'user', content: question }
+            ],
+            max_tokens: 700,
+            temperature: 0.3
+        };
+
+        try {
+            const free = await fetch('https://gen.pollinations.ai/v1/chat/completions', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(Object.assign({ model: 'openai' }, payload))
+            });
+            return await readChat(free);
+        } catch (e) { /* thử kênh dự phòng */ }
+
+        try {
+            const legacy = await fetch('https://text.pollinations.ai/openai', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(Object.assign({ model: 'openai' }, payload))
+            });
+            return await readChat(legacy);
+        } catch (e) { /* thử Groq nếu đơn vị đã cấu hình */ }
+
+        if (!GEMINI_KEY) throw new Error('Trợ lý AI miễn phí đang bận. Chọn mục hướng dẫn bên trái — phần này luôn trả lời được.');
 
         const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
             method: 'POST',
@@ -262,26 +308,9 @@ ${context ? '\n===DỮ LIỆU HỆ THỐNG===\n' + context + '\n================
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${GEMINI_KEY}`
             },
-            body: JSON.stringify({
-                model: 'llama-3.3-70b-versatile',
-                messages: [
-                    { role: 'system', content: systemPrompt },
-                    { role: 'user',   content: question }
-                ],
-                max_tokens: 1024,
-                temperature: 0.7
-            })
+            body: JSON.stringify(Object.assign({ model: 'llama-3.3-70b-versatile' }, payload))
         });
-
-        if (!res.ok) {
-            const err = await res.json().catch(() => ({}));
-            throw new Error(err.error?.message || `HTTP ${res.status}`);
-        }
-
-        const data = await res.json();
-        const text = data?.choices?.[0]?.message?.content;
-        if (!text) throw new Error('Groq không trả về nội dung');
-        return text;
+        return readChat(res);
     }
 
     function fmt(text) {
@@ -338,20 +367,42 @@ ${context ? '\n===DỮ LIỆU HỆ THỐNG===\n' + context + '\n================
     }
 
     const LOCAL_GUIDE = {
-        huong_dan_phan_mem: `Phần mềm Quản lý Dân sự — các bước chính:
-1) Đăng nhập bằng tài khoản đã cấp (dùng thử lãnh đạo: 123456; admin: mật khẩu riêng).
-2) Án dân sự: Thụ lý mới → số thụ lý, tên vụ, đương sự, KSV → Lưu. Chuyển án / Nhận án sang VKSND tối cao, TP. Cần Thơ, KV 01–14 (không tính trùng).
-3) Ra QĐ phân công KSV: chọn hồ sơ → Ra QĐ phân công. Soạn theo Mẫu 71/HS cho ba khâu: kiểm sát vụ án, kiểm sát QĐTHA, giải quyết khiếu nại tố cáo. Lưu, in hoặc tải Word.
-4) THADS: nhập QĐTHA của Cơ quan THADS tỉnh/thành; nhận ủy thác đến / ủy thác đi. Phân công KSV rồi ra QĐ.
-5) Khiếu tố: chọn thẩm quyền giải quyết / kiểm sát / không thuộc. Chuyển đơn đúng nơi nhận.
-6) Báo cáo: Biểu 18–25 theo QĐ 358. Viện trưởng và Phó viện trưởng xem đủ 3 phần; Phòng 9–10 chỉ dân sự, Phòng 11 chỉ THA, Thanh tra/Vụ 12 chỉ khiếu tố.`,
-        qd_phan_cong: `Ra Quyết định phân công Kiểm sát viên:
-• Dân sự: danh sách phân công KSV hoặc nút Ra QĐ trên hồ sơ.
-• THADS: nút Ra quyết định phân công KSV trên form việc THA.
-• Khiếu tố: nút Ra quyết định phân công KSV trên form đơn.
-Bố cục Mẫu 71/HS — Thông tư 03/2026/TT-VKSTC. Rà soát số QĐ, ngày ký, họ tên KSV và Viện trưởng trước khi in.`,
-        dang_nhap: `Đăng nhập bằng tên tài khoản. Mật khẩu dùng thử lãnh đạo VKSND TP. Cần Thơ và 14 khu vực: 123456. Tài khoản admin dùng mật khẩu riêng. KSV/KTV do lãnh đạo tạo theo từng họ tên — không dùng chung.`
+        huong_dan_phan_mem: `Cách dùng phần mềm Quản lý Dân sự — VKSND TP. Cần Thơ:
+
+1) Đăng nhập bằng tài khoản đã cấp. Lãnh đạo dùng thử mật khẩu 123456. Kiểm sát viên do lãnh đạo tạo theo họ tên, mỗi người một tài khoản.
+
+2) Án dân sự → Thụ lý mới. Nhập số thụ lý, tên vụ, đương sự, Kiểm sát viên. Chọn cấp xét xử: sơ thẩm, phúc thẩm, giám đốc thẩm hoặc tái thẩm. Tòa án chỉ gồm khu vực 01–14 và Tòa án nhân dân thành phố Cần Thơ.
+
+3) Danh sách thẩm phán được phân công giải quyết: gõ tên Thẩm phán Tòa án đã phân công, rồi chọn tên để chỉ xem vụ của Thẩm phán đó.
+
+4) Danh sách vụ án có kháng nghị của VKS: nhập số, ngày ban hành, VKS ban hành (mặc định đúng đơn vị đang đăng nhập) và nội dung kháng nghị.
+
+5) Ra quyết định phân công Kiểm sát viên nằm trên từng hồ sơ (án, thi hành án, khiếu tố), theo Mẫu 71/HS. Không còn mục riêng trên menu chính.
+
+6) Thi hành án: quyết định của cơ quan THADS tỉnh/thành. Nhận ủy thác đến hoặc kết thúc bằng ủy thác đi.
+
+7) Khiếu tố: phân loại đơn. Yêu cầu Giám đốc thẩm và Yêu cầu bồi thường oan sai tự chọn Thuộc thẩm quyền giải quyết.
+
+8) Báo cáo thống kê: Biểu 18–25 và thẻ KPI QĐ 287. Chỉ chấm Phòng 9, 10, 11, 12 và khu vực 01–14. VKSND tối cao không chấm.`,
+        qd_phan_cong: `Ra Quyết định phân công Kiểm sát viên ngay trên hồ sơ:
+• Án dân sự: chọn KSV → Ra QĐ phân công.
+• Thi hành án: nút Ra quyết định trên hồ sơ QĐTHA.
+• Khiếu tố: nút Ra quyết định trên đơn.
+Bố cục Mẫu 71/HS — Thông tư 03/2026/TT-VKSTC. Rà số, ngày, họ tên rồi Lưu, In hoặc Tải Word.`,
+        dang_nhap: `Đăng nhập bằng tên tài khoản. Mật khẩu dùng thử lãnh đạo VKSND TP. Cần Thơ và 14 khu vực: 123456. Admin dùng mật khẩu riêng. Quên mật khẩu thì gửi yêu cầu, lãnh đạo duyệt ở mục Tài khoản.`,
+        khang_nghi: `Vào Án dân sự → Danh sách các vụ án có Kháng nghị của VKS. Điền số, ngày ban hành, đơn vị ban hành (tài khoản khu vực nào thì mặc định VKS khu vực đó) và nội dung. Chọn loại phúc thẩm, giám đốc thẩm hoặc tái thẩm.`,
+        kpi: `Thẻ KPI QĐ 287 nằm trong Báo cáo thống kê. Chỉ đánh giá Phòng 9, Phòng 10, Phòng 11, Phòng 12 và VKSND khu vực 01–14. Hồ sơ Phòng 9 chỉ cộng điểm cho Phòng 9. VKSND tối cao không thuộc đơn vị thử nghiệm.`
     };
+
+    function matchLocal(q) {
+        const s = (q || '').toLowerCase();
+        if (/kpi|287|điểm|phòng 12|phong 12/.test(s)) return LOCAL_GUIDE.kpi;
+        if (/kháng nghị|khang nghi/.test(s)) return LOCAL_GUIDE.khang_nghi;
+        if (/phân công|quyết định|mẫu 71|mau 71/.test(s)) return LOCAL_GUIDE.qd_phan_cong;
+        if (/đăng nhập|mat khau|mật khẩu|tài khoản/.test(s)) return LOCAL_GUIDE.dang_nhap;
+        if (/hướng dẫn|huong dan|phần mềm|phan mem|thụ lý|tòa án|thẩm phán|khiếu|thi hành|ủy thác|báo cáo/.test(s)) return LOCAL_GUIDE.huong_dan_phan_mem;
+        return '';
+    }
 
     async function withoutData(prompt) {
         showTyping();
@@ -404,23 +455,9 @@ Bố cục Mẫu 71/HS — Thông tư 03/2026/TT-VKSTC. Rà soát số QĐ, ngà
 
     async function quickAction(key) {
         if (isSending) return;
-        if (!GEMINI_KEY && key !== 'huong_dan_phan_mem') {
-            if (LOCAL_GUIDE[key] || key === 'huong_dan_phan_mem') {
-                // fall through
-            } else if (!LOCAL_GUIDE.huong_dan_phan_mem) {
-                return;
-            }
-        }
         isSending = true; document.getElementById('send-btn').disabled = true;
         document.querySelectorAll('.quick-btn').forEach(b => b.disabled = true);
-        try {
-            if (!GEMINI_KEY && key !== 'huong_dan_phan_mem') {
-                addMessage('💻 Hướng dẫn phần mềm', true);
-                addMessage(fmt(LOCAL_GUIDE.huong_dan_phan_mem + '\n\n' + LOCAL_GUIDE.qd_phan_cong));
-            } else {
-                await quickActions[key]();
-            }
-        }
+        try { await quickActions[key](); }
         finally {
             isSending = false; document.getElementById('send-btn').disabled = false;
             document.querySelectorAll('.quick-btn').forEach(b => b.disabled = false);
@@ -439,14 +476,9 @@ Bố cục Mẫu 71/HS — Thông tư 03/2026/TT-VKSTC. Rà soát số QĐ, ngà
         isSending = true; document.getElementById('send-btn').disabled = true;
 
         const lower = q.toLowerCase();
-        if (['hướng dẫn','huong dan','phần mềm','phan mem','đăng nhập','phân công','quyết định'].some(k => lower.includes(k))) {
-            addMessage(fmt(LOCAL_GUIDE.huong_dan_phan_mem + '\n\n' + LOCAL_GUIDE.qd_phan_cong));
-            isSending = false; document.getElementById('send-btn').disabled = false;
-            return;
-        }
-
-        if (!GEMINI_KEY) {
-            addMessage(fmt(LOCAL_GUIDE.huong_dan_phan_mem));
+        const local = matchLocal(lower);
+        if (local && /hướng dẫn|huong dan|phần mềm|đăng nhập|phân công|kháng nghị|kpi|thụ lý|thẩm phán|khiếu tố|thi hành/.test(lower)) {
+            addMessage(fmt(local));
             isSending = false; document.getElementById('send-btn').disabled = false;
             return;
         }
@@ -463,7 +495,9 @@ Bố cục Mẫu 71/HS — Thông tư 03/2026/TT-VKSTC. Rà soát số QĐ, ngà
             const reply = await callGemini(q, context);
             removeTyping(); addMessage(fmt(reply));
         } catch(e) {
-            removeTyping(); addMessage(`⚠️ <strong>Lỗi:</strong> ${e.message}`);
+            removeTyping();
+            const local = matchLocal(q);
+            addMessage(local ? fmt(local) : ('⚠️ <strong>Lỗi:</strong> ' + e.message));
         }
 
         isSending = false; document.getElementById('send-btn').disabled = false;
