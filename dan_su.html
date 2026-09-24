@@ -8,7 +8,7 @@
     <!-- ds-chuyen-an-20260921 -->
     <link rel="stylesheet" href="static/theme.css?v=20260921c">
     <script src="static/rbac.js?v=20260921e"></script>
-    <script src="static/pwa.js?v=20260922c"></script>
+    <script src="static/pwa.js?v=20260924a"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="static/bmds-export.js?v=20260916d"></script>
     <script>
@@ -152,7 +152,7 @@
             <div class="sidebar-title" id="sidebar-title">DÂN SỰ</div>
             <ul>
                 <li class="active" data-mod="list" onclick="openModule('list', this)"><span class="folder">📁</span> Danh sách vụ việc</li>
-                <li data-mod="thamphan" onclick="openModule('thamphan', this)"><span class="folder">📁</span> Phân công danh sách Thẩm phán</li>
+                <li data-mod="thamphan" onclick="openModule('thamphan', this)"><span class="folder">📁</span> Danh sách thẩm phán được phân công giải quyết</li>
                 <li data-mod="ksv" onclick="openModule('ksv', this)"><span class="folder">📁</span> Danh sách phân công Kiểm sát viên</li>
                 <li data-mod="chuyen" onclick="openModule('chuyen', this)"><span class="folder">📁</span> Chuyển án</li>
                 <li data-mod="nhan" onclick="openModule('nhan', this)"><span class="folder">📁</span> Nhận án</li>
@@ -297,7 +297,7 @@
                     <div class="form-group full"><label>Tên vụ việc / Đương sự chính</label><input type="text" id="m_ten_vu_an" placeholder="VD: Nguyễn Thị Bích Trâm - ..."></div>
                     <div class="form-group full"><label>Nguyên đơn</label><textarea id="m_nguyen_don" placeholder="Họ tên nguyên đơn..."></textarea></div>
                     <div class="form-group full"><label>Bị đơn</label><textarea id="m_bi_don" placeholder="Họ tên bị đơn..."></textarea></div>
-                    <div class="form-group"><label>Thẩm phán</label><input type="text" id="m_tham_phan"></div>
+                    <div class="form-group"><label>Thẩm phán được phân công giải quyết</label><input type="text" id="m_tham_phan"></div>
                     <div class="form-group"><label>KSV thụ lý</label><input type="text" id="m_ksv"></div>
                     <div class="form-group"><label>Tòa án</label><select id="m_toa"><option value="Tòa án nhân dân thành phố Vũng Tàu">Tòa án nhân dân thành phố Vũng Tàu</option><option value="Tòa án nhân dân TP. Cần Thơ">Tòa án nhân dân TP. Cần Thơ</option></select></div>
                     <div class="form-group"><label>Mã vụ việc</label><input type="text" id="m_ma_vu_viec" placeholder="Tự sinh nếu để trống"></div>
@@ -360,6 +360,7 @@
         let isThaoTacMode = false;
         let currentLinhVuc = 'DS';
         let currentModule = 'list';
+        let judgeFilter = '';
 
         const LINH_VUC = {
             DS: 'Dân sự', HNGD: 'Hôn nhân và gia đình', KDTM: 'Kinh doanh, thương mại',
@@ -367,7 +368,7 @@
         };
         const MODULES = {
             list: { title: 'Danh sách vụ việc' },
-            thamphan: { title: 'Phân công danh sách Thẩm phán', help: 'Chọn vụ việc và ghi tên Thẩm phán được phân công xét xử. Lãnh đạo / cán bộ theo dõi được phân công; Kiểm sát viên chỉ xem vụ việc của mình.' },
+            thamphan: { title: 'Danh sách thẩm phán được phân công giải quyết', help: 'Nhập tên Thẩm phán Tòa án đã phân công để theo dõi. Chọn một Thẩm phán để lọc các vụ án của Thẩm phán đó.' },
             ksv: { title: 'Danh sách phân công Kiểm sát viên', help: 'Phân công Kiểm sát viên thụ lý. Mỗi KSV chỉ xem, theo dõi, quản lý và trích xuất vụ việc được phân công cho mình — không xem dữ liệu của tài khoản khác.' },
             chuyen: { title: 'Chuyển án', help: 'Chuyển hồ sơ sang VKSND tối cao, VKSND TP. Cần Thơ và Khu vực 01–14. Vụ đã chuyển sẽ xuất hiện ở mục Nhận án để đơn vị nhận xác nhận thụ lý.' },
             nhan: { title: 'Nhận án', help: 'Tiếp nhận các vụ việc đã được chuyển đến. Bấm “Nhận án” để xác nhận thụ lý tại đơn vị.' },
@@ -980,31 +981,48 @@
             return `<span class="pill pill-muted">Chưa chuyển</span>`;
         }
 
+        function setJudgeFilter(v) {
+            judgeFilter = v || '';
+            renderWork();
+        }
+
         function renderWork() {
             const rec = allRecords.find(r => r.id === selectedWorkId) || null;
             const lock = !canAssignNow();
             document.getElementById('work-help').innerText = MODULES[currentModule].help || '';
-            const list = workList();
+            let list = workList();
             let form = '';
             let roster = '';
             let thead = '';
             const disabled = lock ? 'disabled' : '';
+            if (currentModule === 'thamphan' && judgeFilter) {
+                list = list.filter(function (r) {
+                    var name = String(r.tham_phan || '').trim();
+                    if (judgeFilter === '__none__') return !name;
+                    return name === judgeFilter;
+                });
+            }
 
             if (currentModule === 'thamphan') {
-                roster = renderRoster('tham_phan');
-                form = `<h3>Phân công Thẩm phán</h3>
+                var judgeOpts = '<option value="">Tất cả</option><option value="__none__"' + (judgeFilter === '__none__' ? ' selected' : '') + '>Chưa ghi tên</option>' +
+                    judgeNames().map(function (n) {
+                        return '<option' + (judgeFilter === n ? ' selected' : '') + '>' + esc(n) + '</option>';
+                    }).join('');
+                form = `<h3>Danh sách thẩm phán được phân công giải quyết</h3>
                     <div class="form-grid">
+                        <div class="form-group full"><label>Lọc theo Thẩm phán</label>
+                            <select id="w_loc_tp" onchange="setJudgeFilter(this.value)">${judgeOpts}</select>
+                        </div>
                         <div class="form-group full"><label>Vụ việc</label><select id="w_case" onchange="selectWork(parseInt(this.value,10))">${caseOptions(selectedWorkId)}</select></div>
-                        <div class="form-group"><label>Thẩm phán hiện tại</label><input value="${esc(rec ? rec.tham_phan : '')}" disabled></div>
-                        <div class="form-group"><label>Phân công Thẩm phán</label>
-                            <select id="w_tham_phan_sel" ${disabled} onchange="if(this.value==='__other__'){document.getElementById('w_tham_phan').style.display='block'}else{document.getElementById('w_tham_phan').style.display='none';document.getElementById('w_tham_phan').value=this.value}">
+                        <div class="form-group"><label>Thẩm phán đang ghi nhận</label><input value="${esc(rec ? rec.tham_phan : '')}" disabled></div>
+                        <div class="form-group"><label>Tên Thẩm phán được phân công giải quyết</label>
+                            <select id="w_tham_phan_sel" onchange="if(this.value==='__other__'){document.getElementById('w_tham_phan').style.display='block'}else{document.getElementById('w_tham_phan').style.display='none';document.getElementById('w_tham_phan').value=this.value}">
                                 ${nameOptions(judgeNames(), rec ? rec.tham_phan : '')}
                             </select>
-                            <input id="w_tham_phan" placeholder="Nhập tên Thẩm phán" style="margin-top:6px;display:none" ${disabled}>
+                            <input id="w_tham_phan" placeholder="Nhập tên Thẩm phán, ví dụ Nguyễn Văn A" style="margin-top:6px;display:none">
                         </div>
                     </div>
-                    <div style="margin-top:12px;text-align:right"><button class="btn btn-primary" ${disabled} onclick="saveThamPhan()">💾 Lưu phân công</button></div>
-                    ${lock ? '<p style="margin:8px 0 0;color:#b45309;font-size:12px;">Tài khoản Kiểm sát viên không được phân công Thẩm phán.</p>' : ''}`;
+                    <div style="margin-top:12px;text-align:right"><button class="btn btn-primary" onclick="saveThamPhan()">💾 Lưu tên Thẩm phán</button></div>`;
                 thead = `<tr><th>STT</th><th>Vụ việc</th><th>Thẩm phán</th><th>KSV</th><th></th></tr>`;
             } else if (currentModule === 'ksv') {
                 roster = renderRoster('ksv');
@@ -1145,7 +1163,6 @@
         }
         async function saveThamPhan() {
             const id = workCaseId(); if (!id) return;
-            if (!canAssignNow()) { showToast('Bạn không được phân công Thẩm phán.', true); return; }
             const name = pickedName('w_tham_phan_sel', 'w_tham_phan');
             if (!name) { showToast('Nhập hoặc chọn Thẩm phán.', true); return; }
             await patchRecord(id, { tham_phan: name });

@@ -5,7 +5,7 @@
     <title>Báo cáo Thống kê Tổng hợp</title>
     <link rel="stylesheet" href="static/theme.css?v=20260916c">
     <script src="static/rbac.js?v=20260921e"></script>
-    <script src="static/pwa.js?v=20260922c"></script>
+    <script src="static/pwa.js?v=20260924a"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -208,6 +208,13 @@
         </div>
     </div>
 
+    <div class="table-card" id="kpi287-card" style="display:none;margin-bottom:18px;">
+        <div class="table-header">
+            <h3>Đánh giá KPI QĐ 287 — mục II, III, V, VI, VII</h3>
+        </div>
+        <div id="kpi287" style="padding:12px 16px;overflow:auto;"></div>
+    </div>
+
     <!-- Charts -->
     <div class="charts-grid" id="charts-section" style="display:none;">
         <div class="chart-card">
@@ -401,6 +408,96 @@
         allData = { an_dan_su: Object.keys(byKey).map(function (k) { return byKey[k]; }), thi_hanh_an: tha, don_khieu_to: dkt };
     }
 
+    function renderKpi287(ads, tha, dkt) {
+        var level = (currentUser.level === 'toi_cao' || currentUser.level === 'khuvuc' || currentUser.level === 'tinh') ? currentUser.level : 'tinh';
+        function band(tc, tinh, kv) {
+            if (level === 'toi_cao') return tc;
+            if (level === 'khuvuc') return kv == null ? 0 : kv;
+            return tinh;
+        }
+        function on(v) { return v === true || v === 1 || v === '1' || v === 'true'; }
+        function num(v) { var n = Number(v); return isFinite(n) && n > 0 ? Math.round(n) : 0; }
+        function muc(v) { var n = Math.round(Number(v) || 1); if (n < 1) n = 1; if (n > 4) n = 4; return n - 1; }
+        function done(x) {
+            var st = String(x.status || '');
+            return st === 'da_xet_xu' || st === 'dinh_chi' || st === 'khang_nghi' || !!(x.judgmentDate || x.ngay_ban_hanh || x.courtResult);
+        }
+        var lines = {};
+        function add(id, label, hint, times, pts) {
+            if (!lines[id]) lines[id] = { id: id, label: label, hint: hint, count: 0, points: 0 };
+            if (times > 0) { lines[id].count += times; lines[id].points += pts * times; }
+        }
+        var II = {
+            stV: [100,200,300,500], stE: [50,100,150,250],
+            ptV: [150,250,350,600], ptE: [75,125,175,300],
+            g0: [100,200,300,500], g1: [200,300,500,1000], g2: [120,250,350,600]
+        };
+        var III = { a: [100,200,300,500], b: [100,150,250,300], c: [100,200,300,500] };
+        ads.forEach(function (x) {
+            var i = muc(x.kpiLevel);
+            var viec = x.recordKind === 'viec';
+            var trial = String(x.trialLevel || x.cap_thu_ly || x.cap_xet_xu || '').toLowerCase();
+            var gdt = trial.indexOf('giam') >= 0 || trial.indexOf('giám') >= 0 || trial.indexOf('gđt') >= 0 || trial.indexOf('gdt') >= 0;
+            var pt = trial.indexOf('phuc') >= 0 || trial.indexOf('phúc') >= 0;
+            if (x.kpiTrack === 'khoi_kien') {
+                if (on(x.kkTiepNhan)) add('III.1', 'Khởi kiện — tiếp nhận, xác minh', '100/200/300/500', 1, III.a[i]);
+                if (on(x.kkSoTham)) add('III.2', 'Khởi kiện — sơ thẩm', '100/150/250/300', 1, III.b[i]);
+                if (on(x.kkPhucTham)) add('III.3', 'Khởi kiện — phúc thẩm/GĐT', '100/200/300/500', 1, III.c[i]);
+            } else if (done(x)) {
+                if (gdt) {
+                    if (x.gdtProduct === 'don_co_kn') add('II.3b', 'Đơn GĐT có kháng nghị', '200/300/500/1000', 1, II.g1[i]);
+                    else if (x.gdtProduct === 'xet_xu') add('II.3c', 'Xét xử GĐT xong', '120/250/350/600', 1, II.g2[i]);
+                    else if (x.gdtProduct === 'don_khong_kn') add('II.3a', 'Đơn GĐT không kháng nghị', '100/200/300/500', 1, II.g0[i]);
+                } else if (pt) add('II.2', 'Xét xử phúc thẩm', 'Vụ 150–600 · Việc 75–300', 1, (viec ? II.ptE : II.ptV)[i]);
+                else add('II.1', 'Giải quyết sơ thẩm', 'Vụ 100–500 · Việc 50–250', 1, (viec ? II.stE : II.stV)[i]);
+            }
+            if (on(x.khangNghiPT) || on(x.kpiKhangNghiPt)) add('VII.1', 'Kháng nghị phúc thẩm', '250/200/150', 1, band(250, 200, 150));
+            if (on(x.khangNghiGdt) || on(x.kpiKhangNghiGdt)) add('VII.2', 'Kháng nghị GĐT/TT', '300/250 · khu vực không chấm', 1, band(300, 250, null));
+            if (on(x.kienNghi) && x.kienNghiType === 'tong_hop') add('VII.4', 'Kiến nghị tổng hợp', '150/100/80', 1, band(150, 100, 80));
+            else if (on(x.kienNghi) || on(x.kpiKienNghiVu)) add('VII.3', 'Kiến nghị theo vụ việc', '100/80/60', 1, band(100, 80, 60));
+            if (on(x.experienceNotice) || on(x.kpiExperienceNotice)) add('VII.5', 'Thông báo rút kinh nghiệm', '150/100 · khu vực không chấm', 1, band(150, 100, null));
+            if (on(x.guidanceReply) || on(x.kpiGuidanceReply)) add('VII.6', 'Trả lời thỉnh thị', '200/150 · khu vực không chấm', 1, band(200, 150, null));
+            if (on(x.professionalExchange) || on(x.kpiExchange)) add('VII.7', 'Trao đổi nghiệp vụ', '50/50/50', 1, band(50, 50, 50));
+        });
+        dkt.forEach(function (x) {
+            var turns = num(x.receptionTurns) || (on(x.leaderReception) ? 1 : 0);
+            if (turns) add('VI.1.1', 'Tiếp công dân', '10/8/5 mỗi lượt', turns, band(10, 8, 5));
+            var loai = x.authority === 'khong_thuoc' || on(x.duplicate);
+            if (loai) add('VI.1.2', 'Đơn không thuộc TQ / đơn trùng', '5/3/2', 1, band(5, 3, 2));
+            var xong = x.status === 'da_giai_quyet' || !!(x.decisionDate || x.ket_qua_ngay);
+            if (xong && !loai) {
+                if (x.resolveMode === 'doan') add('VI.2.2', 'Đơn phức tạp — Đoàn xác minh', '300/200/150', 1, band(300, 200, 150));
+                else if (x.resolveMode === 'kiem_tra_lai') add('VI.2.3', 'Kiểm tra lại quyết định', '200/150/100', 1, band(200, 150, 100));
+                else add('VI.2.1', 'Giải quyết đơn thông thường', '150/100/70', 1, band(150, 100, 70));
+            }
+            if (num(x.inspectRounds)) add('VI.3.1', 'TTKS giải quyết KN/TC', '500/300/200', num(x.inspectRounds), band(500, 300, 200));
+            if (num(x.reviewRounds)) add('VI.3.2', 'Phúc tra KN/TC', '200/120/60', num(x.reviewRounds), band(200, 120, 60));
+        });
+        var months = {};
+        tha.forEach(function (x) {
+            if (num(x.inspectRounds)) add('V.1', 'Trực tiếp kiểm sát THADS', '600/360/180 mỗi cuộc', num(x.inspectRounds), band(600, 360, 180));
+            var files = num(x.complaintFiles) || (on(x.complaintTha) ? 1 : 0);
+            if (files) add('V.2', 'Hồ sơ KN/TC về THADS', '100/60/30', files, band(100, 60, 30));
+            if (num(x.reviewRounds)) add('V.3', 'Phúc tra THADS', '200/120/60', num(x.reviewRounds), band(200, 120, 60));
+            if (num(x.monthlyReports)) add('V.4', 'Số liệu chuyên đề THADS', '100/60/30 mỗi tháng', num(x.monthlyReports), band(100, 60, 30));
+            else if (on(x.monthlyNoticeSent)) {
+                var key = (x.provinceId || '') + '|' + (x.regionId || '') + '|' + String(x.receivedDate || x.ngay_nhan || '').slice(0, 7);
+                if (!months[key]) { months[key] = 1; add('V.4', 'Số liệu chuyên đề THADS', '100/60/30 mỗi tháng', 1, band(100, 60, 30)); }
+            }
+            if (on(x.kienNghi)) add('VII.3', 'Kiến nghị theo vụ việc', '100/80/60', 1, band(100, 80, 60));
+        });
+        var order = ['II.1','II.2','II.3a','II.3b','II.3c','III.1','III.2','III.3','V.1','V.2','V.3','V.4','VI.1.1','VI.1.2','VI.2.1','VI.2.2','VI.2.3','VI.3.1','VI.3.2','VII.1','VII.2','VII.3','VII.4','VII.5','VII.6','VII.7'];
+        var rows = order.filter(function (id) { return lines[id]; }).map(function (id) { return lines[id]; });
+        var total = rows.reduce(function (s, r) { return s + r.points; }, 0);
+        document.getElementById('kpi287-card').style.display = 'block';
+        document.getElementById('kpi287').innerHTML = '<p style="margin:0 0 8px;font-size:13px;">Điểm theo cấp đang xem (' + (level === 'toi_cao' ? 'tối cao' : level === 'khuvuc' ? 'khu vực' : 'tỉnh') + '). Hồ sơ chưa chọn mức phức tạp được tính mức 1. Tổng: <b>' + total + '</b> điểm.</p>' +
+            '<table style="width:100%;border-collapse:collapse;font-size:13px;"><thead><tr style="background:#0c3b8c;color:#fff;"><th style="text-align:left;padding:8px;">Mục</th><th style="text-align:left;padding:8px;">Tiêu chí</th><th style="padding:8px;">Khung</th><th style="padding:8px;">Số SP</th><th style="padding:8px;">Điểm</th></tr></thead><tbody>' +
+            (rows.length ? rows.map(function (r) {
+                return '<tr><td style="padding:6px 8px;border-bottom:1px solid #e5e7eb;">' + r.id + '</td><td style="padding:6px 8px;border-bottom:1px solid #e5e7eb;">' + r.label + '</td><td style="padding:6px 8px;border-bottom:1px solid #e5e7eb;">' + r.hint + '</td><td style="padding:6px 8px;text-align:right;border-bottom:1px solid #e5e7eb;">' + r.count + '</td><td style="padding:6px 8px;text-align:right;border-bottom:1px solid #e5e7eb;"><b>' + r.points + '</b></td></tr>';
+            }).join('') : '<tr><td colspan="5" style="padding:12px;">Chưa có sản phẩm được chấm trong kỳ này.</td></tr>') +
+            '</tbody></table>';
+    }
+
     // ===== RENDER =====
     async function loadReport() {
         // Show loading
@@ -460,6 +557,7 @@
                 </div>
             </div>
         `;
+        renderKpi287(filteredAds, filteredTha, filteredDkt);
 
         // ===== BIỂU ĐỒ =====
         if (total > 0) {
