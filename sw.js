@@ -1,4 +1,4 @@
-const CACHE = "vks-dansu-app-v20260924c";
+const CACHE = "vks-dansu-app-v20260924d";
 const PRECACHE = [
   "./",
   "./index.html",
@@ -11,7 +11,9 @@ const PRECACHE = [
   "./static/pwa.js",
   "./static/icon-192.png",
   "./static/icon-512.png",
-  "./manifest.webmanifest"
+  "./manifest.webmanifest",
+  "./tong_hop_vi_pham.html",
+  "./static/vi-pham.js"
 ];
 
 self.addEventListener("install", function (event) {

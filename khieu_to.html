@@ -7,7 +7,7 @@
     <!-- v=20260921-kt: đề xuất xử lý theo thẩm quyền kiểm sát / không thuộc -->
     <link rel="stylesheet" href="static/theme.css?v=20260921a">
     <script src="static/rbac.js?v=20260921e"></script>
-    <script src="static/pwa.js?v=20260924c"></script>
+    <script src="static/pwa.js?v=20260924d"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
@@ -247,7 +247,11 @@
             </table>
         </div>
     </div>
+    <div class="container" style="padding-top:0">
+        <div style="flex:1 1 100%" id="vipham-root"></div>
+    </div>
 
+    <script src="static/vi-pham.js?v=20260924d"></script>
     <script>
         var firebaseConfig = {
             apiKey: "AIzaSyDunRDIeyBTVXTODoO22ywk1Q35cCx2sV8",
@@ -524,15 +528,22 @@
             document.getElementById('btn-save').innerText = 'LƯU HỒ SƠ';
         }
 
+        let ktHosts = [];
         function loadData() {
             db.ref('don_khieu_to').on('value', (snapshot) => {
                 const datas = snapshot.val();
                 let html = '';
                 let stt = 1;
+                ktHosts = [];
                 if (datas) {
                     Object.keys(datas).forEach(key => {
                         const item = datas[key];
                         if (window.VksRbac && !VksRbac.canSeeRecord(VksRbac.parseProfile(), item)) return;
+                        ktHosts.push({
+                            id: key,
+                            title: item.ho_ten || item.petitioner || 'Đơn khiếu tố',
+                            sub: [item.phan_loai || '', item.ngay_nhan || '', item.qd_thu_ly_so || ''].filter(Boolean).join(' · ')
+                        });
                         const tomTat = item.noi_dung ? item.noi_dung.substring(0, 60) + '...' : '';
                         const pdfLink = item.pdf_url ? `<a href="${item.pdf_url}" target="_blank" class="btn-pdf">PDF</a>` : 'Không có';
 
@@ -554,6 +565,7 @@
                     });
                 }
                 document.getElementById('table-body').innerHTML = html || '<tr><td colspan="10" style="text-align:center;color:#999">Chưa có đơn nào</td></tr>';
+                if (window.VksViPham) VksViPham.refresh('khieuto');
             });
         }
 
@@ -632,6 +644,13 @@
             }
             loadData();
             toggleThamQuyen();
+            if (window.VksViPham) {
+                VksViPham.mount(document.getElementById('vipham-root'), {
+                    source: 'khieuto',
+                    sourceLabel: 'Khiếu nại, tố cáo',
+                    hosts: function () { return ktHosts; }
+                });
+            }
         };
     </script>
 </body>

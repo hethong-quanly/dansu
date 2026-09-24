@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tổng hợp vi phạm, kiến nghị, thông báo rút kinh nghiệm</title>
+    <script>
+        (function(){try{var t=localStorage.getItem('vks-dansu-theme');if(t!=='dark'&&t!=='light')t='light';document.documentElement.setAttribute('data-theme',t);}catch(e){}})();
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="static/theme.css?v=20260916c">
+    <script src="static/rbac.js?v=20260921e"></script>
+    <script src="static/pwa.js?v=20260924d"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="static/vi-pham.js?v=20260924d"></script>
+    <style>
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: 'Be Vietnam Pro', sans-serif; background: #071a4a; color: #122033; }
+        header { background: #071a4a; color: #ffe566; padding: 16px 20px; display: flex; align-items: center; gap: 16px; }
+        header a { color: #fff; text-decoration: none; font-weight: 700; background: rgba(255,255,255,.15); padding: 8px 14px; border-radius: 8px; white-space: nowrap; }
+        header h1 { margin: 0; font-size: 18px; color: #ffe566; }
+        .wrap { max-width: 1100px; margin: 0 auto; padding: 18px 14px 40px; }
+        .panel { background: #fff; border-radius: 16px; padding: 18px; border: 1px solid rgba(245,215,110,.45); }
+        [data-theme="dark"] .panel { background: #0c2554; color: #f4f7fb; }
+        .filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: end; margin-bottom: 14px; }
+        .filters label { display: flex; flex-direction: column; gap: 4px; font-size: 12px; font-weight: 700; }
+        .filters select, .filters input { font: inherit; padding: 8px; border: 1px solid #7eb3e6; border-radius: 8px; }
+        .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+        @media (max-width: 700px) { .cards { grid-template-columns: 1fr; } }
+        .card { background: #eef3fb; border-radius: 12px; padding: 12px 14px; }
+        .card b { display: block; font-size: 28px; color: #0c3b8c; }
+        .card span { font-size: 12px; color: #5c6b80; }
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th, td { border: 1px solid #d5deee; padding: 8px; text-align: left; vertical-align: top; }
+        th { background: #071a4a; color: #ffe566; }
+        .scroll { overflow: auto; }
+        .empty { text-align: center; color: #667; padding: 28px; }
+    </style>
+</head>
+<body>
+<header>
+    <a href="index.html">← Menu chính</a>
+    <h1>Tổng hợp vi phạm, kiến nghị, thông báo rút kinh nghiệm</h1>
+</header>
+<div class="wrap">
+    <div class="panel">
+        <div class="filters">
+            <label>Mốc thời gian
+                <select id="preset">
+                    <option value="week">01 tuần</option>
+                    <option value="month">01 tháng</option>
+                    <option value="half">06 tháng</option>
+                    <option value="year" selected>01 năm</option>
+                    <option value="custom">Tùy chỉnh</option>
+                </select>
+            </label>
+            <label>Từ ngày <input type="date" id="from"></label>
+            <label>Đến ngày <input type="date" id="to"></label>
+            <label>Phần
+                <select id="phan">
+                    <option value="">Tất cả</option>
+                    <option value="dansu">I. Án dân sự</option>
+                    <option value="khieuto">II. Khiếu nại, tố cáo</option>
+                    <option value="thads">III. Thi hành án</option>
+                </select>
+            </label>
+        </div>
+        <div class="cards">
+            <div class="card"><b id="n-total">0</b><span>Vi phạm</span></div>
+            <div class="card"><b id="n-kn">0</b><span>Kiến nghị</span></div>
+            <div class="card"><b id="n-rkn">0</b><span>Thông báo rút kinh nghiệm</span></div>
+        </div>
+        <div class="scroll">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Phần</th>
+                        <th>Hồ sơ</th>
+                        <th>Cơ quan vi phạm</th>
+                        <th>Nội dung vi phạm</th>
+                        <th>Biện pháp tác động</th>
+                        <th>Thông báo rút kinh nghiệm</th>
+                    </tr>
+                </thead>
+                <tbody id="body"></tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<script>
+    (function () {
+        if (sessionStorage.getItem('vks_logged_in') !== 'true' || !localStorage.getItem('vks_user')) {
+            alert('Vui lòng đăng nhập trước!');
+            location.href = 'login.html';
+            return;
+        }
+        function iso(d) {
+            var m = String(d.getMonth() + 1).padStart(2, '0');
+            var day = String(d.getDate()).padStart(2, '0');
+            return d.getFullYear() + '-' + m + '-' + day;
+        }
+        function bounds(preset) {
+            var now = new Date();
+            var y = now.getFullYear();
+            if (preset === 'week') {
+                var day = now.getDay() || 7;
+                var start = new Date(now.getFullYear(), now.getMonth(), now.getDate() - day + 1);
+                var end = new Date(start); end.setDate(start.getDate() + 6);
+                return { from: iso(start), to: iso(end) };
+            }
+            if (preset === 'month') {
+                return { from: iso(new Date(y, now.getMonth(), 1)), to: iso(new Date(y, now.getMonth() + 1, 0)) };
+            }
+            if (preset === 'half') {
+                var h = now.getMonth() < 6;
+                return h ? { from: y + '-01-01', to: y + '-06-30' } : { from: y + '-07-01', to: y + '-12-31' };
+            }
+            if (preset === 'custom') {
+                return { from: document.getElementById('from').value, to: document.getElementById('to').value };
+            }
+            return { from: y + '-01-01', to: y + '-12-31' };
+        }
+        var all = [];
+        function paint() {
+            var preset = document.getElementById('preset').value;
+            var b = bounds(preset);
+            if (preset !== 'custom') {
+                document.getElementById('from').value = b.from;
+                document.getElementById('to').value = b.to;
+            }
+            var phan = document.getElementById('phan').value;
+            var rows = all.filter(function (n) {
+                if (phan && n.source !== phan) return false;
+                var d = n.date || '';
+                if (!d) return false;
+                if (b.from && d < b.from) return false;
+                if (b.to && d > b.to) return false;
+                return true;
+            });
+            document.getElementById('n-total').textContent = rows.length;
+            document.getElementById('n-kn').textContent = rows.filter(function (n) { return n.measure === 'kien_nghi'; }).length;
+            document.getElementById('n-rkn').textContent = rows.filter(VksViPham.isExperience).length;
+            var body = document.getElementById('body');
+            if (!rows.length) {
+                body.innerHTML = '<tr><td class="empty" colspan="6">Chưa có phát hiện vi phạm trong mốc thời gian này.</td></tr>';
+                return;
+            }
+            var label = { dansu: 'I. Án dân sự', khieuto: 'II. Khiếu nại, tố cáo', thads: 'III. Thi hành án' };
+            var e = VksViPham.esc;
+            body.innerHTML = rows.map(function (n) {
+                return '<tr><td>' + e(label[n.source] || n.sourceLabel || '') + '</td><td><b>' +
+                    e(n.hostTitle || '—') + '</b><br><small>' + e(n.hostSub || '') + ' · ' + VksViPham.fmt(n.date) +
+                    '</small></td><td>' + e(n.agency || '—') + '</td><td>' + e(n.content || '—') + '</td><td>' +
+                    e(VksViPham.measureText(n)) + '</td><td>' + e(n.experienceText || '—') + '</td></tr>';
+            }).join('');
+        }
+        ['preset', 'from', 'to', 'phan'].forEach(function (id) {
+            document.getElementById(id).addEventListener('change', paint);
+        });
+        VksViPham.onAll(function () {
+            all = VksViPham.rowsOf();
+            paint();
+        });
+    })();
+</script>
+</body>
+</html>

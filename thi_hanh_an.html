@@ -12,7 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="static/theme.css?v=20260916c">
     <script src="static/rbac.js?v=20260921f"></script>
-    <script src="static/pwa.js?v=20260924c"></script>
+    <script src="static/pwa.js?v=20260924d"></script>
     <style>
         * { box-sizing: border-box; }
         body { font-family: 'Be Vietnam Pro', sans-serif; margin: 0; }
@@ -275,6 +275,10 @@
             </table>
         </div>
     </div>
+    <div class="container" style="padding-top:0">
+        <div style="flex:1 1 100%" id="vipham-root"></div>
+    </div>
+    <script src="static/vi-pham.js?v=20260924d"></script>
 <script>
     var firebaseConfig = {
         apiKey: "AIzaSyDunRDIeyBTVXTODoO22ywk1Q35cCx2sV8",
@@ -474,6 +478,15 @@
                 html += '<tr><td>' + (stt++) + '</td><td>' + (item.so_qd_tha || '') + '</td><td>' + (item.ngay_nhan_qd || '') + '</td><td>' + (item.nguoi_phai_tha || '') + '</td><td>' + (item.so_ban_an || '') + (item.ma_tadt ? '<br><small>' + item.ma_tadt + '</small>' : '') + '</td><td>' + (item.tinh_trang_tha || '') + '</td><td>' + (item.ngay_thi_hanh_xong || '') + '</td><td>' + pdfLink + '</td><td><button class="btn-edit" onclick="editRecord(\'' + key + '\')">Sửa</button>' + ((window.VksRbac && VksRbac.isLeader(currentUser)) ? '<button class="btn-delete" onclick="deleteRecord(\'' + key + '\')">Xóa</button>' : '') + '</td></tr>';
             });
             document.getElementById('table-body').innerHTML = html || '<tr><td colspan="9" style="text-align:center;color:#999">Chưa có hồ sơ nào thuộc thẩm quyền của bạn</td></tr>';
+            window.__thaHosts = lastExportKeys.map(function (key, i) {
+                var item = lastExportTha[i] || {};
+                return {
+                    id: key,
+                    title: item.nguoi_phai_tha || item.so_qd_tha || 'Việc thi hành án',
+                    sub: [item.so_qd_tha || '', item.ngay_nhan_qd || ''].filter(Boolean).join(' · ')
+                };
+            });
+            if (window.VksViPham) VksViPham.refresh('thads');
         });
     }
     function toTadt(item) {
@@ -572,6 +585,13 @@
             if (!document.querySelector('#ksv_list input')) addKSV(currentUser.fullname || currentUser.username || '');
         }
         loadData();
+        if (window.VksViPham) {
+            VksViPham.mount(document.getElementById('vipham-root'), {
+                source: 'thads',
+                sourceLabel: 'Thi hành án dân sự',
+                hosts: function () { return window.__thaHosts || []; }
+            });
+        }
     };
 </script>
 </body>

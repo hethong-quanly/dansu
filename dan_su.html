@@ -8,7 +8,10 @@
     <!-- ds-chuyen-an-20260921 -->
     <link rel="stylesheet" href="static/theme.css?v=20260921c">
     <script src="static/rbac.js?v=20260921e"></script>
-    <script src="static/pwa.js?v=20260924c"></script>
+    <script src="static/pwa.js?v=20260924d"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <script src="static/vi-pham.js?v=20260924d"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <script src="static/bmds-export.js?v=20260916d"></script>
     <script>
@@ -160,6 +163,7 @@
                 <li data-mod="khangnghi" onclick="openModule('khangnghi', this)"><span class="folder">📁</span> Danh sách các vụ án có Kháng nghị của VKS</li>
                 <li data-mod="sauxx" onclick="openModule('sauxx', this)"><span class="folder">📁</span> Cập nhật thông tin sau xét xử</li>
                 <li data-mod="tongdat" onclick="openModule('tongdat', this)"><span class="folder">📁</span> Đăng văn bản tổng đạt lên cổng thông tin điện tử</li>
+                <li data-mod="vipham" onclick="openModule('vipham', this)"><span class="folder">📁</span> Phát hiện vi phạm</li>
             </ul>
         </div>
 
@@ -264,6 +268,9 @@
                         <tbody id="work-tbody"></tbody>
                     </table>
                 </div>
+            </div>
+            <div id="view-vipham" style="display:none;">
+                <div id="vipham-root"></div>
             </div>
         </div>
     </div>
@@ -381,7 +388,8 @@
             kc: { title: 'Cập nhật kháng cáo quá hạn', help: 'Ghi nhận kháng cáo của đương sự hoặc kháng nghị quá hạn theo Bộ luật Tố tụng dân sự.' },
             khangnghi: { title: 'Danh sách các vụ án có Kháng nghị của VKS', help: 'Nhập số, ngày ban hành, Viện kiểm sát ban hành và nội dung kháng nghị. Tài khoản đơn vị nào đang đăng nhập thì mặc định đơn vị đó ban hành. Phúc thẩm: VKS cùng cấp 15 ngày, VKS cấp trên trực tiếp 01 tháng. Giám đốc thẩm và tái thẩm theo thẩm quyền Viện trưởng VKS có thẩm quyền.' },
             sauxx: { title: 'Cập nhật thông tin sau xét xử', help: 'Cập nhật kết quả xét xử (giữ nguyên, sửa án, hủy án, đình chỉ, công nhận thỏa thuận…) sau khi có bản án / quyết định.' },
-            tongdat: { title: 'Đăng văn bản tổng đạt lên cổng thông tin điện tử', help: 'Ghi số, ngày và đường dẫn văn bản đã đăng trên cổng thông tin điện tử của ngành (hoặc liên thông TADT).' }
+            tongdat: { title: 'Đăng văn bản tổng đạt lên cổng thông tin điện tử', help: 'Ghi số, ngày và đường dẫn văn bản đã đăng trên cổng thông tin điện tử của ngành (hoặc liên thông TADT).' },
+            vipham: { title: 'Phát hiện vi phạm', help: 'Ghi cơ quan vi phạm, nội dung vi phạm và biện pháp tác động của Viện kiểm sát, kèm thông báo rút kinh nghiệm nếu có.' }
         };
         function padKv(n) { return (n < 10 ? '0' : '') + n; }
         function courtNames() {
@@ -563,6 +571,7 @@
             document.getElementById('sidebar-title').innerText = (LINH_VUC[lv] || 'Dân sự').toUpperCase();
             document.querySelector('.breadcrumb').innerHTML = `${esc(LINH_VUC[lv] || 'Dân sự')} > <span id="crumb">${esc(MODULES[currentModule].title)}</span>`;
             if (currentModule === 'list') renderTable(visibleCases());
+            else if (currentModule === 'vipham') { if (window.VksViPham) VksViPham.refresh('dansu'); }
             else renderWork();
         }
 
@@ -575,19 +584,45 @@
             if (crumb) crumb.innerText = MODULES[key].title;
             const list = document.getElementById('view-list');
             const work = document.getElementById('view-work');
+            const vip = document.getElementById('view-vipham');
             document.querySelectorAll('.secondary-bar .btn-icon').forEach(b => b.classList.remove('active'));
             if (key === 'list') {
                 list.style.display = '';
                 work.style.display = 'none';
+                if (vip) vip.style.display = 'none';
                 document.querySelector('.secondary-bar .btn-icon').classList.add('active');
                 renderTable(visibleCases());
+            } else if (key === 'vipham') {
+                list.style.display = 'none';
+                work.style.display = 'none';
+                if (vip) vip.style.display = '';
+                ensureVipham();
             } else {
                 list.style.display = 'none';
+                if (vip) vip.style.display = 'none';
                 work.style.display = '';
                 renderWork();
             }
         }
 
+
+        function danSuHosts() {
+            return visibleCases().map(function (r) {
+                return {
+                    id: String(r.id),
+                    title: r.ten_vu_an || r.so_ban_an || r.ma_vu_viec || ('Hồ sơ ' + r.id),
+                    sub: [r.so_thu_ly ? ('Số thụ lý ' + r.so_thu_ly) : '', r.ma_vu_viec || '', r.toa || ''].filter(Boolean).join(' · ')
+                };
+            });
+        }
+        function ensureVipham() {
+            if (!window.VksViPham) return;
+            VksViPham.mount(document.getElementById('vipham-root'), {
+                source: 'dansu',
+                sourceLabel: 'Án dân sự',
+                hosts: danSuHosts
+            });
+        }
         function showListView() {
             openModule('list', document.querySelector('.sidebar li[data-mod="list"]'));
         }
@@ -600,6 +635,7 @@
                     const raw = request.result || [];
                     allRecords = window.VksRbac ? raw.filter(r => VksRbac.canSeeRecord(VksRbac.parseProfile(), r)) : raw;
                     if (currentModule === 'list') renderTable(visibleCases());
+                    else if (currentModule === 'vipham') { if (window.VksViPham) VksViPham.refresh('dansu'); }
                     else renderWork();
                     resolve();
                 };
